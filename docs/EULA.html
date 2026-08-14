@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WavRead — Licence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+  /* WavRead design tokens (see DESIGN.md in the repo) */
+  :root {
+    --wr-bg: #0F1216;
+    --wr-surface-1: #15191E;
+    --wr-surface-2: #1B2027;
+    --wr-border: #292F38;
+    --wr-border-strong: #3B444F;
+    --wr-text: #F3F5F7;
+    --wr-text-2: #AEB6C1;
+    --wr-muted: #78828E;
+    --wr-accent: #4D8DFF;
+    --wr-accent-hover: #6AA0FF;
+    --wr-signal: #42C7BD;
+    --wr-success: #4CC38A;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --wr-bg: #F7F8FA;
+      --wr-surface-1: #FFFFFF;
+      --wr-surface-2: #F0F2F5;
+      --wr-border: #D9DEE5;
+      --wr-border-strong: #C4CBD4;
+      --wr-text: #171A1F;
+      --wr-text-2: #59616C;
+      --wr-muted: #78828E;
+      --wr-accent: #2E6FE0;
+      --wr-accent-hover: #1F5ECC;
+      color-scheme: light;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--wr-bg); color: var(--wr-text);
+    margin: 0 auto; max-width: 880px; padding: 48px 20px 72px;
+    line-height: 1.6; font-size: 15.5px;
+  }
+  .mono, pre, code { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
+  nav { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 56px; font-size: 14px; }
+  nav .wordmark { font-weight: 700; font-size: 17px; letter-spacing: -0.2px; }
+  nav a { color: var(--wr-text-2); text-decoration: none; }
+  nav a:hover { color: var(--wr-accent); }
+  nav .spacer { flex: 1; }
+  h1 { font-size: 42px; line-height: 1.12; margin: 0 0 16px; letter-spacing: -0.5px; }
+  h2 { font-size: 22px; margin: 56px 0 12px; }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  p { color: var(--wr-text-2); }
+  p strong { color: var(--wr-text); }
+  a { color: var(--wr-accent); }
+  a:hover { color: var(--wr-accent-hover); }
+  .btn {
+    display: inline-flex; align-items: center; height: 42px; padding: 0 18px;
+    border-radius: 6px; border: 1px solid var(--wr-border-strong);
+    background: var(--wr-surface-2); color: var(--wr-text);
+    text-decoration: none; font-size: 14px; margin: 4px 8px 4px 0;
+  }
+  .btn:hover { border-color: var(--wr-accent); color: var(--wr-text); }
+  .btn.primary { background: var(--wr-accent); border-color: var(--wr-accent); color: #fff; }
+  .btn.primary:hover { background: var(--wr-accent-hover); }
+  .trust { font-size: 13.5px; color: var(--wr-muted); margin-top: 10px; }
+  .flow {
+    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
+    border-radius: 10px; padding: 22px 24px; margin: 40px 0;
+    font-size: 13px; overflow-x: auto;
+  }
+  .flow .stage { color: var(--wr-muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .flow .wave { color: var(--wr-signal); letter-spacing: -1px; white-space: nowrap; }
+  .flow .arrow { color: var(--wr-muted); margin: 6px 0; }
+  .flow .metrics { color: var(--wr-text); line-height: 1.7; }
+  .flow .quote { color: var(--wr-text-2); font-family: inherit; font-size: 14px; }
+  .panel {
+    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
+    border-radius: 8px; padding: 18px 22px; margin: 16px 0; font-size: 14px;
+  }
+  .panel pre { margin: 8px 0 0; white-space: pre-wrap; color: var(--wr-text-2); font-size: 12.5px; background: none; padding: 0; }
+  ul { color: var(--wr-text-2); padding-left: 20px; }
+  li { margin: 3px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--wr-border); padding: 8px 12px; text-align: left; }
+  th { color: var(--wr-muted); font-weight: 500; font-size: 12.5px; }
+  td { color: var(--wr-text-2); }
+  pre.install {
+    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
+    border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 12.5px;
+    color: var(--wr-text-2);
+  }
+  .release { margin: 14px 0; }
+  .release h3 { margin-bottom: 2px; }
+  .release .date { color: var(--wr-muted); font-weight: 400; font-size: 13px; }
+  .release ul { margin: 4px 0; }
+  footer {
+    margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--wr-border);
+    font-size: 13.5px; color: var(--wr-muted);
+  }
+  figure.shot { margin: 28px 0; }
+  figure.shot img {
+    width: 100%; height: auto; display: block;
+    border: 1px solid var(--wr-border); border-radius: 10px;
+  }
+  figure.shot figcaption {
+    font-size: 13px; color: var(--wr-muted); margin-top: 8px;
+  }
+  :focus-visible { outline: 2px solid var(--wr-accent); outline-offset: 2px; }
+  @media (max-width: 480px) { h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<nav aria-label="Main"><span class="wordmark">WavRead</span>
+<a href="index.html">Home</a><span class="spacer"></span>
+<a class="btn primary" style="height:34px" href="index.html#download">Download</a></nav>
+<main>
+<h1>WavRead — End User Licence Agreement</h1>
+
+<p><strong>Version 1.0 · Effective 2026-08-14</strong></p>
+
+<p>This agreement is between you and Erik Mann (EZmannBuilds) (&quot;we&quot;, &quot;us&quot;), the</p>
+<p>owner of WavRead. By installing or using WavRead, you agree to it. If you do</p>
+<p>not agree, do not install or use WavRead.</p>
+
+<p>This is a plain-language agreement. It is written to be read.</p>
+
+<h2>1. What you get</h2>
+
+<p>When you obtain a licence for WavRead, we grant you a personal,</p>
+<p>non-exclusive, non-transferable licence to install and use WavRead on</p>
+<p>computers you own or control, for as long as you comply with this agreement.</p>
+
+<p>A purchased licence covers all updates within the same major version. A future</p>
+<p>major version may be a separate purchase.</p>
+
+<p>While WavRead is offered as a free beta, the same terms apply, and the licence</p>
+<p>lasts for as long as that beta is made available.</p>
+
+<h2>2. What you may not do</h2>
+
+<p>You may not:</p>
+
+<ul>
+<li>sell, rent, sublicense, or redistribute WavRead;</li>
+<li>copy it except for backup and normal installation;</li>
+<li>reverse engineer, decompile, or disassemble it, except where that right</li>
+</ul>
+<p>  cannot lawfully be excluded, or as permitted by the licences of third-party</p>
+<p>  components it includes;</p>
+<ul>
+<li>remove or obscure any copyright, licence, or attribution notice;</li>
+<li>use it to build a competing product.</li>
+</ul>
+
+<h2>3. Your music and your results stay yours</h2>
+
+<p>**We claim no rights in your audio, your analyses, or the documents WavRead</p>
+<p>produces.** They are yours, including for commercial use. Nothing in this</p>
+<p>agreement gives us any interest in your work.</p>
+
+<h2>4. Your files stay on your computer</h2>
+
+<p>WavRead analyses audio locally on your machine. It does not upload your audio,</p>
+<p>create an account, or collect analytics or telemetry.</p>
+
+<p>The one exception is a one-time download of the speech model used for lyric</p>
+<p>transcription, fetched from its publisher&#x27;s public repository when you first</p>
+<p>use that feature. That request contains nothing about you or your music, and</p>
+<p>every other feature works without a network connection.</p>
+
+<p>If you configure an external separation tool, that tool is not part of WavRead</p>
+<p>and behaves according to its own terms.</p>
+
+<h2>5. Third-party components</h2>
+
+<p>WavRead includes third-party software under its own licences, listed in the</p>
+<p><code>THIRD_PARTY_LICENSES</code> file supplied with the application. Those licences</p>
+<p>govern those components and take precedence over this agreement for them.</p>
+
+<p>WavRead does not include any audio separation model. If you supply stems or</p>
+<p>configure your own separation tool, it is your responsibility to hold whatever</p>
+<p>rights that tool and its models require.</p>
+
+<h2>6. What we don&#x27;t promise</h2>
+
+<p>WavRead&#x27;s measurements are produced by software and are provided <strong>as is</strong>.</p>
+<p>Values labelled *estimated* — including key, chords, lyrics, and melody — are</p>
+<p>inferences and may be wrong. Suggestions are analysis output, not professional</p>
+<p>advice, and decisions about your music remain yours.</p>
+
+<p>To the fullest extent permitted by law, WavRead is provided without warranties</p>
+<p>of any kind, express or implied, including merchantability, fitness for a</p>
+<p>particular purpose, and non-infringement.</p>
+
+<h2>7. Limits on liability</h2>
+
+<p>To the fullest extent permitted by law, we are not liable for indirect,</p>
+<p>incidental, special, or consequential damages, or for lost profits, lost data,</p>
+<p>or lost work, arising from your use of WavRead.</p>
+
+<p>Our total liability under this agreement will not exceed the amount you paid</p>
+<p>for WavRead in the twelve months before the claim, or, where you paid nothing,</p>
+<p>zero.</p>
+
+<p>Nothing here excludes liability that cannot lawfully be excluded, including for</p>
+<p>death or personal injury caused by negligence, or for fraud. Some jurisdictions</p>
+<p>do not allow certain exclusions, so parts of this section may not apply to you,</p>
+<p>and you may have rights under consumer law that this agreement does not affect.</p>
+
+<h2>8. Refunds</h2>
+
+<p>If you paid for WavRead and it does not work for you, contact us within 30 days</p>
+<p>of purchase and we will refund it. Statutory refund rights, where they apply,</p>
+<p>are in addition to this and are not limited by it.</p>
+
+<h2>9. Ending this licence</h2>
+
+<p>This licence ends if you materially breach it and do not correct the breach</p>
+<p>within 30 days of being notified. You may end it at any time by uninstalling</p>
+<p>WavRead. Sections 3, 6, 7, and 10 survive.</p>
+
+<h2>10. General</h2>
+
+<p>This agreement is the entire agreement about WavRead between you and us. If a</p>
+<p>provision is unenforceable, the rest remains in force. Failing to enforce a</p>
+<p>provision is not a waiver of it. We may update this agreement for future</p>
+<p>versions; the version supplied with the release you install governs that</p>
+<p>release.</p>
+
+<h2>Contact</h2>
+
+<p>Erik Mann (EZmannBuilds) — erikmann509@gmail.com</p>
+</main>
+<footer>WavRead · © 2026 Erik Mann · <a href="index.html">wavread</a></footer>
+</body>
+</html>
