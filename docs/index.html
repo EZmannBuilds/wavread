@@ -147,13 +147,21 @@ into measurements, explanations, and documents you can understand — or give to
 <h2 id="privacy">Everything stays on your computer</h2>
 <p>WavRead analyzes audio on your machine. Your music is not uploaded or sent to WavRead
 servers — there are none. No accounts, no tracking, no telemetry.</p>
-<p>Two things use the network, and neither sends anything about you or your music.
-Lyric transcription fetches a speech model (about 460&nbsp;MB) from its publisher the
-first time you use it, then caches it. And WavRead checks once a day whether a newer
-version has been published — one request to its public release page, no identifier
-attached, silent when you're offline, and switched off in Settings if you'd rather it
-never ran. It tells you an update exists; it never downloads or installs one.
-Everything else — including melody — works with no connection at all.</p>
+<p>Three things use the network. None of them sends anything about you or your music.</p>
+<ul>
+  <li><strong>Lyric transcription</strong> fetches a speech model (about 460&nbsp;MB) from
+  its publisher the first time you use it, then caches it.</li>
+  <li><strong>Stem separation</strong>, if you use the built-in backend, fetches its model
+  (about 80&nbsp;MB) from the model's publisher the first time you separate a track. Bring
+  your own stems, or point WavRead at a separation tool you already have, and this never
+  happens.</li>
+  <li><strong>Update checks</strong> ask once a day whether a newer version has been
+  published — one request to the public release page, no identifier attached, silent when
+  you're offline, and switched off in Settings if you'd rather it never ran. It tells you
+  an update exists; it never downloads or installs one.</li>
+</ul>
+<p>Everything else — measurement, structure, chords, melody, the feedback report — works
+with no connection at all.</p>
 
 <h2 id="how">How WavRead works</h2>
 <p>Drop in a finished track — or the separate stems of one song — and WavRead measures it:
@@ -224,10 +232,14 @@ that ships with the app.</p>
     <td>Broadcast-standard LUFS measurement</td></tr>
 </table>
 
-<h2 id="pricing">Free while in beta</h2>
-<p>WavRead is in open beta and free to use today. When it reaches 1.0 it becomes a paid
-app — a <strong>one-time purchase</strong>, not a subscription, since it runs on your
-computer and there is nothing for us to host. Beta users will be told before that happens.</p>
+<h2 id="pricing">Free during development</h2>
+<p>WavRead is free to use today, at version 1.2.1. It will become a paid app — a
+<strong>one-time purchase</strong>, not a subscription, since it runs on your computer and
+there is nothing for us to host.</p>
+<p>That change is not tied to a version number. It happens when the app is code-signed and
+notarized, because a paid download should not warn you about an unidentified developer on
+first launch. Signing needs an Apple Developer account, which isn't in place yet. You'll be
+told before anything starts costing money.</p>
 
 <h2 id="download">Download</h2>
 <p>
