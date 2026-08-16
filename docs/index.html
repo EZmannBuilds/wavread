@@ -13,8 +13,8 @@
 
 <nav aria-label="Main">
   <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="#how">How it works</a>
-  <a href="#privacy">Privacy</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="privacy.html">Privacy</a>
   <a href="capture.html">DAW capture</a>
   <a href="documents.html">The documents</a>
   <a href="requirements.html">Requirements</a>
@@ -43,54 +43,23 @@ into measurements, explanations, and documents you can understand — or give to
 </div>
 
 <h2 id="privacy">Everything stays on your computer</h2>
-<p>WavRead analyzes audio on your machine. Your music is not uploaded or sent to WavRead
-servers — there are none. No accounts, no tracking, no telemetry.</p>
-<p>Three things use the network. None of them sends anything about you or your music.</p>
-<ul>
-  <li><strong>Lyric transcription</strong> fetches a speech model (about 460&nbsp;MB) from
-  its publisher the first time you use it, then caches it.</li>
-  <li><strong>Stem separation</strong>, if you use the built-in backend, fetches its model
-  (about 80&nbsp;MB) from the model's publisher the first time you separate a track. Bring
-  your own stems, or point WavRead at a separation tool you already have, and this never
-  happens.</li>
-  <li><strong>Update checks</strong> ask once a day whether a newer version has been
-  published — one request to the public release page, no identifier attached, silent when
-  you're offline, and switched off in Settings if you'd rather it never ran. It tells you
-  an update exists; it never downloads or installs one.</li>
-</ul>
-<p>Everything else — measurement, structure, chords, melody, the feedback report — works
-with no connection at all.</p>
+<p>Your music is never uploaded — there are no WavRead servers to upload it to.
+No account, no telemetry, no identifier. Four requests exist in the whole app:
+a daily version check you can switch off, an update you asked for, and the two
+model downloads you only trigger by using separation or lyrics.</p>
+<p><a href="privacy.html">Every request, listed →</a></p>
 
 <h2 id="how">How WavRead works</h2>
-<p>Drop in a finished track — or the separate stems of one song — and WavRead measures it:
-tempo, key, loudness (LUFS), dynamics, frequency balance, stereo image, and song structure.
-It separates the mix into drums, bass, vocals, and other instruments, estimates the chord
-progression, transcribes the lyrics, and writes the vocal melody as notes.</p>
-<p>Everything lands in two documents:</p>
-
-<div class="panel">
-  <strong>Track Document</strong> — <em>facts about this track.</em>
-  <pre>Tempo        ~79.5 BPM        measured
-Key          G minor          estimated (confidence 0.86)
-Loudness     -19.5 dBFS RMS   measured
-Structure    8 sections — quiet intro, peak at 1:52, pull-back outro
-Chords       Gm · A# · D# · Cm
-Lyrics       transcribed with timestamps</pre>
-</div>
-
-<div class="panel">
-  <strong>Feedback Report</strong> — <em>what the analysis suggests.</em>
-  <pre>What's working
-• Strong dynamics: crest factor 17.6 dB.
-• A clear hook recurs through the track.
-
-What to fix or check
-1. 45.9% of energy sits in the low mids (150–500 Hz) —
-   the muddiness zone. Inspect the densest elements around 200–400 Hz.</pre>
-</div>
-
-<p>Estimates are labeled as estimates, with confidence. Measurements are labeled as
-measured. WavRead does not pretend to be more certain than the analysis allows.</p>
+<p>Drop in a finished track, a folder of stems, or capture a session straight
+from your DAW. WavRead measures tempo, key, loudness, dynamics, frequency
+balance, stereo image and structure on this computer, estimates the chords,
+melody and lyrics, and writes two documents: everything measured, and what it
+may mean.</p>
+<p>Every number is labelled for what it is — <strong>measured</strong>,
+<strong>detected</strong>, <strong>estimated</strong>, or
+<strong>unavailable</strong>. WavRead never claims more certainty than the
+analysis allows.</p>
+<p><a href="how-it-works.html">How it works, in full →</a></p>
 
 <figure class="shot">
   <img src="img/workspace-overview.png" alt="WavRead's track workspace: metric strip showing
@@ -200,7 +169,7 @@ signing is planned. Analyses made under the app's former name, SoundScribe, keep
   WavRead · © 2026 Erik Mann ·
   <a href="/EULA">Licence</a> ·
   <a href="https://buymeacoffee.com/ezmannbuilds">Support the project ☕</a>
-<br><a href="capture.html">DAW capture</a> · <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a> · <a href="faq.html">Questions</a>
+<br><a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> · <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a> · <a href="faq.html">Questions</a>
 </footer>
 </body>
 </html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, there are no accounts, and there is no telemetry — here is the full accounting.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>Everything stays on your computer</h1>
+<p class="lede">Your music is never uploaded. There are no WavRead servers to
+upload it to, no account to create, and no telemetry. This page lists every
+request the app can make, so the claim can be checked rather than trusted.</p>
+
+<div class="cols">
+  <div class="card">
+    <h3>No uploads</h3>
+    <p>Audio, stems, documents and measurements stay in a folder on your
+    machine.</p>
+  </div>
+  <div class="card">
+    <h3>No account</h3>
+    <p>No sign-in, no licence server, no email address, nothing to leak.</p>
+  </div>
+  <div class="card">
+    <h3>No telemetry</h3>
+    <p>No analytics, no crash reporting, no usage counters, no identifier.</p>
+  </div>
+  <div class="card">
+    <h3>No background activity</h3>
+    <p>WavRead does nothing while you are not using it, beyond one daily version
+    check you can switch off.</p>
+  </div>
+</div>
+
+<h2>Every request the app can make</h2>
+<p>Four, in the whole application. None of them sends anything about you or your
+music — the requests carry no identifier, no filenames and no measurements.</p>
+<table class="spec">
+  <tr><th>Update check</th>
+      <td>Once a day, one request to WavRead's public release page, asking only
+      what the newest published version is. It has no body and no identifier,
+      fails silently when you are offline, and is switched off for good in
+      Settings if you would rather it never ran.</td></tr>
+  <tr><th>Installing an update</th>
+      <td>Only when you press <em>Update now</em>. It downloads that release's
+      disk image from the public release page and checks it against the checksum
+      published in the release notes. Nothing installs on its own.</td></tr>
+  <tr><th>Stem separation model</th>
+      <td>About 80 MB, fetched once from the model's publisher the first time you
+      separate a mix into parts. Bring your own stems — or capture them from your
+      DAW — and this never happens.</td></tr>
+  <tr><th>Lyric transcription model</th>
+      <td>About 460 MB, fetched once from its publisher the first time you
+      transcribe lyrics, then cached. Skip lyrics and it is never
+      downloaded.</td></tr>
+</table>
+<p>Both models are downloads <em>of</em> software, not uploads of your audio: the
+model comes to your machine and runs there. Everything else — measurement,
+structure, chords, melody, the whole Feedback Report — needs no connection at
+all, and the app runs normally with the network off.</p>
+
+<div class="note">
+  <p>Melody transcription needs no download: that model ships inside the app.</p>
+</div>
+
+<h2>The capture plugin</h2>
+<p>WavRead Bridge talks to exactly one address — <code>127.0.0.1</code>, your own
+machine — and the app refuses any capture request that did not originate locally.
+The audio it records is written straight into WavRead's library folder on the
+drive you chose. Nothing about a session, its track names, or its audio goes
+anywhere else.</p>
+
+<h2>Where your files are</h2>
+<p>One folder holds everything: analyses, documents, separated stems, captures
+and copies of the audio you analysed. Settings shows you the exact path, how
+large it is, and how much room is left on that drive — and moves the whole
+library somewhere else if you want, copying first and removing the original only
+once the copy is complete.</p>
+<p>You can delete any part of it from inside the app, or in Finder. WavRead keeps
+no second copy anywhere, and nothing is retained after you delete it.</p>
+
+<h2>What is in a document</h2>
+<p>Track Documents contain measurements, structure, estimated chords and lyrics,
+and your own notes — no audio. If you paste one into an AI assistant, that is
+your decision and your assistant's privacy policy; WavRead never sends a document
+anywhere itself. Nothing in the app requires an AI at all.</p>
+
+<h2>What we would have to change to break this</h2>
+<p>A promise is worth more when it says what would falsify it. WavRead would have
+to gain: a server to send anything to, an account system to attach it to, or a
+request that carries your data. None of the three exists today. If any of them
+ever ships, it will be in the release notes as a change, not as a feature note —
+and the app's own About page carries this same accounting, so it travels with the
+software rather than living only on a website.</p>
+
+<p class="measured">Last checked against WavRead 1.4.4. The model download sizes
+are the actual sizes on disk after a first run: 80 MB for separation, 464 MB for
+lyric transcription.</p>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> ·
+  <a href="capture.html">DAW capture</a> ·
+  <a href="documents.html">The documents</a> ·
+  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>

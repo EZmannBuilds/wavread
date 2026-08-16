@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How it works — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="What WavRead measures, what it only estimates, and how it tells you which is which — the whole path from an audio file to a document you can read.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="how-it-works.html">How it works</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>How WavRead works</h1>
+<p class="lede">Audio goes in. Measurements come out, in language rather than
+meters. Nothing about your music leaves the machine, and nothing is presented as
+more certain than the analysis allows.</p>
+
+<h2>The path a track takes</h2>
+<div class="flow">
+  <div class="stage">Your file</div>
+  <div class="wave">▁▂▄▆█▇▅▃▂▁▂▄▆█▇▅▃▂▁▂▄▆█▇▅▃▂▁</div>
+  <div class="arrow">↓ &nbsp;measured on this computer</div>
+  <div class="metrics">tempo · key · LUFS · true peak · crest · spectrum ·
+  stereo width · sections · chords · melody · lyrics</div>
+  <div class="arrow">↓ &nbsp;written down</div>
+  <div class="quote">"45.9% of measured energy sits in the low mids, and the
+  chorus is 1.4 LU louder than the verse before it."</div>
+</div>
+
+<h2>Four ways in</h2>
+<table class="spec">
+  <tr><th>A finished track</th>
+      <td>Drop a file. You get whole-track measurements, structure, chords,
+      melody and lyrics.</td></tr>
+  <tr><th>Stems you exported</th>
+      <td>Drop a folder from your DAW. Every part is measured separately — the
+      most detailed read WavRead can produce.</td></tr>
+  <tr><th>Straight from your DAW</th>
+      <td>The <a href="capture.html">Bridge plugin</a> records what passes
+      through it. No exporting at all.</td></tr>
+  <tr><th>A mix, separated</th>
+      <td>WavRead can estimate parts from a finished mix. Those stems are
+      guesses and the document says so — real parts always beat estimated
+      ones.</td></tr>
+</table>
+
+<h2>Measured, detected, estimated</h2>
+<p>These are three different kinds of claim and WavRead labels every number with
+which one it is. That labelling is the product, as much as the numbers are.</p>
+<div class="cols">
+  <div class="card">
+    <h3>Measured</h3>
+    <p>Arithmetic on the samples: loudness, true peak, crest factor, clipping,
+    spectrum, stereo width. Two runs agree exactly.</p>
+  </div>
+  <div class="card">
+    <h3>Detected</h3>
+    <p>Found by an algorithm with a defined method: tempo, section boundaries,
+    onsets. Reliable, occasionally wrong at half or double the tempo.</p>
+  </div>
+  <div class="card">
+    <h3>Estimated</h3>
+    <p>Inferred by a model: key, chords, melody, lyrics, separated stems. A good
+    first draft, carrying a confidence where one exists.</p>
+  </div>
+</div>
+<div class="note">
+  <p>And a fourth state that matters just as much: <strong>unavailable</strong>.
+  A dash never means zero. If a window was too short, a take had no quiet gap, or
+  an analysis predates a measurement, the document says which — a number that
+  isn't there beats one that's wrong.</p>
+</div>
+
+<h2>Measurement standards</h2>
+<table class="spec">
+  <tr><th>Integrated loudness</th><td>ITU-R BS.1770, in LUFS.</td></tr>
+  <tr><th>Loudness range</th><td>EBU Tech 3342, in LU.</td></tr>
+  <tr><th>True peak</th><td>BS.1770 Annex 2 — 4× oversampled, so inter-sample
+  peaks a sample meter misses are caught. Reported in dBTP and marked as the
+  estimate the standard says it is.</td></tr>
+  <tr><th>Sample peak and clipping</th><td>Measured across the real channels.
+  A mono fold-down understates a peak living in one channel by up to 6 dB —
+  a bug WavRead shipped once, and now has a regression test against.</td></tr>
+  <tr><th>Spectrum</th><td>1/3-octave bands, grouped into named regions and
+  reported as a share of measured energy.</td></tr>
+</table>
+
+<h2>Over time, not just averages</h2>
+<p>One number for a whole song hides the song. WavRead measures loudness, stereo
+width and mono compatibility <em>across</em> the track, so it can tell you the
+second chorus is quieter than the first, or that the intro collapses in mono
+while the rest survives it. Section comparison answers the smaller question:
+how this part differs from that one, in numbers.</p>
+
+<h2>It never edits your audio</h2>
+<p>WavRead has no processors, and that is a deliberate boundary rather than a
+missing feature. It will show you a suggested EQ curve and let you hear it
+level-matched against the original — so the louder one doesn't simply sound
+better — but the file it writes is a document, never a new mix. Your DAW does
+the editing.</p>
+
+<h2>Give it to an AI, or don't</h2>
+<p>Assistants can't hear audio, but they read Markdown well. The Track Document
+holds everything one would need to talk about your mix specifically rather than
+generically. That is optional — the built-in Feedback Report is written by
+rules, not by a model, and works with the network cable out.</p>
+
+<h2>Built on</h2>
+<p>WavRead is a commercial product standing on open research. Each component
+keeps its own licence, reproduced in full in the
+<code>THIRD_PARTY_LICENSES</code> file that ships with the app.</p>
+<table>
+<tr><th scope="col">Project</th><th scope="col">Used for</th></tr>
+<tr><td><a href="https://github.com/facebookresearch/demucs">Demucs</a> (Meta AI, MIT)</td>
+    <td>Neural stem separation</td></tr>
+<tr><td><a href="https://github.com/openai/whisper">Whisper</a> (OpenAI, MIT) via
+        <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></td>
+    <td>Lyric transcription from the isolated vocal stem</td></tr>
+<tr><td><a href="https://github.com/spotify/basic-pitch">Basic Pitch</a> (Spotify, Apache-2.0)</td>
+    <td>Melody transcription to notes</td></tr>
+<tr><td><a href="https://librosa.org">librosa</a> (ISC)</td>
+    <td>Core audio analysis</td></tr>
+<tr><td><a href="https://github.com/csteinmetz1/pyloudnorm">pyloudnorm</a> (MIT)</td>
+    <td>Broadcast-standard LUFS measurement</td></tr>
+<tr><td><a href="https://juce.com">JUCE</a> (AGPLv3 / commercial)</td>
+    <td>The AU and VST3 capture plugin</td></tr>
+</table>
+<p>Every analysis records which of these produced it, and at which version, in
+the document's provenance line. A measurement is only reproducible if you know
+what made it.</p>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="privacy.html">Privacy</a> ·
+  <a href="capture.html">DAW capture</a> ·
+  <a href="documents.html">The documents</a> ·
+  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>
