@@ -1,0 +1,11 @@
+{
+  "name": "wavread-site",
+  "version": "1.4.7",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check docs/js/site.js && node --check docs/js/beta-auth.js && node --check docs/api/beta-config.js",
+    "test": "node --test tests/site.test.mjs"
+  }
+}

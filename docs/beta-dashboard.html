@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tester dashboard — WavRead Beta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Downloads, release notes, known issues, onboarding, and feedback for registered WavRead beta testers.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="site.css">
+<script src="js/beta-config.js" defer></script>
+<script src="js/beta-auth.js" type="module"></script>
+</head>
+<body class="beta-app">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main"><a class="wordmark" href="/"><img src="favicon.png" alt="" width="30" height="30"> WavRead</a><span class="spacer"></span><a href="/">Public website</a><button class="small-button" id="signout-button" type="button" hidden>Sign out</button></nav></header>
+<main id="main" class="beta-shell">
+  <h1 class="sr-only">WavRead beta tester dashboard</h1>
+  <div class="state-panel loading-state" id="loading-state" role="status">Verifying your tester access…</div>
+  <section class="state-panel" id="setup-state" hidden><h2>Tester area setup required</h2><p>The secure beta backend is not connected in this preview. Follow the project setup guide, then refresh this page.</p><a class="btn" href="/">Return to WavRead</a></section>
+  <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p id="session-message" role="alert">Sign in to open the tester dashboard.</p><a class="btn primary" href="signin.html">Go to tester sign in</a></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>Tester access not found</h2><p>You are signed in, but this email is not registered as an active WavRead tester. Access is controlled by the tester registry, not by this page.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+
+  <div id="dashboard-content" hidden>
+    <header class="dashboard-head">
+      <div><p class="tester-badge">Registered tester</p><h2>Beta workspace</h2><p id="tester-email"></p></div>
+      <a class="btn primary" href="https://github.com/EZmannBuilds/wavread/releases/download/v1.4.4/WavRead-1.4.4.dmg">Download 1.4.4</a>
+    </header>
+
+    <div class="dashboard-grid" aria-label="Beta overview">
+      <article class="dashboard-card"><span class="card-kicker">Current build</span><h2>WavRead 1.4.4</h2><p>Published August 16, 2026 · Apple Silicon · macOS 14+</p><a href="https://github.com/EZmannBuilds/wavread/releases">View checksums and all releases →</a></article>
+      <article class="dashboard-card"><span class="card-kicker">Beta status</span><h2>Free during development</h2><p>Active testing. No commercial release date is promised, and the desktop app remains account-free.</p><a href="#feedback">Send feedback →</a></article>
+    </div>
+
+    <section class="dashboard-section" aria-labelledby="getting-started-title">
+      <span class="card-kicker">Getting started</span><h2 id="getting-started-title">From download to useful feedback</h2><p>One short pass is enough to help.</p>
+      <ol class="onboarding-list"><li><span>01</span>Download and open the DMG.</li><li><span>02</span>Right-click WavRead and choose Open once.</li><li><span>03</span>Analyze a track you know well.</li><li><span>04</span>Read the evidence and press Listen.</li><li><span>05</span>Tell us what helped or got in the way.</li></ol>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="release-title">
+      <span class="card-kicker">Release notes</span><h2 id="release-title">What changed in 1.4.4</h2>
+      <ul><li>Capture a master, parts, or both from your DAW with the WavRead Bridge plugin.</li><li>Measure delay, reverb decay, and tone changes introduced by the master bus when the evidence is available.</li><li>See true peak and clipping for each supplied or captured part.</li><li>Read the full usage guide inside WavRead and install verified updates from Settings.</li></ul>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="issues-title">
+      <span class="card-kicker">Known issues</span><h2 id="issues-title">Check before reporting</h2><p id="issues-status" class="form-status" role="status" aria-live="polite"></p><div id="issue-list" class="issue-list"></div><div id="issues-empty" class="empty-state" hidden>No significant published issues are listed right now. If you find one, report it below.</div>
+    </section>
+
+    <section class="dashboard-section" id="feedback" aria-labelledby="feedback-title">
+      <span class="card-kicker">Feedback</span><h2 id="feedback-title">What did you notice?</h2><p>Keep it short or give us the full trail. Please do not include private audio, passwords, or unrelated personal information.</p>
+      <form class="feedback-form" id="feedback-form" novalidate>
+        <div class="form-row"><div class="form-field"><label for="feedback-type">Feedback type</label><select id="feedback-type" name="feedback_type" required><option value="bug">Bug report</option><option value="feature">Feature request</option><option value="general">General feedback</option></select></div><div class="form-field"><label for="feedback-title-input">Short title</label><input id="feedback-title-input" name="title" minlength="3" maxlength="120" required></div></div>
+        <div class="form-field"><label for="feedback-description">What happened or what would help?</label><textarea id="feedback-description" name="description" minlength="20" maxlength="4000" required></textarea></div>
+        <div class="form-field"><label for="reproduction-steps">Steps to reproduce <span class="field-help">(optional)</span></label><textarea id="reproduction-steps" name="reproduction_steps" maxlength="3000"></textarea></div>
+        <div class="form-row"><div class="form-field"><label for="feedback-app-version">App version</label><input id="feedback-app-version" name="app_version" readonly></div><div class="form-field"><label for="feedback-os">Operating system</label><input id="feedback-os" name="operating_system" maxlength="120"></div></div>
+        <div class="form-field checkbox-field"><input id="follow-up" name="follow_up_allowed" type="checkbox"><label for="follow-up">You may contact me at my tester email if follow-up would help.</label></div>
+        <button class="btn primary" type="submit">Send feedback</button><p class="form-status" id="feedback-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </div>
+</main>
+</body>
+</html>

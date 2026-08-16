@@ -2,174 +2,154 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>WavRead — your music, translated into words</title>
+<title>WavRead — music analysis you can read</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="WavRead measures your music locally and translates the results into clear language, evidence, and documents for producers, engineers, and artists.">
+<meta name="theme-color" content="#0c0f13">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="WavRead analyzes music locally and turns it into measurements, explanations, and readable documents for musicians, producers, and AI assistants.">
 <link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
 </head>
-<body>
+<body class="home">
+<a class="skip-link" href="#main">Skip to content</a>
 
-<nav aria-label="Main">
-  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="capture.html">DAW capture</a>
-  <a href="documents.html">The documents</a>
-  <a href="requirements.html">Requirements</a>
-  <a href="faq.html">FAQ</a>
-  <span class="spacer"></span>
-  <a class="btn primary" style="height:34px" href="#download">Download</a>
-</nav>
+<header class="site-header">
+  <nav aria-label="Main">
+    <a class="wordmark" href="/" aria-label="WavRead home"><img src="favicon.png" alt="" width="30" height="30"> WavRead</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+    <div class="nav-links" id="nav-links">
+      <a href="#features">Features</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="#beta">Beta</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+    <span class="spacer"></span>
+    <a class="nav-signin" href="signin.html">Tester sign in</a>
+    <a class="btn compact" href="#download">Download beta</a>
+  </nav>
+</header>
 
-<h1>Your music,<br>translated into words.</h1>
-<p style="font-size:17px;max-width:560px">WavRead analyzes your track locally and turns it
-into measurements, explanations, and documents you can understand — or give to any AI.</p>
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span>WavRead Beta</span> Version 1.4.4</p>
+      <h1 id="hero-title">Hear the details.<br><em>Read the whole track.</em></h1>
+      <p class="hero-lede">WavRead measures your music and translates the results into clear,
+      useful language for producers, engineers, and artists. Your audio stays on your Mac.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#download">Download free beta</a>
+        <a class="text-link" href="#how">See how it works <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="trust-list" aria-label="Product assurances">
+        <li>Local analysis</li><li>No account required</li><li>Apple Silicon</li>
+      </ul>
+    </div>
+    <div class="hero-product">
+      <div class="spectrum-glow" aria-hidden="true"></div>
+      <figure class="app-window">
+        <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>WavRead — Track Workspace</span></div>
+        <img src="img/workspace-overview.png" alt="WavRead Track Workspace showing detected tempo, estimated key, measured duration, and evidence-based findings for an analyzed song." width="1100" height="900">
+      </figure>
+      <p class="product-note"><span>Measured locally</span> Audio never leaves your computer.</p>
+    </div>
+  </section>
 
-<p style="margin-top:20px">
-  <a class="btn primary" href="#download">Download WavRead</a>
-</p>
-<p class="trust">🔒 No uploads · No account · Works offline ·
-<a href="requirements.html">Apple Silicon, macOS 14+</a></p>
+  <div class="signal-strip" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 
-<figure class="shot">
-  <img src="img/frequency-balance.png" alt="WavRead showing a track's frequency balance:
-  1/3-octave spectrum split into named regions, with low mids flagged at 45.9% of measured
-  energy as unusually dominant.">
-  <figcaption>A real analysis. The low mids are flagged because they measure 45.9% of the
-  track's energy — WavRead says what it found and why it matters.</figcaption>
-</figure>
-</div>
+  <section class="intro-band reveal" id="how" aria-labelledby="how-title">
+    <p class="section-kicker">One track in. Clear evidence out.</p>
+    <h2 id="how-title">WavRead observes the music.<br>Your DAW stays in control.</h2>
+    <ol class="workflow">
+      <li><span>01</span><strong>Load</strong><p>Drop in a finished track, stems, or a DAW capture.</p></li>
+      <li><span>02</span><strong>Measure</strong><p>Tempo, key, loudness, dynamics, spectrum, stereo, structure, and more.</p></li>
+      <li><span>03</span><strong>Understand</strong><p>See the evidence, a possible meaning, and what to listen for.</p></li>
+      <li><span>04</span><strong>Document</strong><p>Export measured facts or a readable feedback report.</p></li>
+    </ol>
+  </section>
 
-<h2 id="privacy">Everything stays on your computer</h2>
-<p>Your music is never uploaded — there are no WavRead servers to upload it to.
-No account, no telemetry, no identifier. Four requests exist in the whole app:
-a daily version check you can switch off, an update you asked for, and the two
-model downloads you only trigger by using separation or lyrics.</p>
-<p><a href="privacy.html">Every request, listed →</a></p>
+  <section class="feature-story" id="features" aria-labelledby="features-title">
+    <div class="story-copy reveal">
+      <p class="section-kicker">Measure</p>
+      <h2 id="features-title">Technical depth,<br>without the fog.</h2>
+      <p>WavRead maps what is present in a track: frequency balance, true peak, LUFS,
+      loudness range, stereo behavior, song sections, chords, melody, lyrics, and stem activity.
+      Every result says whether it was measured, detected, estimated, or unavailable.</p>
+      <ul class="inline-facts"><li>Evidence-linked findings</li><li>Time-based graphs</li><li>Per-part measurements</li></ul>
+    </div>
+    <figure class="feature-visual reveal">
+      <img src="img/frequency-balance.png" alt="WavRead frequency balance view with a one-third-octave spectrum and an evidence-based low-mid finding." width="1100" height="760" loading="lazy">
+      <figcaption><span>Frequency balance</span> The finding names the measurement and the part of the spectrum it stands on.</figcaption>
+    </figure>
+  </section>
 
-<h2 id="how">How WavRead works</h2>
-<p>Drop in a finished track, a folder of stems, or capture a session straight
-from your DAW. WavRead measures tempo, key, loudness, dynamics, frequency
-balance, stereo image and structure on this computer, estimates the chords,
-melody and lyrics, and writes two documents: everything measured, and what it
-may mean.</p>
-<p>Every number is labelled for what it is — <strong>measured</strong>,
-<strong>detected</strong>, <strong>estimated</strong>, or
-<strong>unavailable</strong>. WavRead never claims more certainty than the
-analysis allows.</p>
-<p><a href="how-it-works.html">How it works, in full →</a></p>
+  <section class="feature-story reverse" aria-labelledby="understand-title">
+    <div class="story-copy reveal">
+      <p class="section-kicker">Understand</p>
+      <h2 id="understand-title">Numbers that explain themselves.</h2>
+      <p>A finding separates the measured result from its possible interpretation and the
+      listening check. Press Listen to hear the exact evidence. WavRead never applies EQ,
+      compression, mastering, or edits to your track.</p>
+      <a class="text-link" href="documents.html">Meet the Track Document and Feedback Report <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="finding-stack reveal" aria-label="Example finding anatomy">
+      <div><span class="finding-label measured-label">Measured</span><strong>45.9% of total energy sits in the low mids.</strong></div>
+      <div><span class="finding-label possible-label">May mean</span><p>This is the muddiest zone. The balance may feel dense.</p></div>
+      <div><span class="finding-label listen-label">Listen for</span><p>Masking around the body of vocals, guitars, or keys.</p></div>
+    </div>
+  </section>
 
-<figure class="shot">
-  <img src="img/workspace-overview.png" alt="WavRead's track workspace: metric strip showing
-  79.5 BPM detected, G minor estimated with 86% confidence, duration measured, above tabs and
-  a list of findings labelled Working or Check.">
-  <figcaption>Every number is labelled for what it is — detected, estimated with confidence,
-  or measured. Findings say what's working and what to look at.</figcaption>
-</figure>
+  <section class="feature-story" aria-labelledby="organize-title">
+    <div class="story-copy reveal">
+      <p class="section-kicker">Compare + organize</p>
+      <h2 id="organize-title">Keep the whole record in view.</h2>
+      <p>Group versions of a song, add production notes, compare a mix with a reference, or
+      inspect the parts that built it. Your local library stays searchable and can live on
+      another drive.</p>
+      <a class="text-link" href="how-it-works.html">Explore the complete workflow <span aria-hidden="true">→</span></a>
+    </div>
+    <figure class="feature-visual reveal">
+      <img src="img/library.png" alt="WavRead local track library showing analyzed songs, search, sort, and analysis status." width="1100" height="700" loading="lazy">
+      <figcaption><span>Local library</span> Audio, analyses, notes, and documents remain under your control.</figcaption>
+    </figure>
+  </section>
 
-<h2>Give it to any AI — optionally</h2>
-<p>AI assistants can't hear audio, but they can read. The Track Document contains everything
-an assistant needs to give deep, specific advice about your mix and arrangement — paste it
-into Claude, ChatGPT, or anything else. WavRead itself never requires AI: the built-in
-Feedback Report works completely offline.</p>
+  <section class="privacy-band reveal" aria-labelledby="privacy-title">
+    <div><p class="section-kicker">Built for private listening</p><h2 id="privacy-title">No cloud audio. No telemetry. No account for the app.</h2></div>
+    <div><p>WavRead runs on your Mac. Optional tester accounts live only on this website and
+    do not change the desktop app's account-free design.</p><a class="text-link" href="privacy.html">Read every network request <span aria-hidden="true">→</span></a></div>
+  </section>
 
-<h2>Compare tracks</h2>
-<p>Put your mix next to a reference track — or next to last week's version of the same song —
-and WavRead reports the measured differences in plain language: loudness, dynamics, frequency
-balance, stereo width. Context decides whether a difference is good; WavRead just makes it visible.</p>
+  <section class="beta-section" id="beta" aria-labelledby="beta-title">
+    <div class="beta-copy reveal">
+      <p class="section-kicker">WavRead Beta</p>
+      <h2 id="beta-title">Test real music software.<br>Shape what comes next.</h2>
+      <p>The current beta is free during development. Registered testers get one place for
+      the current build, release notes, known issues, onboarding, and direct feedback.</p>
+      <div class="hero-actions"><a class="btn primary" href="signin.html">Tester sign in</a><a class="text-link" href="#download">Not registered? Start with the free beta <span aria-hidden="true">→</span></a></div>
+    </div>
+    <div class="beta-console reveal" aria-label="Beta tester resources">
+      <div class="console-head"><span>Tester resources</span><span class="status-live">Beta active</span></div>
+      <ul><li><span>01</span> Latest verified Mac build</li><li><span>02</span> Release notes and known issues</li><li><span>03</span> Five-step getting started path</li><li><span>04</span> Bug, feature, and general feedback</li></ul>
+    </div>
+  </section>
 
-<h2 id="built-on">Built on</h2>
-<p>WavRead is a commercial product built on excellent open research. These components
-keep their own licences, reproduced in full in the <code>THIRD_PARTY_LICENSES</code> file
-that ships with the app.</p>
-<table>
-<tr><th scope="col">Project</th><th scope="col">Used for</th></tr>
-<tr><td><a href="https://github.com/facebookresearch/demucs">Demucs</a> (Meta AI, MIT)</td>
-    <td>Neural stem separation</td></tr>
-<tr><td><a href="https://github.com/openai/whisper">Whisper</a> (OpenAI, MIT) via
-        <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></td>
-    <td>Lyric transcription from the isolated vocal stem</td></tr>
-<tr><td><a href="https://github.com/spotify/basic-pitch">Basic Pitch</a> (Spotify, Apache-2.0)</td>
-    <td>Melody transcription to notes</td></tr>
-<tr><td><a href="https://librosa.org">librosa</a> (ISC)</td>
-    <td>Core audio analysis</td></tr>
-<tr><td><a href="https://github.com/csteinmetz1/pyloudnorm">pyloudnorm</a> (MIT)</td>
-    <td>Broadcast-standard LUFS measurement</td></tr>
-</table>
+  <section class="download-section" id="download" aria-labelledby="download-title">
+    <p class="eyebrow"><span>Current release</span> 1.4.4 · August 16, 2026</p>
+    <h2 id="download-title">Your music is ready to be read.</h2>
+    <p>Free beta for Apple Silicon Macs running macOS 14 or later. The installer is not yet
+    code-signed, so first launch requires right-click → Open → Open once.</p>
+    <a class="btn primary download-button" href="https://github.com/EZmannBuilds/wavread/releases/download/v1.4.4/WavRead-1.4.4.dmg">Download WavRead 1.4.4 <span>236 MB · DMG</span></a>
+    <div class="release-summary"><strong>Latest update</strong><p>DAW capture with the Bridge plugin, master-bus measurements, per-part true peak and clipping, in-app instructions, and verified self-installing updates.</p><a href="https://github.com/EZmannBuilds/wavread/releases">All releases →</a></div>
+  </section>
+</main>
 
-<h2 id="pricing">Free during development</h2>
-<p>WavRead is free to use today, at version 1.4.4. It will become a paid app — a
-<strong>one-time purchase</strong>, not a subscription, since it runs on your computer and
-there is nothing for us to host.</p>
-<p>That change is not tied to a version number. It happens when the app is code-signed and
-notarized, because a paid download should not warn you about an unidentified developer on
-first launch. Signing needs an Apple Developer account, which isn't in place yet. You'll be
-told before anything starts costing money.</p>
-
-<h2 id="download">Download</h2>
-<p>
-  <a class="btn primary" href="https://github.com/EZmannBuilds/wavread/releases/download/v1.4.4/WavRead-1.4.4.dmg">⬇ Download for Mac (.dmg, 236 MB)</a>
-  <a class="btn" href="https://github.com/EZmannBuilds/wavread/releases">All releases</a>
-</p>
-<p>The installer isn't code-signed yet, so on first launch macOS will warn about an
-unidentified developer: right-click the app → <em>Open</em> → <em>Open</em>, once. Code
-signing is planned. Analyses made under the app's former name, SoundScribe, keep working.</p>
-
-<h2>Development status</h2>
-<div class="release"><h3>1.4.4 <span class="date">— August 16, 2026</span></h3><ul><li>Capture a session straight from your DAW with the WavRead Bridge plugin (AU and VST3): the master, the parts, or both — armed together in one press</li><li>Capture the master alongside the parts and WavRead measures what the master bus adds: delay times, how long the reverb takes to decay, and the tone change through the bus</li><li>Every part is now measured for peak, true peak and clipping, so a track that arrived already clipped is named rather than hidden in the mix</li><li>How to use WavRead is now a page inside the app, and Update now installs a release after checking it against its published checksum</li></ul></div>
-<div class="release"><h3>1.4.0 <span class="date">— August 15, 2026</span></h3><ul><li>Findings you can check: every finding that can be heard carries a Listen button that plays and loops exactly the range it stands on, and opens the graph it came from</li><li>A finding is now three separable parts — the measurement, what it may mean, and what to listen for. Processing recipes are gone: WavRead measures, your DAW edits</li><li>Stems are named as the source of a frequency band only when the data supports it, and never when the energy is spread across parts</li></ul></div>
-<div class="release"><h3>1.3.0 <span class="date">— August 15, 2026</span></h3><ul><li>Measurement trust: peak was being measured on the mono fold-down, which hides a peak living in one channel by up to 6&nbsp;dB &mdash; now measured on the real channels. Reanalyze in Settings to correct existing tracks</li><li>True peak (dBTP) by oversampling per ITU-R BS.1770, plus loudness range (LRA), peak-to-loudness, per-channel peaks, clipping count and DC offset</li><li>A delivery contract in every document, each value naming the standard it was measured to and the versions that produced it</li><li>Loudness points now sit at their real measurement positions rather than spread across the track</li><li>Values that could not be measured say so instead of showing a dash</li></ul></div>
-<div class="release"><h3>1.2.1 <span class="date">— August 15, 2026</span></h3><ul><li>Mono switch: hear the mix summed to mono, so mono-compatibility findings can be listened to rather than only read</li><li>Skip ten seconds back and forward on the transport</li><li>Mix history: group mixes of one song as versions, note each, and see what the measurements did between them</li><li>Update checks that tell you a new version exists and never install anything</li><li>Fixed: &ldquo;Hear the difference&rdquo; did nothing until playback had started, and &ldquo;Play this section&rdquo; ran past the end of the section</li></ul></div>
-<div class="release"><h3>1.2.0 <span class="date">— August 15, 2026</span></h3><ul><li>Listening markers: mark a moment while the track plays, write what you noticed, and see what the measurements say differs around it &mdash; loudness, activity, stereo width and correlation against the track and the section it falls in</li><li>Markers are written into the Track Document, so the copy, the downloads and the AI handoff carry your notes beside the measurements</li><li>Notes are stored outside the analysis, so reanalysis never destroys them</li></ul></div>
-<div class="release"><h3>1.1.0 <span class="date">— August 14, 2026</span></h3><ul><li>Suggested EQ you can hear: an A/B during playback that compares your track flat against the suggested curve, level-matched so the comparison is not won by loudness. It previews the suggestion &mdash; nothing is written, exported, or altered, and playback always starts flat</li><li>The drawn curve is now the real response of the filters being played</li><li>First stable release; supersedes the 1.0.0-rc series</li></ul></div>
-<div class="release"><h3>1.0.0-rc3 <span class="date">— August 14, 2026</span></h3>
-<ul><li>Persistent player with waveform seeking, section looping, and stem soloing from the frequency graph</li></ul></div>
-<div class="release"><h3>1.0.0-rc2 <span class="date">— August 14, 2026</span></h3>
-<ul><li>Time-based analysis: loudness and stereo-width timelines, mono-compatibility ranges, and section-to-section comparison</li></ul></div>
-<div class="release"><h3>1.0.0-rc1 <span class="date">— August 14, 2026</span></h3>
-<ul><li>Stabilization candidate: accessibility pass (landmarks, skip link, heading outline), first-run introduction, offline resilience for the model-backed stages, and real screenshots on this page. Not the 1.0 launch — signing and licensing still pending</li></ul></div>
-<div class="release"><h3>0.9.3 <span class="date">— August 14, 2026</span></h3>
-<ul><li>Live per-second analysis timer, cleaner header, and a clear message when macOS blocks folder access</li></ul></div>
-<div class="release"><h3>0.9.2 <span class="date">— August 14, 2026</span></h3>
-<ul><li>Analysis provenance and reanalysis, local storage dashboard with scoped deletion, real navigation, library search/sort, and cancellable analyses</li></ul></div>
-<div class="release"><h3>0.9.1 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Real-session stem fixes: sparse stems (adlibs, risers, chops) are no longer treated as silence; lyrics find the actual vocal stem</li></ul></div>
-<div class="release"><h3>0.9.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Pluggable stem separation: bring your own stems, or point WavRead at a separation tool you already have; analysis no longer requires a separation backend</li></ul></div>
-<div class="release"><h3>0.8.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Suggested EQ ghost curve ("consider testing…" — suggestions, never corrections) and polished comparisons with LU deltas and per-region differences</li></ul></div>
-<div class="release"><h3>0.7.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Track Workspace: metric strip, tabbed sections, findings panels, clickable structure timeline, stem spectrum selector, reference spectrum overlay</li></ul></div>
-<div class="release"><h3>0.6.2 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Playback and batch fixes: drops outside the zone no longer strand you, multi-track analysis queues reliably, Copy no longer interrupts playback, smoother pause/resume</li></ul></div>
-<div class="release"><h3>0.6.1 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Playback-linked spectrum: live animation over the average reference, with a section-aware timeline cursor</li></ul></div>
-<div class="release"><h3>0.6.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Frequency Balance graph: 1/3-octave spectrum with readable regions and plain-language findings, in the app and in exports</li></ul></div>
-<div class="release"><h3>0.5.2 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Analysis timer; simplified single Copy button</li></ul></div>
-<div class="release"><h3>0.5.1 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Stability fixes from first-day beta testing: no more ghost window during analysis, exports save to Downloads, in-app JSON viewer, readable errors with a local log, quit-confirmation mid-analysis, app icon</li></ul></div>
-<div class="release"><h3>0.5.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Product renamed from SoundScribe to WavRead; existing analysis files remain readable</li>
-<li>New design system across the app, website, and exported documents</li>
-<li>Melody artifact filtering; staged analysis progress; improved accessibility</li>
-<li>First installer under the new name: WavRead-0.5.0.dmg</li></ul></div>
-<div class="release"><h3>0.4.0-beta <span class="date">— August 13, 2026</span></h3>
-<ul><li>First downloadable Mac app (.dmg) — no Python needed</li>
-<li>Melody transcribed to notes; clear-all-data option</li></ul></div>
-<div class="release"><h3>0.3.0 <span class="date">— August 13, 2026</span></h3>
-<ul><li>Chords, reference comparison, stem-set input, LUFS, genre presets, HTML export</li></ul></div>
-<div class="release"><h3>0.2.0 – 0.1.0 <span class="date">— August 12, 2026</span></h3>
-<ul><li>Core analyzer, stem separation, lyrics, two-document output, feedback engine</li></ul></div>
-
-<footer>
-  WavRead · © 2026 Erik Mann ·
-  <a href="/EULA">Licence</a> ·
-  <a href="https://buymeacoffee.com/ezmannbuilds">Support the project ☕</a>
-<br><a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> · <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a> · <a href="faq.html">Questions</a>
+<footer class="site-footer">
+  <div><a class="wordmark" href="/"><img src="favicon.png" alt="" width="28" height="28"> WavRead</a><p>Your music, translated into words.</p></div>
+  <div><strong>Product</strong><a href="how-it-works.html">How it works</a><a href="documents.html">Documents</a><a href="capture.html">DAW capture</a><a href="requirements.html">Requirements</a></div>
+  <div><strong>Beta</strong><a href="signin.html">Tester sign in</a><a href="beta-dashboard.html">Tester dashboard</a><a href="https://github.com/EZmannBuilds/wavread/releases">Releases</a></div>
+  <div><strong>Company</strong><a href="privacy.html">Privacy</a><a href="faq.html">Questions</a><a href="/EULA">Licence</a></div>
+  <p class="copyright">© 2026 Erik Mann · EZmannBuilds</p>
 </footer>
 </body>
 </html>

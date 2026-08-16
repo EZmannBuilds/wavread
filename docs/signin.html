@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tester sign in — WavRead Beta</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sign in to the registered WavRead beta tester area.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="site.css">
+<script src="js/beta-config.js" defer></script>
+<script src="js/beta-auth.js" type="module"></script>
+</head>
+<body class="beta-app">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main"><a class="wordmark" href="/"><img src="favicon.png" alt="" width="30" height="30"> WavRead</a><span class="spacer"></span><a href="/">Back to product</a><a class="btn compact" href="#signin-form">Tester sign in</a></nav></header>
+<main id="main" class="beta-shell narrow">
+  <p class="eyebrow"><span>Registered testers</span> WavRead Beta</p>
+  <h1>Welcome back to the signal.</h1>
+  <p class="lede">Enter the email address registered for the beta. We will send a one-time link—no password to remember.</p>
+  <form class="auth-panel" id="signin-form" novalidate>
+    <div class="form-field"><label for="email">Tester email</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"><p class="field-help">Only pre-registered beta testers can sign in.</p></div>
+    <button class="btn primary" type="submit">Email me a sign-in link</button>
+    <p class="form-status" id="signin-status" role="status" aria-live="polite"></p>
+  </form>
+  <div class="setup-notice" id="setup-notice" hidden><strong>Tester sign-in is not configured in this preview.</strong><br>The public website still works normally. Connect the approved beta backend environment to enable tester access.</div>
+  <p class="measured">A tester account is only for website beta resources. The WavRead desktop app remains account-free and does not receive your tester identity.</p>
+</main>
+</body>
+</html>

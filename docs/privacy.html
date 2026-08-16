@@ -6,22 +6,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, there are no accounts, and there is no telemetry — here is the full accounting.">
+<meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, the desktop app needs no account, and there is no telemetry — here is the full accounting.">
 <link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
 </head>
-<body>
-
-<nav aria-label="Main">
-  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="capture.html">DAW capture</a>
-  <a href="documents.html">The documents</a>
-  <a href="requirements.html">Requirements</a>
-  <a href="faq.html">FAQ</a>
-  <span class="spacer"></span>
-  <a class="btn primary" style="height:34px" href="/#download">Download</a>
-</nav>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img src="favicon.png" alt="" width="28" height="28"> WavRead</a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Tester sign in</a><a class="btn compact" href="/#download">Download beta</a>
+</nav></header>
+<main id="main">
 
 <h1>Everything stays on your computer</h1>
 <p class="lede">Your music is never uploaded. There are no WavRead servers to
@@ -35,8 +32,8 @@ request the app can make, so the claim can be checked rather than trusted.</p>
     machine.</p>
   </div>
   <div class="card">
-    <h3>No account</h3>
-    <p>No sign-in, no licence server, no email address, nothing to leak.</p>
+    <h3>No app account</h3>
+    <p>The desktop app has no sign-in, licence server, email address, or tester identity.</p>
   </div>
   <div class="card">
     <h3>No telemetry</h3>
@@ -102,10 +99,21 @@ and your own notes — no audio. If you paste one into an AI assistant, that is
 your decision and your assistant's privacy policy; WavRead never sends a document
 anywhere itself. Nothing in the app requires an AI at all.</p>
 
+<h2>Optional beta tester accounts</h2>
+<p>Registered testers may sign in to a separate area on this website. That account is
+not used by the desktop app and never receives audio, filenames, analyses, documents,
+or app activity. The tester service stores the account email, tester eligibility, and
+feedback a tester chooses to submit. Feedback may include the selected feedback type,
+title, description, optional reproduction steps, app version, operating-system name,
+and whether follow-up is allowed.</p>
+<p>Tester access and feedback are protected by account ownership and database policies.
+The public product website still uses no analytics or advertising trackers.</p>
+
 <p class="measured">Last checked against WavRead 1.4.4. The model download sizes
 are the actual sizes on disk after a first run: 80 MB for separation, 464 MB for
 lyric transcription.</p>
 
+</main>
 <footer>
   <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> ·
   <a href="capture.html">DAW capture</a> ·
