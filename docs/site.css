@@ -349,8 +349,6 @@ body:not(.home):not(.beta-app) { max-width: 1240px; }
 body:not(.home):not(.beta-app) main,
 body:not(.home):not(.beta-app) > footer { width: min(100%, 824px); margin-inline: auto; }
 body:not(.home):not(.beta-app) nav { margin-bottom: 70px; }
-.content-page main { position: relative; }
-.content-page main::before { content: ""; position: absolute; top: -30px; left: -26px; width: 1px; height: 88px; background: linear-gradient(var(--wr-signal), transparent); }
 .content-page h1 { max-width: 720px; font-size: clamp(42px, 6vw, 64px); }
 .lede { max-width: 680px; margin-bottom: 46px; color: var(--wr-text-2); font-size: 17px; line-height: 1.72; }
 .flow { margin: 38px 0; padding: 22px 24px; overflow-x: auto; border: var(--wr-hairline); border-radius: var(--wr-radius-sm); background: var(--wr-surface-1); font-size: 13px; }

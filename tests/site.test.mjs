@@ -147,6 +147,7 @@ test("A1 Clinical Signal tokens, type, and semantic roles stay canonical", async
   assert.match(css, /font-family:\s*"Space Grotesk"/);
   assert.match(css, /\.btn\.primary\s*\{[^}]*background:\s*var\(--wr-accent\)/s);
   assert.doesNotMatch(css, /\.btn\.primary\s*\{[^}]*var\(--wr-warning\)/s);
+  assert.doesNotMatch(css, /\.content-page\s+main::before/, "content headings must not have a decorative registration line");
   for (const asset of [
     "docs/fonts/inter-latin.woff2",
     "docs/fonts/space-grotesk-latin.woff2",
