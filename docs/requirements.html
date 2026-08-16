@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Device requirements — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="What WavRead needs to run, what it runs well on, and the upper limits of what it will accept — measured, not estimated.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="/#how">How it works</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>Device requirements</h1>
+<p class="lede">What WavRead needs, what it runs well on, and where its ceiling
+actually is. Every number here was measured on a real machine rather than
+estimated — how, and on what, is at the bottom of the page.</p>
+
+<h2>Minimum</h2>
+<table class="spec">
+  <tr><th>Mac</th><td><strong>Apple Silicon</strong> — M1 or later. WavRead ships
+  as an arm64 binary only, so <strong>Intel Macs cannot run it</strong>, with or
+  without Rosetta.</td></tr>
+  <tr><th>macOS</th><td><strong>macOS 14 Sonoma</strong> or later. That floor
+  comes from the Python runtime and the audio libraries built into the app; on
+  macOS 13 or earlier it will not launch.</td></tr>
+  <tr><th>Memory</th><td><strong>8 GB</strong>. Enough for songs of ordinary
+  length — see the ceiling below, because memory is what actually limits
+  WavRead, and it grows with the length of the track.</td></tr>
+  <tr><th>Disk</th><td><strong>2 GB free</strong> to install and work in. The app
+  is 626 MB installed, from a 236 MB download.</td></tr>
+  <tr><th>Network</th><td><strong>None.</strong> Analysis never needs it. The
+  only requests WavRead ever makes are the once-a-day update check you can turn
+  off, and a one-time 80 MB model download if you use built-in stem
+  separation.</td></tr>
+</table>
+
+<h2>Recommended</h2>
+<table class="spec">
+  <tr><th>Memory</th><td><strong>16 GB or more.</strong> It buys you long tracks
+  and lets separation run without the machine paging.</td></tr>
+  <tr><th>Disk</th><td><strong>An SSD with room to spare.</strong> Separated stems
+  are about <strong>135 MB per song</strong>, and captures from a DAW run to
+  roughly <strong>1 GB per plugin instance per hour</strong>. WavRead lets you
+  put the library on any drive, which is what external drives are for.</td></tr>
+  <tr><th>CPU</th><td>Any Apple Silicon chip is fast enough. Separation is the
+  only heavy step and it uses the GPU (Metal) when one is available, falling
+  back to the CPU when it is not.</td></tr>
+  <tr><th>For DAW capture</th><td>A host that loads AU or VST3 plugins. The
+  plugin itself is close to free — <a href="capture.html">measured here</a> —
+  but plan for the disk.</td></tr>
+</table>
+
+<h2>Measured performance</h2>
+<p>One real 3-minute song, and the same song repeated to nearly 13 minutes, on
+the machine described at the bottom:</p>
+<table>
+  <tr><th>What was run</th><th>Track length</th><th>Time</th><th>Peak memory</th><th>Written to disk</th></tr>
+  <tr><td>Analysis only</td><td>3:12</td><td>12.7 s</td><td>3.6 GB</td><td>133 KB</td></tr>
+  <tr><td>Full run — separation, lyrics, melody</td><td>3:12</td><td>70.8 s</td><td>4.0 GB</td><td>136 MB</td></tr>
+  <tr><td>Analysis only</td><td>12:48</td><td>51.9 s</td><td>6.8 GB</td><td>133 KB</td></tr>
+</table>
+<p>Analysis is roughly four times faster than realtime; a full run with
+separation is about three times faster than realtime. Both are one-off costs —
+the documents are written once and read from disk after that.</p>
+
+<h2>The ceiling: memory, not speed</h2>
+<p>WavRead holds the whole track in memory to measure it, so <strong>peak memory
+grows with length</strong> — measured at about <strong>0.33 GB per additional
+minute</strong> of audio, on top of a 2.5 GB base.</p>
+<table>
+  <tr><th>Track length</th><th>Expected peak memory</th><th>Comfortable on</th></tr>
+  <tr><td>3 minutes</td><td>~3.5 GB <span class="tick">measured</span></td><td>8 GB</td></tr>
+  <tr><td>5 minutes</td><td>~4.2 GB</td><td>8 GB</td></tr>
+  <tr><td>10 minutes</td><td>~5.9 GB</td><td>16 GB</td></tr>
+  <tr><td>13 minutes</td><td>~6.8 GB <span class="tick">measured</span></td><td>16 GB</td></tr>
+  <tr><td>30 minutes</td><td>~12 GB (extrapolated)</td><td>16 GB or more</td></tr>
+</table>
+<div class="note caution">
+  <p>The 3- and 13-minute rows were measured; the rest follow the straight line
+  between them and are marked as such. macOS will page to disk rather than fail
+  outright, so an 8 GB Mac given a 30-minute file gets slow, not broken — but a
+  DJ set or a podcast episode is the case to watch.</p>
+</div>
+
+<h2>Upper limits — what it will accept</h2>
+<table class="spec">
+  <tr><th>Sample rates</th><td>44.1, 48, 96 and 192 kHz all tested and analysed
+  correctly. True-peak oversampling adapts to the rate rather than assuming
+  48 kHz.</td></tr>
+  <tr><th>Bit depth</th><td>16- and 24-bit PCM, and 32-bit float.</td></tr>
+  <tr><th>Channels</th><td>Mono, stereo, and more — a 6-channel file analyses
+  fine. Peak and clipping are measured on the real channels, never on a mono
+  fold-down.</td></tr>
+  <tr><th>File formats</th><td>WAV, MP3, AIFF, FLAC, M4A, OGG.</td></tr>
+  <tr><th>Track length</th><td>No hard limit. Memory is the practical ceiling —
+  see the table above.</td></tr>
+  <tr><th>Short files</th><td>Down to half a second. Measurements needing a longer
+  window are reported as unavailable rather than guessed.</td></tr>
+  <tr><th>Stems per song</th><td>No fixed cap. 32 simultaneous capture instances
+  were measured without dropping audio, and wide tables scroll rather than
+  overflow.</td></tr>
+</table>
+
+<h2>What it does not need</h2>
+<div class="cols">
+  <div class="card">
+    <h3>No internet</h3>
+    <p>Analysis runs entirely offline. Nothing is uploaded, ever.</p>
+  </div>
+  <div class="card">
+    <h3>No account</h3>
+    <p>There is no sign-in, no licence server, and no telemetry.</p>
+  </div>
+  <div class="card">
+    <h3>No dedicated GPU</h3>
+    <p>Separation uses Apple's Metal GPU when present and the CPU when not.</p>
+  </div>
+  <div class="card">
+    <h3>No admin rights</h3>
+    <p>Drag it to Applications. The app is unsigned, so on first launch
+    right-click it and choose Open.</p>
+  </div>
+</div>
+
+<h2>Not supported</h2>
+<ul>
+  <li><strong>Intel Macs</strong> — the build is arm64 only.</li>
+  <li><strong>macOS 13 Ventura and earlier</strong>.</li>
+  <li><strong>Windows and Linux</strong> — there is no build for either today.</li>
+  <li><strong>iPad and iPhone</strong>.</li>
+</ul>
+
+<p class="measured">How these were measured: on an Apple M4 with 24 GB of memory
+running macOS 26.5, using WavRead 1.4.4. Time and peak memory come from
+<code>/usr/bin/time -l</code> around a real analysis; disk figures are the bytes
+actually written. The macOS floor was read from the load commands of all 380
+binaries inside the app bundle, taking the highest. Your own times will differ
+with your chip and what else is running — the shape of the numbers is what
+matters, not the last digit.</p>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="capture.html">DAW capture</a> ·
+  <a href="documents.html">The documents</a> · <a href="faq.html">FAQ</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Capture from your DAW — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="WavRead Bridge is an AU and VST3 plugin that records what passes through it and hands the audio to WavRead — the master, the individual parts, or both at once.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="/#how">How it works</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>Capture from your DAW</h1>
+<p class="lede">WavRead Bridge is an AU and VST3 plugin. It passes audio through
+untouched, records what goes past, and hands the files to WavRead. No exporting,
+no bouncing, no file management.</p>
+
+<h2>Three ways to use it</h2>
+<table>
+  <tr><th>Where you put it</th><th>What you get</th></tr>
+  <tr>
+    <td><strong>Stereo Out</strong>, set to <em>Master</em></td>
+    <td>The finished mix, analysed as an ordinary track. The simplest setup, and
+    the one to start with.</td>
+  </tr>
+  <tr>
+    <td>One per track or bus, set to <em>Stem</em></td>
+    <td>A stem set: every part measured on its own, an arrangement grid showing
+    what plays where, and frequency bands attributed to the parts carrying them.</td>
+  </tr>
+  <tr>
+    <td><strong>Both together</strong></td>
+    <td>A stem set whose mix is your real master — master-bus processing
+    included — plus a measurement of what that bus adds.</td>
+  </tr>
+</table>
+
+<h2>Stems cannot come from the master bus</h2>
+<p>By the time audio reaches the master insert it has already been summed. The
+individual parts no longer exist as separate signals, and no software can pull
+them back apart — what separation tools do is estimate parts from a mix, which
+is a different thing with different accuracy.</p>
+<p>So per-part detail needs an instance per source. <strong>Busses are the
+practical middle ground</strong>: drums, bass, vocals, synths, FX — five
+instances rather than forty, and that is the level WavRead's stem analysis works
+at anyway.</p>
+
+<h2>Arm everything at once</h2>
+<p>Instances cannot see each other — a plugin on the drum bus knows nothing
+about the one on vocals. So <strong>Arm all</strong> works through the app: press
+it in any plugin window, or on WavRead's Analyze page, and every instance in the
+session arms within a second. Roll the transport, stop it, and the take is
+analysed by itself.</p>
+<p>The arming is cleared once a take is handed over. An arming that outlived its
+take would put your next transport roll into record without anyone asking for
+it.</p>
+
+<h2>What it costs to run</h2>
+<p>Measured at 48&nbsp;kHz with 512-sample blocks, paced in realtime. The audio
+thread only copies each block into a lock-free queue, so the cost is a memcpy
+and it scales linearly:</p>
+<table>
+  <tr><th>Instances</th><th>Audio thread</th><th>Share of the block deadline</th><th>Whole process</th><th>Disk</th></tr>
+  <tr><td>1</td><td>3.9 µs/block</td><td>0.04%</td><td>0.5% of one core</td><td>0.3 MB/s</td></tr>
+  <tr><td>8</td><td>17.7 µs/block</td><td>0.17%</td><td>1.6% of one core</td><td>2.2 MB/s</td></tr>
+  <tr><td>16</td><td>37.2 µs/block</td><td>0.35%</td><td>2.7% of one core</td><td>4.4 MB/s</td></tr>
+  <tr><td>32</td><td>76.4 µs/block</td><td>0.72%</td><td>5.1% of one core</td><td>8.8 MB/s</td></tr>
+</table>
+<p>No dropped audio at any of those counts. <strong>Storage is the real
+budget</strong>, not CPU: 24-bit stereo at 48&nbsp;kHz is roughly a gigabyte per
+instance per hour, so a 4-minute song captured across 32 tracks is about 2 GB.
+Point your library at an external drive in Settings if you capture whole
+sessions.</p>
+
+<h2>What the master bus adds</h2>
+<p>Capture the master <em>and</em> the parts and WavRead holds the same
+performance twice — before and after the bus. The difference is measurable, so
+reverb and delay get measured rather than guessed:</p>
+<ul>
+  <li><strong>Repeats</strong> — delay times in milliseconds, with the note value
+  they land on against the detected tempo</li>
+  <li><strong>Tail</strong> — how long what the bus adds takes to decay, measured
+  in a gap where the parts have stopped. No gap in the take, no claim made</li>
+  <li><strong>Tone change through the bus</strong>, per band, and how much of the
+  master's energy is not in the parts at all</li>
+</ul>
+<div class="note caution">
+  <p>Three things look like a delay and are not one: reverb, which correlates
+  with its own source; the music's own period, since a part playing every bar
+  repeats every bar; and a feedback tap, which is the same delay heard again.
+  All three are ruled out before a number is printed.</p>
+  <p>And one honest limit — a reverb that was already an insert on a channel is
+  inside the captured part, so it is invisible to this comparison. Sends and
+  master-bus processing are what show up.</p>
+</div>
+
+<h2>Installing the plugin</h2>
+<p>The plugin is a separate download from the app. Both formats install to
+<code>~/Library/Audio/Plug-Ins/</code> — Logic loads the AU, while Cubase, Studio
+One, Reaper and Live use the VST3. Rescan plugins in your DAW afterwards.</p>
+<div class="note">
+  <p>WavRead has to be running for a capture to go anywhere: the plugin writes
+  into WavRead's own library folder and tells the app when it is done. Nothing
+  reaches the network — the only address the plugin ever uses is 127.0.0.1.</p>
+</div>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="requirements.html">Requirements</a> ·
+  <a href="documents.html">The documents</a> · <a href="faq.html">FAQ</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Questions — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Straight answers about what WavRead measures, what it refuses to guess, what leaves your machine, and what it costs.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="/#how">How it works</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>Questions</h1>
+<p class="lede">Including the ones with awkward answers.</p>
+
+<div class="qa">
+  <h3>Does it change my audio?</h3>
+  <p>No. WavRead never writes to your files and never processes your mix. It
+  measures and explains; your DAW does the editing. The capture plugin passes
+  audio through untouched — the buffer that arrives is the buffer that leaves.</p>
+</div>
+
+<div class="qa">
+  <h3>Does anything get uploaded?</h3>
+  <p>No audio, no analysis, no identifier, ever. Two requests exist in the whole
+  app: a once-a-day check for a newer version, which you can switch off, and a
+  one-time 80 MB model download <em>if</em> you use the built-in stem separation.
+  Everything else runs offline, and the app works with the network cable out.</p>
+</div>
+
+<div class="qa">
+  <h3>Is there an account or a subscription?</h3>
+  <p>No account, no sign-in, no licence server. WavRead is free today. It will
+  become a paid app — a one-time purchase — and the plan is that people using it
+  before then keep what they have.</p>
+</div>
+
+<div class="qa">
+  <h3>Why does macOS say the app is from an unidentified developer?</h3>
+  <p>Because it is not code-signed with an Apple Developer certificate yet.
+  Right-click the app and choose Open the first time. Signing and notarisation
+  are on the list; until then that prompt is the honest consequence.</p>
+</div>
+
+<div class="qa">
+  <h3>Will it run on my Intel Mac?</h3>
+  <p>No. The build is Apple Silicon only. See
+  <a href="requirements.html">requirements</a> for the full picture.</p>
+</div>
+
+<div class="qa">
+  <h3>How accurate are the loudness and peak numbers?</h3>
+  <p>Integrated loudness follows ITU-R BS.1770, loudness range follows EBU Tech
+  3342, and true peak is estimated by 4× oversampling as BS.1770 Annex 2
+  describes. Peak and clipping are measured across the real channels — a mono
+  fold-down understates a peak living in one channel by up to 6 dB, which is a
+  bug WavRead shipped once and now has a regression test against.</p>
+</div>
+
+<div class="qa">
+  <h3>Are the chords, key, melody and lyrics reliable?</h3>
+  <p>They are estimates and the documents label them as such. Chords and key come
+  from pitch-class analysis, melody from a note-detection model, lyrics from
+  speech recognition on the vocal part. Treat them as a good first draft, not a
+  transcription you would print.</p>
+</div>
+
+<div class="qa">
+  <h3>Can it tell me what reverb or compressor was used?</h3>
+  <p>No, and it will not pretend to. What it can do — when you capture your
+  master alongside the individual parts — is measure the <em>difference</em>
+  between them: delay times in milliseconds, how long the added tail takes to
+  decay, and the tone change through the bus. That is measurement, not
+  identification. It reports "a repeat at 375 ms", never "this is a Space
+  Designer".</p>
+</div>
+
+<div class="qa">
+  <h3>Do I need the plugin on every track?</h3>
+  <p>Only if you want every track measured separately. One instance on your
+  master gives you the finished mix. Busses are the sensible middle ground —
+  five instances instead of forty. And if you would rather not use the plugin at
+  all, export your tracks as audio files and drop the folder in: WavRead takes a
+  folder of stems directly.</p>
+</div>
+
+<div class="qa">
+  <h3>Where do my files live?</h3>
+  <p>In one folder you choose, with everything in it: analyses, documents,
+  captures and copies of your audio. Settings shows you where it is, how big it
+  is, and moves it to another drive if you want — copying everything first and
+  removing the original only once the copy is complete.</p>
+</div>
+
+<div class="qa">
+  <h3>What happens to my old analyses when WavRead updates?</h3>
+  <p>They stay readable. Documents carry the version and measurement schema that
+  produced them, and when a measurement changes in a way that makes old and new
+  numbers incomparable, WavRead says so instead of mixing them silently. You can
+  reanalyze anything whose original audio is still where it was.</p>
+</div>
+
+<div class="qa">
+  <h3>Why does a number sometimes say "unavailable"?</h3>
+  <p>Because it could not be measured — the analysis predates the measurement,
+  the file is too short for that window, or the take has no quiet gap to measure
+  a decay in. A dash never means zero. A number that isn't there is more useful
+  than one that's wrong.</p>
+</div>
+
+<div class="qa">
+  <h3>Can I give the documents to ChatGPT or Claude?</h3>
+  <p>That is what they are written for. The Track Document is plain Markdown
+  containing measurements and no audio. Sharing it is your decision — WavRead
+  never sends it anywhere itself.</p>
+</div>
+
+<div class="qa">
+  <h3>Does it update itself?</h3>
+  <p>Only when you press the button. Update now downloads the release, checks it
+  against the checksum published in the release notes, confirms the app inside is
+  the version it claims to be, and swaps it in — moving your current app aside
+  first and putting it back if anything fails.</p>
+</div>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="capture.html">DAW capture</a> ·
+  <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>

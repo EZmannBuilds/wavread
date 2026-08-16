@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The documents — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="What WavRead writes: a Track Document holding every measurement in readable language, and a Feedback Report where each finding carries the measurement it stands on.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<nav aria-label="Main">
+  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
+  <a href="/#how">How it works</a>
+  <a href="capture.html">DAW capture</a>
+  <a href="documents.html">The documents</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="faq.html">FAQ</a>
+  <span class="spacer"></span>
+  <a class="btn primary" style="height:34px" href="/#download">Download</a>
+</nav>
+
+<h1>What WavRead writes</h1>
+<p class="lede">Every analysis produces two documents. One holds what was
+measured. The other says what it might mean. They are kept apart on purpose,
+because a measurement and an opinion are not the same kind of thing.</p>
+
+<div class="cols">
+  <div class="card">
+    <h3>Track Document</h3>
+    <p>Everything measured, in words and tables — written to be read by a person
+    or handed to an AI assistant. Markdown, yours to copy anywhere.</p>
+  </div>
+  <div class="card">
+    <h3>Feedback Report</h3>
+    <p>What's working and what to check. Each finding carries the measurement it
+    stands on, what it may mean, and what to listen for.</p>
+  </div>
+</div>
+
+<h2>What the Track Document contains</h2>
+<table class="spec">
+  <tr><th>Section</th><th>What's in it</th></tr>
+  <tr><td><strong>Delivery contract</strong></td>
+      <td>Integrated loudness (LUFS), loudness range, true peak in dBTP by
+      oversampling, sample peak per channel, crest factor, clipped samples, DC
+      offset, sample rate and encoding.</td></tr>
+  <tr><td><strong>Structure</strong></td>
+      <td>Detected sections with timestamps, tempo, key, and how the energy
+      changes from one section to the next.</td></tr>
+  <tr><td><strong>Frequency balance</strong></td>
+      <td>1/3-octave spectrum grouped into named regions, with the share of
+      measured energy each carries.</td></tr>
+  <tr><td><strong>Over time</strong></td>
+      <td>Loudness, stereo width and mono compatibility measured across the
+      track rather than averaged into one number.</td></tr>
+  <tr><td><strong>Chords and melody</strong></td>
+      <td>Estimated chord events, and the vocal melody transcribed into timed
+      note phrases.</td></tr>
+  <tr><td><strong>Lyrics</strong></td>
+      <td>Transcribed from the vocal part when there is one, with timings.</td></tr>
+  <tr><td><strong>Instrumentation</strong> <span class="tick">(stems)</span></td>
+      <td>Every part measured on its own — level, peak, true peak, clipping,
+      when it enters, how busy it is, where its energy sits — plus an
+      arrangement grid of what plays in which section.</td></tr>
+  <tr><td><strong>What the master bus adds</strong> <span class="tick">(captures)</span></td>
+      <td>Delay times, how long the added tail takes to decay, and the tone
+      change through the bus. Measured as the difference between your master and
+      your parts.</td></tr>
+  <tr><td><strong>Your markers</strong></td>
+      <td>Notes you wrote at a timestamp, kept separate from what WavRead
+      measured and labelled as yours.</td></tr>
+  <tr><td><strong>Provenance</strong></td>
+      <td>Which version of WavRead produced this, which DSP libraries, which
+      models, when, and which mix the numbers describe.</td></tr>
+</table>
+
+<h2>A finding is three separable parts</h2>
+<p>WavRead never gives you a processing recipe. It measures; your DAW edits.
+Every finding in the Feedback Report is written so you can disagree with the
+interpretation while keeping the measurement:</p>
+<div class="panel">
+<pre>3. This part reaches full scale before the mix bus: Lead (4,210 samples).
+   May mean: Measured on each part's own file, across its real channels.
+             Whatever the mix bus does afterwards, the damage is already
+             in the part.
+   Listen for: That instrument alone, at the loudest point — for a
+               flattened transient or a crackle on the peaks.
+   Heard at: 1:42–1:47</pre>
+</div>
+<p>The measurement is a fact. What it may mean is an inference you can reject.
+What to listen for is how you check it yourself.</p>
+
+<h2>Written for AI assistants too</h2>
+<p>The Track Document is plain Markdown with stable headings and tables — hand
+it to any assistant and ask it questions about your mix. Nothing is uploaded by
+WavRead itself; sharing the document is your decision, and it contains only
+measurements, not your audio.</p>
+
+<h2>Anything unmeasurable says so</h2>
+<p>A dash in a WavRead document means <em>unavailable</em>, never zero. If a
+value could not be measured — an older analysis, a file too short for a
+particular window, a take with no quiet gap to measure a tail in — the document
+says which and why. A number that isn't there is more useful than a number
+that's wrong.</p>
+
+<footer>
+  <a href="/">WavRead</a> · <a href="capture.html">DAW capture</a> ·
+  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+
+</body>
+</html>
