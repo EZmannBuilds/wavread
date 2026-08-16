@@ -10,7 +10,7 @@ const read = (path) => readFile(resolve(path), "utf8");
 test("public homepage tells the real beta story", async () => {
   const html = await read("docs/index.html");
   assert.match(html, /WavRead Beta/);
-  assert.match(html, /Version 1\.4\.4/);
+  assert.match(html, /Beta 1\.4\.4/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
   assert.match(html, /Free beta/);
@@ -126,5 +126,44 @@ test("motion, focus, and content security have explicit safe defaults", async ()
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
     assert.doesNotMatch(html, /\sstyle="|\sonclick=|\sonsubmit=|\sonload=/i, `${file} must not rely on CSP-blocked inline behavior`);
+  }
+});
+
+test("A1 Clinical Signal tokens, type, and semantic roles stay canonical", async () => {
+  const css = await read("docs/site.css");
+  for (const [token, value] of [
+    ["--wr-bg", "#0b0d10"],
+    ["--wr-surface-1", "#12161b"],
+    ["--wr-surface-2", "#1a2027"],
+    ["--wr-text", "#f3f6f8"],
+    ["--wr-muted", "#929ca7"],
+    ["--wr-accent", "#4da8ff"],
+    ["--wr-signal", "#53e0d4"],
+    ["--wr-warning", "#ffb454"]
+  ]) {
+    assert.match(css, new RegExp(`${token}:\\s*${value}`, "i"), `${token} must keep its A1 value`);
+  }
+  assert.match(css, /font-family:\s*"Inter"/);
+  assert.match(css, /font-family:\s*"Space Grotesk"/);
+  assert.match(css, /\.btn\.primary\s*\{[^}]*background:\s*var\(--wr-accent\)/s);
+  assert.doesNotMatch(css, /\.btn\.primary\s*\{[^}]*var\(--wr-warning\)/s);
+  for (const asset of [
+    "docs/fonts/inter-latin.woff2",
+    "docs/fonts/space-grotesk-latin.woff2",
+    "docs/fonts/INTER-LICENSE.txt",
+    "docs/fonts/SPACE-GROTESK-LICENSE.txt"
+  ]) {
+    await assert.doesNotReject(access(asset), `${asset} must ship with the site`);
+  }
+});
+
+test("the approved website mark is vector-only and used consistently", async () => {
+  const mark = await read("docs/img/wavread-mark.svg");
+  assert.match(mark, /<svg\b/);
+  assert.doesNotMatch(mark, /<image\b|data:image/i);
+  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "EULA.html"];
+  for (const file of brandedPages) {
+    const html = await read(join("docs", file));
+    assert.match(html, /class="brand-mark" src="img\/wavread-mark\.svg"/, `${file} needs the approved vector wordmark`);
   }
 });

@@ -5,7 +5,7 @@
 <title>WavRead — music analysis you can read</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="WavRead measures your music locally and translates the results into clear language, evidence, and documents for producers, engineers, and artists.">
-<meta name="theme-color" content="#0c0f13">
+<meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="site.css">
@@ -16,7 +16,7 @@
 
 <header class="site-header">
   <nav aria-label="Main">
-    <a class="wordmark" href="/" aria-label="WavRead home"><img src="favicon.png" alt="" width="30" height="30"> WavRead</a>
+    <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="34" height="34"><span>WavRead</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
     <div class="nav-links" id="nav-links">
       <a href="how-it-works.html">How it works</a>
@@ -35,8 +35,8 @@
 <main id="main">
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="eyebrow"><span>WavRead Beta</span> Version 1.4.4</p>
-      <h1 id="hero-title">Hear the details.<br><em>Read the whole track.</em></h1>
+      <p class="eyebrow"><span>Local audio analysis</span> Beta 1.4.4</p>
+      <h1 id="hero-title">Reveal what the<br><em>music is doing.</em></h1>
       <p class="hero-lede">WavRead measures your music and translates the results into clear,
       useful language for producers, engineers, and artists. Your audio stays on your Mac.</p>
       <div class="hero-actions">
@@ -48,12 +48,16 @@
       </ul>
     </div>
     <div class="hero-product">
-      <div class="spectrum-glow" aria-hidden="true"></div>
+      <div class="measurement-rail" aria-label="Measurements shown in the product screenshot">
+        <span><b>79.5</b><small>BPM · DETECTED</small></span>
+        <span><b>G MINOR</b><small>KEY · 86% CONFIDENCE</small></span>
+        <span><b>2:48</b><small>DURATION · MEASURED</small></span>
+      </div>
       <figure class="app-window">
         <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>WavRead — Track Workspace</span></div>
         <img src="img/workspace-overview.png" alt="WavRead Track Workspace showing detected tempo, estimated key, measured duration, and evidence-based findings for an analyzed song." width="1100" height="900">
       </figure>
-      <p class="product-note"><span>Measured locally</span> Audio never leaves your computer.</p>
+      <p class="product-note"><span>Analysis complete</span> Measured locally · audio never leaves your computer.</p>
     </div>
   </section>
 
@@ -147,7 +151,7 @@
 </main>
 
 <footer class="site-footer">
-  <div><a class="wordmark" href="/"><img src="favicon.png" alt="" width="28" height="28"> WavRead</a><p>Your music, translated into words.</p></div>
+  <div><a class="wordmark" href="/"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a><p>Your music, translated into words.</p></div>
   <div><strong>Product</strong><a href="how-it-works.html">How it works</a><a href="documents.html">Documents</a><a href="capture.html">DAW capture</a><a href="requirements.html">Requirements</a></div>
   <div><strong>Beta</strong><a href="signin.html">Tester sign in</a><a href="beta-dashboard.html">Tester dashboard</a><a href="https://github.com/EZmannBuilds/wavread/releases">Releases</a></div>
   <div><strong>Company</strong><a href="privacy.html">Privacy</a><a href="faq.html">Questions</a><a href="/EULA">Licence</a></div>
