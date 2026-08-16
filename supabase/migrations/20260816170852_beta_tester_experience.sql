@@ -1,12 +1,21 @@
 begin;
 
 create table public.beta_testers (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+  tester_id uuid primary key default gen_random_uuid(),
+  auth_user_id uuid unique references auth.users(id) on delete set null,
+  email text not null check (
+    char_length(email) between 3 and 254
+    and email = lower(btrim(email))
+  ),
   status text not null default 'active' check (status in ('active', 'paused', 'ended')),
-  recognized_at timestamptz not null default now(),
+  joined_at timestamptz not null default now(),
+  ended_at timestamptz,
   complimentary_release_eligible boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  check ((status = 'ended' and ended_at is not null) or (status <> 'ended' and ended_at is null))
 );
+
+create unique index beta_testers_email_unique_idx on public.beta_testers (lower(email));
 
 create table public.beta_known_issues (
   id bigint generated always as identity primary key,
@@ -23,7 +32,7 @@ create table public.beta_known_issues (
 
 create table public.beta_feedback (
   id bigint generated always as identity primary key,
-  tester_id uuid not null references auth.users(id) on delete cascade,
+  tester_id uuid not null references public.beta_testers(tester_id) on delete restrict,
   feedback_type text not null check (feedback_type in ('bug', 'feature', 'general')),
   title text not null check (char_length(title) between 3 and 120),
   description text not null check (char_length(description) between 20 and 4000),
@@ -56,7 +65,7 @@ grant usage, select on sequence public.beta_feedback_id_seq to authenticated;
 create policy "Testers can read only their own eligibility"
 on public.beta_testers for select
 to authenticated
-using ((select auth.uid()) = user_id);
+using ((select auth.uid()) = auth_user_id);
 
 create policy "Active testers can read published known issues"
 on public.beta_known_issues for select
@@ -65,7 +74,7 @@ using (
   published = true
   and exists (
     select 1 from public.beta_testers
-    where beta_testers.user_id = (select auth.uid())
+    where beta_testers.auth_user_id = (select auth.uid())
       and beta_testers.status = 'active'
   )
 );
@@ -74,10 +83,10 @@ create policy "Active testers can submit their own feedback"
 on public.beta_feedback for insert
 to authenticated
 with check (
-  tester_id = (select auth.uid())
-  and exists (
+  exists (
     select 1 from public.beta_testers
-    where beta_testers.user_id = (select auth.uid())
+    where beta_testers.tester_id = beta_feedback.tester_id
+      and beta_testers.auth_user_id = (select auth.uid())
       and beta_testers.status = 'active'
   )
 );
@@ -85,10 +94,18 @@ with check (
 create policy "Testers can read only their own feedback"
 on public.beta_feedback for select
 to authenticated
-using (tester_id = (select auth.uid()));
+using (
+  exists (
+    select 1 from public.beta_testers
+    where beta_testers.tester_id = beta_feedback.tester_id
+      and beta_testers.auth_user_id = (select auth.uid())
+  )
+);
 
-comment on table public.beta_testers is 'Server-controlled WavRead beta eligibility. Browser clients cannot insert or update tester status.';
+comment on table public.beta_testers is 'Server-controlled WavRead tester identity and beta eligibility. The stable tester ID survives auth-provider deletion; browser clients cannot insert or update it.';
+comment on column public.beta_testers.auth_user_id is 'Replaceable Supabase Auth binding. ON DELETE SET NULL preserves WavRead tester history and future entitlement evidence.';
+comment on column public.beta_testers.email is 'Canonical lowercase tester contact and recovery identity, controlled and exportable by WavRead.';
 comment on column public.beta_testers.complimentary_release_eligible is 'Future entitlement marker only; no commercial license behavior is implemented.';
-comment on table public.beta_feedback is 'Minimal tester-submitted feedback protected by ownership and active-tester RLS policies.';
+comment on table public.beta_feedback is 'Minimal tester-submitted feedback linked to the stable WavRead tester ID and protected by ownership and active-tester RLS policies.';
 
 commit;

@@ -4,6 +4,7 @@ const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
 let supabase = null;
 let currentUser = null;
+let currentTesterId = null;
 
 function setStatus(element, message, state = "") {
   if (!element) return;
@@ -159,13 +160,14 @@ async function initializeDashboard() {
 
   const { data: tester, error: testerError } = await supabase
     .from("beta_testers")
-    .select("status, recognized_at, complimentary_release_eligible")
-    .eq("user_id", currentUser.id)
+    .select("tester_id, status, joined_at, complimentary_release_eligible")
+    .eq("auth_user_id", currentUser.id)
     .maybeSingle();
   if (testerError || !tester || tester.status !== "active") {
     showDashboardState("unauthorized-state");
     return;
   }
+  currentTesterId = tester.tester_id;
 
   document.querySelector("#tester-email").textContent = currentUser.email || "Registered tester";
   document.querySelector("#feedback-app-version").value = CURRENT_VERSION;
@@ -193,7 +195,7 @@ async function initializeDashboard() {
     submit.disabled = true;
     setStatus(feedbackStatus, "Sending feedback…");
     const payload = {
-      tester_id: currentUser.id,
+      tester_id: currentTesterId,
       feedback_type: fields.get("feedback_type"),
       title: fields.get("title").trim(),
       description: fields.get("description").trim(),

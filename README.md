@@ -15,7 +15,8 @@ This repository hosts WavRead's website source and release downloads. Update
 pages stay account-free, while the tester dashboard uses Supabase Auth and RLS.
 
 The site is deployed to Vercel. `./deploy.sh` is the production publishing
-command and must only be run after separate approval. Local verification:
+command and must only be run after separate approval. It runs these verification
+steps and stages the built site plus the beta config API before publishing:
 
 ```sh
 npm run check

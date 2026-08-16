@@ -3,9 +3,12 @@
 # Usage: ./deploy.sh   (requires the Vercel CLI, already authenticated)
 set -e
 cd "$(dirname "$0")"
+npm run check
+npm test
+npm run build
 STAGE="$(mktemp -d)/wavread"
 mkdir -p "$STAGE"
-cp -r docs/* "$STAGE"/
-cp vercel.json "$STAGE"/ 2>/dev/null || true
+cp -r dist-site/* "$STAGE"/
+cp vercel.json "$STAGE"/
 cd "$STAGE"
 vercel deploy --prod --yes

@@ -18,13 +18,20 @@ not changed from this branch.
 - Current beta stays free; no price or release date is hard-coded into the site.
 - Public visitors need no account. Only invited testers use website authentication.
 - Current release metadata and downloads still point to the real 1.4.4 GitHub release.
+- No private 1.4.7 app build exists. Future gated builds are manual dashboard
+  downloads because the desktop updater can access only public GitHub releases.
+- GitHub beta releases must be prereleases and include a DMG plus a SHA-256 checksum.
 - Real 1.4.4 screenshots are used; no application interface is fabricated.
 - No analytics or third-party tracking was added.
-- The tester registry—not local storage, routes, or user metadata—controls access.
+- The tester registry—not local storage, routes, or auth user metadata—controls access.
+- A WavRead-owned tester ID, email, and join date survive auth-provider deletion so
+  feedback history and future complimentary-release eligibility remain portable.
+- This is a website-only update; it does not require or introduce desktop app changes.
 
 ## Verification and deployment
 
-Run `npm run check`, `npm test`, and `npm run build`. Apply the Supabase migration
+Run `npm run check`, `npm test`, and `npm run build`. The production helper now runs
+those gates and stages the built site, including the config API, before Vercel. Apply the Supabase migration
 only to an approved preview project, run database advisors, configure preview-only
 environment variables, and test an invited and non-invited account before approval.
 

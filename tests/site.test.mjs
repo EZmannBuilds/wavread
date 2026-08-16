@@ -49,6 +49,8 @@ test("tester routes fail closed and never make users testers in the browser", as
   assert.match(auth, /shouldCreateUser:\s*false/);
   assert.match(auth, /auth\.getUser\(\)/);
   assert.match(auth, /from\("beta_testers"\)/);
+  assert.match(auth, /\.eq\("auth_user_id", currentUser\.id\)/);
+  assert.match(auth, /tester_id: currentTesterId/);
   assert.match(auth, /status !== "active"/);
   assert.doesNotMatch(auth, /service[_-]?role/i);
   assert.match(signin, /Only pre-registered beta testers/);
@@ -62,10 +64,29 @@ test("database migration enables RLS and ownership checks", async () => {
   for (const table of ["beta_testers", "beta_known_issues", "beta_feedback"]) {
     assert.match(sql, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
   }
-  assert.match(sql, /tester_id = \(select auth\.uid\(\)\)/i);
+  assert.match(sql, /tester_id uuid primary key default gen_random_uuid\(\)/i);
+  assert.match(sql, /auth_user_id uuid unique references auth\.users\(id\) on delete set null/i);
+  assert.match(sql, /references public\.beta_testers\(tester_id\) on delete restrict/i);
+  assert.match(sql, /beta_testers\.tester_id = beta_feedback\.tester_id/i);
+  assert.doesNotMatch(sql, /references auth\.users\(id\) on delete cascade/i);
   assert.match(sql, /beta_testers\.status = 'active'/i);
   assert.match(sql, /revoke all on table public\.beta_feedback from anon, authenticated/i);
   assert.doesNotMatch(sql, /security definer/i);
+});
+
+test("release channels and production staging are explicit", async () => {
+  const dashboard = await read("docs/beta-dashboard.html");
+  const backend = await read("BETA_BACKEND.md");
+  const deploy = await read("deploy.sh");
+  assert.match(dashboard, /Public stable build/);
+  assert.match(dashboard, /No private 1\.4\.7 app build is published/);
+  assert.match(dashboard, /in-app updater checks public GitHub releases/);
+  assert.match(backend, /must be marked as a \*\*prerelease\*\*/);
+  assert.match(backend, /64-character SHA-256/);
+  assert.match(deploy, /npm run check/);
+  assert.match(deploy, /npm test/);
+  assert.match(deploy, /npm run build/);
+  assert.match(deploy, /cp -r dist-site\/\*/);
 });
 
 test("runtime configuration exposes only the publishable key", async () => {
