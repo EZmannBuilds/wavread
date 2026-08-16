@@ -100,7 +100,7 @@ that ships with the app.</p>
 </table>
 
 <h2 id="pricing">Free during development</h2>
-<p>WavRead is free to use today, at version 1.4.4. It will become a paid app — a
+<p>WavRead is free to use today, at version 1.4.10. It will become a paid app — a
 <strong>one-time purchase</strong>, not a subscription, since it runs on your computer and
 there is nothing for us to host.</p>
 <p>That change is not tied to a version number. It happens when the app is code-signed and
@@ -110,7 +110,7 @@ told before anything starts costing money.</p>
 
 <h2 id="download">Download</h2>
 <p>
-  <a class="btn primary" href="https://github.com/EZmannBuilds/wavread/releases/download/v1.4.4/WavRead-1.4.4.dmg">⬇ Download for Mac (.dmg, 236 MB)</a>
+  <a class="btn primary" href="https://github.com/EZmannBuilds/wavread/releases/download/v1.4.10/WavRead-1.4.10.dmg">⬇ Download for Mac (.dmg, 237 MB)</a>
   <a class="btn" href="https://github.com/EZmannBuilds/wavread/releases">All releases</a>
 </p>
 <p>The installer isn't code-signed yet, so on first launch macOS will warn about an
@@ -118,6 +118,7 @@ unidentified developer: right-click the app → <em>Open</em> → <em>Open</em>,
 signing is planned. Analyses made under the app's former name, SoundScribe, keep working.</p>
 
 <h2>Development status</h2>
+<div class="release"><h3>1.4.10 <span class="date">— August 16, 2026</span></h3><ul><li>The capture plugin now knows what it is on — a track, a group or stack, a reverb bus, a delay bus, or the master — and each one is analysed differently</li><li>Capture a reverb or delay return on its own bus and its decay and repeat times are measured on the effect itself, not inferred from what the master has left over</li><li>Captures are put on one timeline: a host does not run a track's plugins until that track has audio, so parts that enter later are aligned before analysis rather than treated as though they opened the song</li><li>Takes are named from what they contain instead of all being called "Session", and any analysed track can be renamed afterwards — documents, audio, markers and history move together</li><li>The stem table gained level against the loudest part, a reduce-by column, per-part crest, and DC offset with asymmetry, so a DC offset on the master can be traced to the part causing it</li><li>Key detection asks the chord progression which note is the tonic, correcting the relative-major error; stem separation is cached against a hash of the audio rather than a filename</li></ul></div>
 <div class="release"><h3>1.4.4 <span class="date">— August 16, 2026</span></h3><ul><li>Capture a session straight from your DAW with the WavRead Bridge plugin (AU and VST3): the master, the parts, or both — armed together in one press</li><li>Capture the master alongside the parts and WavRead measures what the master bus adds: delay times, how long the reverb takes to decay, and the tone change through the bus</li><li>Every part is now measured for peak, true peak and clipping, so a track that arrived already clipped is named rather than hidden in the mix</li><li>How to use WavRead is now a page inside the app, and Update now installs a release after checking it against its published checksum</li></ul></div>
 <div class="release"><h3>1.4.0 <span class="date">— August 15, 2026</span></h3><ul><li>Findings you can check: every finding that can be heard carries a Listen button that plays and loops exactly the range it stands on, and opens the graph it came from</li><li>A finding is now three separable parts — the measurement, what it may mean, and what to listen for. Processing recipes are gone: WavRead measures, your DAW edits</li><li>Stems are named as the source of a frequency band only when the data supports it, and never when the energy is spread across parts</li></ul></div>
 <div class="release"><h3>1.3.0 <span class="date">— August 15, 2026</span></h3><ul><li>Measurement trust: peak was being measured on the mono fold-down, which hides a peak living in one channel by up to 6&nbsp;dB &mdash; now measured on the real channels. Reanalyze in Settings to correct existing tracks</li><li>True peak (dBTP) by oversampling per ITU-R BS.1770, plus loudness range (LRA), peak-to-loudness, per-channel peaks, clipping count and DC offset</li><li>A delivery contract in every document, each value naming the standard it was measured to and the versions that produced it</li><li>Loudness points now sit at their real measurement positions rather than spread across the track</li><li>Values that could not be measured say so instead of showing a dash</li></ul></div>
