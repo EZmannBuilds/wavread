@@ -42,6 +42,25 @@ test("all local links and assets resolve", async () => {
   }
 });
 
+test("public pages share one destination-based primary navigation", async () => {
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "privacy.html", "faq.html"];
+  const expectedLinks = [
+    ["how-it-works.html", "How it works"],
+    ["capture.html", "DAW capture"],
+    ["documents.html", "Documents"],
+    ["requirements.html", "Requirements"],
+    ["privacy.html", "Privacy"],
+    ["faq.html", "FAQ"]
+  ];
+  for (const file of publicPages) {
+    const html = await read(join("docs", file));
+    const nav = html.match(/<div class="nav-links" id="nav-links">([\s\S]*?)<\/div>/)?.[1] || "";
+    const links = [...nav.matchAll(/<a href="([^"]+)"(?: aria-current="page")?>([^<]+)<\/a>/g)].map((match) => [match[1], match[2]]);
+    assert.deepEqual(links, expectedLinks, `${file} needs the complete primary navigation`);
+    assert.doesNotMatch(nav, /href="#/, `${file} must not mix page sections into the primary navigation`);
+  }
+});
+
 test("tester routes fail closed and never make users testers in the browser", async () => {
   const auth = await read("docs/js/beta-auth.js");
   const signin = await read("docs/signin.html");

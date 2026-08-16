@@ -46,6 +46,8 @@
   nav .spacer { flex: 1; }
   .site-header { border-bottom: 1px solid color-mix(in srgb, var(--wr-border) 72%, transparent); }
   .nav-links { display: flex; align-items: center; gap: 22px; }
+  .nav-links a[aria-current="page"] { color: var(--wr-text); }
+  .nav-links a[aria-current="page"]::after { content: ""; display: block; height: 1px; margin-top: 3px; background: var(--wr-signal); }
   .nav-signin { white-space: nowrap; }
   h1 { font-size: 42px; line-height: 1.12; margin: 0 0 16px; letter-spacing: -0.5px; }
   h2 { font-size: 22px; margin: 56px 0 12px; }
@@ -311,10 +313,12 @@ textarea { min-height: 130px; resize: vertical; } input:focus, select:focus, tex
 .session-actions { display: flex; gap: 12px; align-items: center; }
 .small-button { border: 0; background: transparent; color: var(--wr-text-2); padding: 8px; cursor: pointer; }.small-button:hover { color: var(--wr-accent); }
 
-body:not(.home):not(.beta-app) { max-width: 880px; padding-top: 28px; }
-body:not(.home):not(.beta-app) nav { flex-wrap: wrap; margin-bottom: 56px; }
+body:not(.home):not(.beta-app) { max-width: 1180px; }
+body:not(.home):not(.beta-app) main,
+body:not(.home):not(.beta-app) > footer { width: min(100%, 824px); margin-inline: auto; }
+body:not(.home):not(.beta-app) nav { margin-bottom: 56px; }
 
-@media (max-width: 900px) {
+@media (max-width: 1040px) {
   .nav-toggle { display: block; margin-left: auto; }
   .site-header nav { position: relative; }
   .site-header .spacer { display: none; }
