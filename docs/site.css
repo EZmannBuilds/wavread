@@ -148,7 +148,18 @@ nav .spacer { flex: 1; }
   text-decoration: none;
 }
 .wordmark img,
-.brand-mark { display: block; width: 34px; height: 34px; border-radius: 8px; }
+.brand-mark {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  transition: transform var(--wr-motion-fast) var(--wr-ease), filter var(--wr-motion-medium) var(--wr-ease);
+}
+.wordmark:hover .brand-mark,
+.wordmark:focus-visible .brand-mark {
+  transform: translateY(-1px) scale(1.035);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--wr-signal) 28%, transparent));
+}
 .nav-links { display: flex; align-items: center; gap: 20px; }
 .nav-links a { position: relative; white-space: nowrap; }
 .nav-links a[aria-current="page"] { color: var(--wr-text); }
@@ -544,4 +555,7 @@ textarea:disabled { color: var(--wr-disabled); cursor: not-allowed; }
   *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
   .js .reveal { opacity: 1; transform: none; }
   .hero-product::after { display: none; }
+  .brand-mark { transition: none; }
+  .wordmark:hover .brand-mark,
+  .wordmark:focus-visible .brand-mark { transform: none; filter: none; }
 }

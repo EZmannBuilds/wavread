@@ -161,6 +161,10 @@ test("the approved website mark is vector-only and used consistently", async () 
   const mark = await read("docs/img/wavread-mark.svg");
   assert.match(mark, /<svg\b/);
   assert.doesNotMatch(mark, /<image\b|data:image/i);
+  assert.match(mark, /@keyframes wave-acquire/);
+  assert.match(mark, /@keyframes trace-acquire/);
+  assert.match(mark, /prefers-reduced-motion:\s*reduce/);
+  assert.doesNotMatch(mark, /infinite/);
   const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "EULA.html"];
   for (const file of brandedPages) {
     const html = await read(join("docs", file));

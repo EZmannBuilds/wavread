@@ -3,6 +3,49 @@
   <title id="title">WavRead luminous cyan waveform icon</title>
   <desc id="description">A faithful vector recreation of the current WavRead icon: layered cyan and blue waveform shapes reflected across a central signal line inside a dark rounded-square container.</desc>
 
+  <style>
+    #signal-bloom {
+      animation: bloom-acquire 720ms 90ms cubic-bezier(.2,.72,.25,1) both;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    #secondary-wave {
+      animation: wave-acquire 620ms 70ms cubic-bezier(.2,.72,.25,1) both;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    #primary-wave {
+      animation: wave-acquire 680ms 150ms cubic-bezier(.2,.72,.25,1) both;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    #signal-line {
+      animation: trace-acquire 640ms 210ms cubic-bezier(.2,.72,.25,1) both;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+    @keyframes wave-acquire {
+      0% { opacity: 0; transform: scaleY(.04); }
+      62% { opacity: 1; transform: scaleY(1.035); }
+      100% { opacity: 1; transform: scaleY(1); }
+    }
+    @keyframes bloom-acquire {
+      0% { opacity: 0; transform: scale(.92,.08); }
+      70% { opacity: .38; }
+      100% { opacity: .32; transform: scale(1); }
+    }
+    @keyframes trace-acquire {
+      to { stroke-dashoffset: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #signal-bloom,
+      #secondary-wave,
+      #primary-wave,
+      #signal-line { animation: none; }
+      #signal-line { stroke-dashoffset: 0; }
+    }
+  </style>
+
   <defs>
     <!-- Container -->
     <linearGradient id="containerFill" x1="0" y1="0" x2="0.92" y2="1">
@@ -107,7 +150,7 @@
     <rect x="7" y="5" width="1240" height="1242" rx="248" fill="url(#centerLift)"/>
 
     <!-- A restrained bloom sits behind the vector signal rather than replacing it. -->
-    <g opacity="0.32" filter="url(#signalGlow)">
+    <g id="signal-bloom" opacity="0.32" filter="url(#signalGlow)">
       <use href="#primaryTrace" fill="#00D8D0"/>
       <use href="#primaryTrace" transform="translate(0 1282) scale(1 -1)" fill="#0879FF"/>
     </g>
@@ -127,7 +170,8 @@
       <use href="#secondaryTrace" fill="#44F1E7" opacity="0.18"/>
       <use href="#secondaryTrace" transform="translate(0 1282) scale(1 -1)" fill="#14A5FF" opacity="0.16"/>
 
-      <path d="M72 640.1 C280 638.8 420 641.2 621 640.1 C824 639 1007 641.4 1203 640.1"
+      <path id="signal-line" pathLength="100"
+        d="M72 640.1 C280 638.8 420 641.2 621 640.1 C824 639 1007 641.4 1203 640.1"
         fill="none" stroke="url(#signalHighlight)" stroke-width="1.6"/>
     </g>
 

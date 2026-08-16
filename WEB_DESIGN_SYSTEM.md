@@ -58,9 +58,10 @@ favicon and app/install assets remain unchanged in this update.
 
 ## Motion and accessibility
 
-Motion is short, one-time, and connected to signal reading: a restrained scan on
-the first product preview plus 10–12px content reveals. There is no looping
-ambient motion. `prefers-reduced-motion: reduce` disables scan, reveal,
+Motion is short, one-time, and connected to signal reading: the mark acquires its
+waveform from the center trace, the first product preview receives a restrained
+scan, and content reveals travel only 10–12px. There is no looping ambient motion.
+`prefers-reduced-motion: reduce` disables mark acquisition, scan, reveal,
 transitions, and smooth scrolling.
 
 Every page keeps a skip link, one H1, keyboard-visible focus, semantic landmarks,

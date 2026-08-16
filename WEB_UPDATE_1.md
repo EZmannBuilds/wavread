@@ -13,6 +13,8 @@ the registered tester architecture delivered in Update 1.4.7.
 - A1 Clinical Signal tokens, typography, structure, motion, and semantic states.
 - A redesigned first viewport built around real WavRead analysis evidence.
 - The approved vector recreation of the current mark in website wordmarks.
+- A one-time signal-acquisition animation inside the vector mark, with a quiet
+  wordmark hover response and a fully static reduced-motion state.
 - Consistent public navigation across the landing and supporting pages.
 - Restyled sign-in, loading, setup, unauthorized, dashboard, feedback, and empty
   states without changing authentication or RLS behavior.
