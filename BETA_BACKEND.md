@@ -54,9 +54,33 @@ never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `SITE_URL`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are injected by the
 platform.
 
+## Provisioning status — 2026-08-27
+
+Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
+(us-east-1, $10/month, approved):
+
+- Both migrations applied and recorded under their file versions; the
+  database security advisors report zero findings.
+- All six Edge Functions deployed and smoke-tested; only `download-build`
+  requires a JWT at the gateway, matching `[functions.*]` in `config.toml`.
+- Secrets set: `SITE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` —
+  **Stripe test mode**. The webhook endpoint `we_1U99c2FkYWeYuh7hzM8KNYy4`
+  points at the deployed `stripe-webhook` function with the three fulfillment
+  events. Going live later means swapping the two Stripe secrets for live
+  ones and creating the live-mode webhook endpoint; nothing else changes.
+- Auth: site URL `https://wavread.vercel.app`, dashboard redirect URLs
+  allow-listed, public signup disabled.
+- Vercel project `wavread`: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`
+  set for Production and Preview. They take effect on the next deployment;
+  running `./deploy.sh` remains its own approval.
+
+Still open: the production site deploy, one end-to-end test purchase with a
+Stripe test card, and the live-mode Stripe swap when real sales begin.
+
 ## Provisioning, in order
 
-Nothing below is provisioned yet. Each numbered step is a separate decision.
+The original checklist, kept for rebuilding from nothing. Each numbered step
+is a separate decision.
 
 1. **Supabase project.** Create a dedicated `wavread` project (the org's next
    project bills at $10/month — a standing cost to approve deliberately). Do
