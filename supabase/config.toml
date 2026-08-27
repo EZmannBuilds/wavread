@@ -371,6 +371,22 @@ authorization_url_path = "/oauth/consent"
 # Allow dynamic client registration
 allow_dynamic_registration = false
 
+# Per-function gateway auth. Only download-build requires a signed-in user's
+# JWT; the others authenticate by their own means (Stripe signature, one-time
+# link code, report token) or are public by design (checkout start).
+[functions.create-checkout]
+verify_jwt = false
+[functions.stripe-webhook]
+verify_jwt = false
+[functions.link-device]
+verify_jwt = false
+[functions.crash-report]
+verify_jwt = false
+[functions.submit-report]
+verify_jwt = false
+[functions.download-build]
+verify_jwt = true
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.
