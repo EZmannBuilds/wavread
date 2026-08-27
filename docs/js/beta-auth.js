@@ -3,8 +3,17 @@ const CURRENT_VERSION = "1.4.4";
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
 let supabase = null;
+let betaConfig = null;
 let currentUser = null;
 let currentTesterId = null;
+
+const dateFormat = new Intl.DateTimeFormat("en-US", { dateStyle: "medium" });
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const parsed = new Date(iso);
+  return Number.isNaN(parsed.getTime()) ? "—" : dateFormat.format(parsed);
+}
 
 function setStatus(element, message, state = "") {
   if (!element) return;
@@ -34,6 +43,7 @@ async function loadConfiguration() {
 async function createBetaClient() {
   const config = await loadConfiguration();
   if (!config?.url || !config?.publishableKey) return null;
+  betaConfig = config;
   const { createClient } = await import(SUPABASE_MODULE);
   return createClient(config.url, config.publishableKey, {
     auth: {
@@ -98,6 +108,29 @@ function showDashboardState(id) {
   });
 }
 
+// A small table built entirely from text nodes — nothing user-written is ever
+// parsed as markup.
+function buildTable(headers, rows) {
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  headers.forEach((label) => {
+    const th = document.createElement("th");
+    th.scope = "col";
+    th.textContent = label;
+    head.append(th);
+  });
+  const body = table.createTBody();
+  rows.forEach((cells) => {
+    const row = body.insertRow();
+    cells.forEach((cell) => {
+      const td = row.insertCell();
+      if (cell instanceof Node) td.append(cell);
+      else td.textContent = String(cell);
+    });
+  });
+  return table;
+}
+
 function renderKnownIssues(issues) {
   const list = document.querySelector("#issue-list");
   const empty = document.querySelector("#issues-empty");
@@ -129,6 +162,222 @@ function renderKnownIssues(issues) {
   });
 }
 
+async function loadOwnership() {
+  const title = document.querySelector("#ownership-title");
+  const detail = document.querySelector("#ownership-detail");
+  const action = document.querySelector("#ownership-action");
+  const [entitled, purchases] = await Promise.all([
+    supabase.from("entitlements").select("entitlement, granted_at")
+      .eq("entitlement", "early_build").is("revoked_at", null).maybeSingle(),
+    supabase.from("purchases").select("amount_cents, currency, purchased_at, status")
+      .order("purchased_at", { ascending: false })
+  ]);
+  if (entitled.error) {
+    title.textContent = "Ownership unavailable";
+    detail.textContent = "Your entitlements could not be read. Refresh this page.";
+    return false;
+  }
+  if (entitled.data) {
+    const paid = (purchases.data || []).find((p) => p.status === "paid");
+    title.textContent = "Owned";
+    detail.textContent = paid
+      ? `Purchased ${fmtDate(paid.purchased_at)} · $${(paid.amount_cents / 100).toFixed(2)}. Early-channel builds and your reports are unlocked.`
+      : "Granted to this account. Early-channel builds and your reports are unlocked.";
+    action.hidden = true;
+    return true;
+  }
+  title.textContent = "Not owned yet";
+  detail.textContent = "This account can use the dashboard and send feedback. The $5 Early Build adds early-channel downloads.";
+  action.hidden = false;
+  return false;
+}
+
+async function downloadBuild(build, statusEl) {
+  setStatus(statusEl, `Preparing ${build.file_name}…`);
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const response = await fetch(`${betaConfig.url.replace(/\/$/, "")}/functions/v1/download-build`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "apikey": betaConfig.publishableKey
+      },
+      body: JSON.stringify({ build_id: build.id })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.url) {
+      setStatus(statusEl, result.error || "The download could not be prepared. Try again.", "error");
+      return;
+    }
+    setStatus(statusEl, `Downloading ${result.file_name}. Verify the SHA-256 shown before installing.`, "success");
+    location.assign(result.url);
+  } catch {
+    setStatus(statusEl, "The download could not be reached. Check your connection.", "error");
+  }
+}
+
+async function loadBuilds(owned) {
+  const list = document.querySelector("#builds-list");
+  const empty = document.querySelector("#builds-empty");
+  const locked = document.querySelector("#builds-locked");
+  const status = document.querySelector("#builds-status");
+  const { data, error } = await supabase
+    .from("builds")
+    .select("id, version, channel, file_name, sha256, size_bytes, notes, released_at")
+    .order("released_at", { ascending: false });
+  if (error) {
+    setStatus(status, "The build list could not be loaded. Try refreshing this page.", "error");
+    return;
+  }
+  const early = (data || []).filter((b) => b.channel === "early");
+  locked.hidden = owned;
+  list.replaceChildren();
+  if (!early.length) {
+    empty.hidden = !owned;
+    return;
+  }
+  empty.hidden = true;
+  const rows = early.map((build) => {
+    const sha = document.createElement("code");
+    sha.textContent = build.sha256;
+    const size = `${(build.size_bytes / (1024 * 1024)).toFixed(0)} MB`;
+    if (!owned) return [build.version, fmtDate(build.released_at), size, sha, "Needs Early Build"];
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn tiny";
+    button.textContent = "Download";
+    button.addEventListener("click", () => downloadBuild(build, status));
+    return [build.version, fmtDate(build.released_at), size, sha, button];
+  });
+  list.append(buildTable(["Version", "Published", "Size", "SHA-256", ""], rows));
+}
+
+async function loadDevices() {
+  const list = document.querySelector("#devices-list");
+  const empty = document.querySelector("#devices-empty");
+  const status = document.querySelector("#link-code-status");
+  const { data, error } = await supabase
+    .from("devices")
+    .select("id, label, linked_at, last_seen_at, revoked_at")
+    .order("linked_at", { ascending: false });
+  if (error) {
+    setStatus(status, "Linked devices could not be loaded.", "error");
+    return;
+  }
+  list.replaceChildren();
+  if (!data || !data.length) {
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+  const rows = data.map((device) => {
+    const state = document.createElement("span");
+    state.className = "table-status";
+    state.textContent = device.revoked_at ? `revoked ${fmtDate(device.revoked_at)}` : "linked";
+    if (device.revoked_at) {
+      return [device.label || "WavRead install", fmtDate(device.linked_at), fmtDate(device.last_seen_at), state, "—"];
+    }
+    const revoke = document.createElement("button");
+    revoke.type = "button";
+    revoke.className = "btn tiny";
+    revoke.textContent = "Revoke";
+    revoke.addEventListener("click", async () => {
+      revoke.disabled = true;
+      const { error: revokeError } = await supabase
+        .from("devices")
+        .update({ revoked_at: new Date().toISOString() })
+        .eq("id", device.id);
+      if (revokeError) {
+        setStatus(status, "The device could not be revoked. Try again.", "error");
+        revoke.disabled = false;
+        return;
+      }
+      setStatus(status, "Device revoked. Its report token no longer works.", "success");
+      loadDevices();
+    });
+    return [device.label || "WavRead install", fmtDate(device.linked_at), fmtDate(device.last_seen_at), state, revoke];
+  });
+  list.append(buildTable(["Device", "Linked", "Last report", "State", ""], rows));
+}
+
+function initializeLinkCode() {
+  const button = document.querySelector("#link-code-button");
+  const panel = document.querySelector("#link-code-panel");
+  const value = document.querySelector("#link-code-value");
+  const status = document.querySelector("#link-code-status");
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    setStatus(status, "Generating a code…");
+    const { data, error } = await supabase
+      .from("link_codes")
+      .insert({ tester_id: currentTesterId })
+      .select("code, expires_at")
+      .single();
+    button.disabled = false;
+    if (error || !data?.code) {
+      const tooMany = String(error?.message || "").includes("Too many");
+      setStatus(status, tooMany
+        ? "Too many codes in the last hour. Wait a while and try again."
+        : "A code could not be generated. Try again.", "error");
+      return;
+    }
+    setStatus(status, "");
+    value.textContent = `${data.code.slice(0, 4)}-${data.code.slice(4)}`;
+    panel.hidden = false;
+  });
+}
+
+async function loadReports() {
+  const status = document.querySelector("#reports-status");
+  const feedbackList = document.querySelector("#feedback-list");
+  const feedbackEmpty = document.querySelector("#feedback-empty");
+  const crashesList = document.querySelector("#crashes-list");
+  const crashesEmpty = document.querySelector("#crashes-empty");
+
+  const [feedback, crashes] = await Promise.all([
+    supabase.from("beta_feedback")
+      .select("feedback_type, title, status, source, created_at")
+      .order("created_at", { ascending: false }).limit(25),
+    supabase.from("crash_reports")
+      .select("kind, app_version, summary, status, created_at")
+      .order("created_at", { ascending: false }).limit(25)
+  ]);
+
+  if (feedback.error || crashes.error) {
+    setStatus(status, "Your reports could not be loaded. Try refreshing this page.", "error");
+  }
+
+  feedbackList.replaceChildren();
+  const feedbackRows = (feedback.data || []).map((item) => {
+    const state = document.createElement("span");
+    state.className = "table-status";
+    state.textContent = item.status;
+    return [fmtDate(item.created_at), item.feedback_type, item.source === "app" ? "app" : "web", item.title, state];
+  });
+  if (feedbackRows.length) {
+    feedbackEmpty.hidden = true;
+    feedbackList.append(buildTable(["Sent", "Type", "From", "Title", "Status"], feedbackRows));
+  } else {
+    feedbackEmpty.hidden = false;
+  }
+
+  crashesList.replaceChildren();
+  const crashRows = (crashes.data || []).map((item) => {
+    const state = document.createElement("span");
+    state.className = "table-status";
+    state.textContent = item.status;
+    return [fmtDate(item.created_at), item.kind, item.app_version, item.summary, state];
+  });
+  if (crashRows.length) {
+    crashesEmpty.hidden = true;
+    crashesList.append(buildTable(["Received", "Kind", "Version", "Summary", "Status"], crashRows));
+  } else {
+    crashesEmpty.hidden = false;
+  }
+}
+
 async function initializeDashboard() {
   if (!document.querySelector("#dashboard-content")) return;
   const sessionMessage = document.querySelector("#session-message");
@@ -144,7 +393,7 @@ async function initializeDashboard() {
 
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) {
-    setStatus(sessionMessage, location.hash ? "Your sign-in link is invalid or expired. Request a new link." : "Sign in to open the tester dashboard.", "error");
+    setStatus(sessionMessage, location.hash ? "Your sign-in link is invalid or expired. Request a new link." : "Sign in to open your dashboard.", "error");
     showDashboardState("signed-out-state");
     return;
   }
@@ -169,10 +418,16 @@ async function initializeDashboard() {
   }
   currentTesterId = tester.tester_id;
 
-  document.querySelector("#tester-email").textContent = currentUser.email || "Registered tester";
+  document.querySelector("#tester-email").textContent = currentUser.email || "WavRead account";
   document.querySelector("#feedback-app-version").value = CURRENT_VERSION;
   document.querySelector("#feedback-os").value = navigator.userAgentData?.platform || navigator.platform || "Not provided";
   showDashboardState("dashboard-content");
+
+  initializeLinkCode();
+  const owned = await loadOwnership();
+  loadBuilds(owned);
+  loadDevices();
+  loadReports();
 
   const { data: issues, error: issueError } = await supabase
     .from("beta_known_issues")
@@ -214,6 +469,7 @@ async function initializeDashboard() {
     document.querySelector("#feedback-app-version").value = CURRENT_VERSION;
     document.querySelector("#feedback-os").value = navigator.userAgentData?.platform || navigator.platform || "Not provided";
     setStatus(feedbackStatus, "Feedback received. Thank you for helping improve WavRead.", "success");
+    loadReports();
   });
 
 }

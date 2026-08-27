@@ -7,14 +7,31 @@ const root = resolve("docs");
 const htmlFiles = (await readdir(root)).filter((file) => extname(file) === ".html");
 const read = (path) => readFile(resolve(path), "utf8");
 
-test("public homepage tells the real beta story", async () => {
+test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /WavRead Beta/);
   assert.match(html, /Beta 1\.4\.4/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /Free beta/);
+  assert.match(html, /Free beta/, "the public beta stays free and the page says so");
+  assert.match(html, /Early Build — \$5/);
+  assert.match(html, /early-build\.html/);
   assert.doesNotMatch(html, /customer logos|trusted by|testimonials/i);
+});
+
+test("the early build page sells $5 honestly and takes no card itself", async () => {
+  const html = await read("docs/early-build.html");
+  assert.match(html, /\$5/);
+  assert.match(html, /no subscription|never renews/i);
+  assert.match(html, /Stripe/);
+  assert.match(html, /unsigned/i, "the unsigned-installer consequence stays disclosed");
+  assert.match(html, /Refunds/);
+  assert.match(html, /id="checkout-form"/);
+  assert.match(html, /type="email"/);
+  assert.doesNotMatch(html, /card.?number|cvc|expiry/i, "payment details belong to Stripe's page, not this one");
+  assert.doesNotMatch(html, /licence for the eventual 1\.0 is included|guarantees 1\.0/i);
+  const complete = await read("docs/purchase-complete.html");
+  assert.match(complete, /noindex/);
+  assert.match(complete, /signin\.html/);
 });
 
 test("every content page has a main landmark, one h1, and a skip link", async () => {
@@ -43,12 +60,13 @@ test("all local links and assets resolve", async () => {
 });
 
 test("public pages share one destination-based primary navigation", async () => {
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "privacy.html", "faq.html"];
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html"];
   const expectedLinks = [
     ["how-it-works.html", "How it works"],
     ["capture.html", "DAW capture"],
     ["documents.html", "Documents"],
     ["requirements.html", "Requirements"],
+    ["early-build.html", "Early Build"],
     ["privacy.html", "Privacy"],
     ["faq.html", "FAQ"]
   ];
@@ -72,9 +90,50 @@ test("tester routes fail closed and never make users testers in the browser", as
   assert.match(auth, /tester_id: currentTesterId/);
   assert.match(auth, /status !== "active"/);
   assert.doesNotMatch(auth, /service[_-]?role/i);
-  assert.match(signin, /Only pre-registered beta testers/);
+  assert.match(signin, /Early Build owners and pre-registered beta testers/);
   assert.match(dashboard, /id="unauthorized-state"/);
   assert.match(dashboard, /autocomplete|noindex/);
+});
+
+test("ownership and reports reach the browser read-only", async () => {
+  const auth = await read("docs/js/beta-auth.js");
+  const dashboard = await read("docs/beta-dashboard.html");
+  assert.match(auth, /from\("entitlements"\)/);
+  assert.match(auth, /from\("purchases"\)/);
+  assert.match(auth, /from\("builds"\)/);
+  assert.match(auth, /from\("crash_reports"\)/);
+  assert.doesNotMatch(auth, /\.from\("(purchases|entitlements|builds|crash_reports)"\)[\s\S]{0,120}?\.(insert|upsert|delete)\(/, "ownership tables are written only by Edge Functions");
+  assert.match(auth, /from\("link_codes"\)[\s\S]{0,80}?\.insert\(\{ tester_id/, "a link code is requested for oneself; the server generates the code");
+  assert.match(auth, /functions\/v1\/download-build/);
+  assert.match(dashboard, /link-code-button/);
+  assert.match(dashboard, /early-build\.html/);
+});
+
+test("edge functions keep the money and token boundaries", async () => {
+  const checkout = await read("supabase/functions/create-checkout/index.ts");
+  const webhook = await read("supabase/functions/stripe-webhook/index.ts");
+  const link = await read("supabase/functions/link-device/index.ts");
+  const crash = await read("supabase/functions/crash-report/index.ts");
+  const report = await read("supabase/functions/submit-report/index.ts");
+  const download = await read("supabase/functions/download-build/index.ts");
+  const shared = await read("supabase/functions/_shared/mod.ts");
+  assert.match(checkout, /unit_amount\]", String\(AMOUNT_CENTS\)/);
+  assert.match(checkout, /AMOUNT_CENTS = 500/);
+  assert.match(checkout, /metadata\[product\]/);
+  assert.match(webhook, /stripe-signature/);
+  assert.match(webhook, /timingSafeEqual/);
+  assert.match(webhook, /payment_status.*paid/);
+  assert.match(webhook, /ignoreDuplicates/, "fulfillment is idempotent on the checkout session");
+  assert.match(link, /token_hash: await sha256Hex\(token\)/, "only the token's hash is stored");
+  assert.match(crash, /MAX_PER_INSTALL_PER_HOUR/);
+  assert.match(crash, /validateCrash/);
+  assert.match(report, /resolveDevice/);
+  assert.match(download, /createSignedUrl/);
+  assert.match(download, /early_build/);
+  assert.match(shared, /token_hash/);
+  for (const fn of [checkout, webhook, link, crash, report, download]) {
+    assert.doesNotMatch(fn, /console\.log\([^)]*token/i, "tokens never reach function logs");
+  }
 });
 
 test("database migration enables RLS and ownership checks", async () => {
@@ -93,12 +152,33 @@ test("database migration enables RLS and ownership checks", async () => {
   assert.doesNotMatch(sql, /security definer/i);
 });
 
+test("the ownership migration keeps writes server-side and identity durable", async () => {
+  const migrations = (await readdir("supabase/migrations")).sort();
+  const sql = await read(join("supabase/migrations", migrations[1]));
+  for (const table of ["purchases", "entitlements", "builds", "link_codes", "devices", "crash_reports"]) {
+    assert.match(sql, new RegExp(`alter table public\\.${table} enable row level security`, "i"));
+    assert.match(sql, new RegExp(`revoke all on table public\\.${table} from anon, authenticated`, "i"));
+  }
+  // The browser reads ownership; it never writes it.
+  assert.doesNotMatch(sql, /grant[^;]*insert[^;]*on table public\.(purchases|entitlements|builds|crash_reports)[^;]*to authenticated/i);
+  assert.doesNotMatch(sql, /grant[^;]*update[^;]*on table public\.(purchases|entitlements|builds|crash_reports|link_codes)[^;]*to authenticated/i);
+  assert.match(sql, /grant update \(revoked_at\) on table public\.devices to authenticated/i, "revoking one's own device is the only browser write to devices");
+  assert.match(sql, /with check \(revoked_at is not null\)/i, "a revoked device cannot be re-armed from the browser");
+  assert.match(sql, /token_hash text not null unique check \(token_hash ~ '\^\[0-9a-f\]\{64\}\$'\)/i, "only hashed tokens are storable");
+  assert.match(sql, /stripe_checkout_session_id text not null unique/i, "fulfillment is idempotent at the database too");
+  assert.match(sql, /references public\.beta_testers\(tester_id\) on delete restrict/i);
+  assert.doesNotMatch(sql, /references auth\.users/i, "ownership hangs off the durable WavRead identity, not the auth binding");
+  assert.doesNotMatch(sql, /security definer/i);
+  assert.match(sql, /insert into storage\.buckets \(id, name, public\)\s*values \('builds', 'builds', false\)/i, "the builds bucket is private");
+  assert.match(sql, /expires_at := now\(\) \+ interval '15 minutes'/i);
+});
+
 test("release channels and production staging are explicit", async () => {
   const dashboard = await read("docs/beta-dashboard.html");
   const backend = await read("BETA_BACKEND.md");
   const deploy = await read("deploy.sh");
   assert.match(dashboard, /Public stable build/);
-  assert.match(dashboard, /No private 1\.4\.7 app build is published/);
+  assert.match(dashboard, /SHA-256/);
   assert.match(dashboard, /in-app updater checks public GitHub releases/);
   assert.match(backend, /must be marked as a \*\*prerelease\*\*/);
   assert.match(backend, /64-character SHA-256/);
@@ -106,6 +186,19 @@ test("release channels and production staging are explicit", async () => {
   assert.match(deploy, /npm test/);
   assert.match(deploy, /npm run build/);
   assert.match(deploy, /cp -r dist-site\/\*/);
+});
+
+test("the privacy page discloses reports and purchases in full", async () => {
+  const privacy = await read("docs/privacy.html");
+  assert.match(privacy, /off by default/i);
+  assert.match(privacy, /scrubbed/i);
+  assert.match(privacy, /install ID/);
+  assert.match(privacy, /Stripe/);
+  assert.match(privacy, /never sees or stores card numbers/i);
+  assert.match(privacy, /1\.4\.8/);
+  const faq = await read("docs/faq.html");
+  assert.match(faq, /crash report/i);
+  assert.match(faq, /\$5/);
 });
 
 test("runtime configuration exposes only the publishable key", async () => {
@@ -166,7 +259,7 @@ test("the approved website mark is vector-only and used consistently", async () 
   assert.match(mark, /@keyframes trace-acquire/);
   assert.match(mark, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(mark, /infinite/);
-  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "EULA.html"];
+  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "purchase-complete.html", "EULA.html"];
   for (const file of brandedPages) {
     const html = await read(join("docs", file));
     assert.match(html, /class="brand-mark" src="img\/wavread-mark\.svg"/, `${file} needs the approved vector wordmark`);

@@ -16,8 +16,8 @@
 <header class="site-header"><nav aria-label="Main">
   <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="privacy.html">Privacy</a><a href="faq.html" aria-current="page">FAQ</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Tester sign in</a><a class="btn compact" href="/#download">Download beta</a>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="early-build.html">Early Build</a><a href="privacy.html">Privacy</a><a href="faq.html" aria-current="page">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="/#download">Download beta</a>
 </nav></header>
 <main id="main">
 
@@ -33,19 +33,44 @@
 
 <div class="qa">
   <h3>Does anything get uploaded?</h3>
-  <p>No audio, no analysis, no identifier, ever. Two requests exist in the whole
-  app: a once-a-day check for a newer version, which you can switch off, and a
-  one-time 80 MB model download <em>if</em> you use the built-in stem separation.
+  <p>No audio, no analysis, no measurements, ever. The app's own requests are a
+  once-a-day version check you can switch off, the update you press the button
+  for, and one-time model downloads <em>if</em> you use separation or lyrics.
+  From 1.4.8 there is one more, and it is off by default: problem reports,
+  which send a scrubbed crash record only after you turn them on.
+  <a href="privacy.html">Privacy</a> lists every request and every field.
   Everything else runs offline, and the app works with the network cable out.</p>
 </div>
 
 <div class="qa">
   <h3>Is there an account or a subscription?</h3>
-  <p>The desktop app has no account, sign-in, or licence server. Invited beta
-  testers may use a separate website account for gated resources and feedback;
-  that account is never used by the app. WavRead is free today. It will become
-  a paid app — a one-time purchase — and the plan is that people using it before
-  then keep what they have.</p>
+  <p>The desktop app has no account, sign-in, or licence server, and nothing
+  here is a subscription. A WavRead account lives on this website only: Early
+  Build owners and invited testers use it for gated downloads, reports, and
+  feedback. WavRead's public beta is free. The eventual 1.0 will be a one-time
+  purchase — and the plan is that people supporting it before then are
+  remembered, not restarted.</p>
+</div>
+
+<div class="qa">
+  <h3>What does the $5 Early Build buy?</h3>
+  <p>The early channel: new builds land on your dashboard before they become
+  the public release, verified by SHA-256. It also gives your reports a home —
+  feedback and crash reports tracked against your account with their status
+  visible — and puts your support on the record, dated, for when 1.0 pricing
+  is decided. It is not a 1.0 licence and it never renews. Refunds: ask within
+  14 days from your account email. <a href="early-build.html">Details and
+  checkout.</a></p>
+</div>
+
+<div class="qa">
+  <h3>Do crash reports mean WavRead is watching what I do?</h3>
+  <p>No. With reports off — the default — the app sends nothing. With reports
+  on, it sends a record only when something actually fails, and the record is
+  scrubbed before it exists: no audio, no track names, no username, no
+  measurements. Every record is kept on your machine where you can read it,
+  including after it was sent. <a href="privacy.html">Privacy</a> lists the
+  exact fields.</p>
 </div>
 
 <div class="qa">

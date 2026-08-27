@@ -14,6 +14,10 @@ This repository hosts WavRead's website source and release downloads. Update
 1.4.7 contains the registered beta tester experience: public pages stay
 account-free, while the tester dashboard uses Supabase Auth and RLS. Web Update 1
 adds the A1 Clinical Signal brand system without changing that architecture.
+Web Update 2 adds the $5 Early Build: Stripe-checkout purchase, durable
+ownership and entitlements, gated build downloads, linked devices, and the
+account's own reports — see [WEB_UPDATE_2.md](WEB_UPDATE_2.md) and
+[BETA_BACKEND.md](BETA_BACKEND.md).
 
 The site is deployed to Vercel. `./deploy.sh` is the production publishing
 command and must only be run after separate approval. It runs these verification

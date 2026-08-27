@@ -16,8 +16,8 @@
 <header class="site-header"><nav aria-label="Main">
   <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="privacy.html" aria-current="page">Privacy</a><a href="faq.html">FAQ</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Tester sign in</a><a class="btn compact" href="/#download">Download beta</a>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="early-build.html">Early Build</a><a href="privacy.html" aria-current="page">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="/#download">Download beta</a>
 </nav></header>
 <main id="main">
 
@@ -37,8 +37,9 @@ request the app can make, so the claim can be checked rather than trusted.</p>
     <p>The desktop app has no sign-in, licence server, email address, or tester identity.</p>
   </div>
   <div class="card">
-    <h3>No telemetry</h3>
-    <p>No analytics, no crash reporting, no usage counters, no identifier.</p>
+    <h3>No silent telemetry</h3>
+    <p>No analytics, no usage counters, no identifier. Crash reports exist from
+    1.4.8 — off until you turn them on, and readable before they go.</p>
   </div>
   <div class="card">
     <h3>No background activity</h3>
@@ -48,8 +49,9 @@ request the app can make, so the claim can be checked rather than trusted.</p>
 </div>
 
 <h2>Every request the app can make</h2>
-<p>Four, in the whole application. None of them sends anything about you or your
-music — the requests carry no identifier, no filenames and no measurements.</p>
+<p>Four in every installation, plus the problem-report requests that exist only
+when you turn reports on. The four carry no identifier, no filenames and no
+measurements; the reports carry exactly what the section below lists.</p>
 <table class="spec">
   <tr><th>Update check</th>
       <td>Once a day, one request to WavRead's public release page, asking only
@@ -68,6 +70,16 @@ music — the requests carry no identifier, no filenames and no measurements.</p
       <td>About 460 MB, fetched once from its publisher the first time you
       transcribe lyrics, then cached. Skip lyrics and it is never
       downloaded.</td></tr>
+  <tr><th>Problem reports <em>(off by default, from 1.4.8)</em></th>
+      <td>Only with reports turned on in Settings: a crash record or a report
+      you wrote, sent to WavRead's report service. Contents are listed in full
+      below; every record is kept on your machine and readable before and
+      after sending. Turn reports off and this request never exists.</td></tr>
+  <tr><th>Linking a device <em>(optional, from 1.4.8)</em></th>
+      <td>Only when you type a link code from your dashboard into Settings: one
+      request that trades the code for a report token, so your reports show up
+      on your own dashboard. The app never holds your email or a sign-in —
+      only that token, revocable from either side.</td></tr>
 </table>
 <p>Both models are downloads <em>of</em> software, not uploads of your audio: the
 model comes to your machine and runs there. Everything else — measurement,
@@ -100,21 +112,51 @@ and your own notes — no audio. If you paste one into an AI assistant, that is
 your decision and your assistant's privacy policy; WavRead never sends a document
 anywhere itself. Nothing in the app requires an AI at all.</p>
 
-<h2>Optional beta tester accounts</h2>
-<p>Registered testers may sign in to a separate area on this website. That account is
-not used by the desktop app and never receives audio, filenames, analyses, documents,
-or app activity. The tester service stores a WavRead-owned tester ID, account email,
-join date, tester status, future complimentary-release eligibility, and feedback a
-tester chooses to submit. Feedback may include the selected feedback type, title,
-description, optional reproduction steps, app version, operating-system name, and
-whether follow-up is allowed.</p>
-<p>Tester access and feedback are protected by account ownership and database policies.
-Removing the sign-in-provider account disconnects access but does not erase the stable
-tester record or its feedback, because that history may be needed to honor future
-eligibility. A deletion request can still be handled by WavRead directly. The public
-product website uses no analytics or advertising trackers.</p>
+<h2>Problem reports, in full</h2>
+<p>From 1.4.8, WavRead can report its own failures — a crash, an analysis that
+died, an update that would not install. Reporting is off until you turn it on
+in Settings, and three things stay true whichever way the switch points:</p>
+<ul>
+  <li><strong>Every record is written to your machine first</strong>, into the
+  library folder where you can read it, and stays there whether or not it is
+  ever sent. Settings shows each record and whether it went.</li>
+  <li><strong>A report is scrubbed before it exists.</strong> Your username
+  becomes <code>~</code>, audio filenames become <code>&lt;audio&gt;</code>,
+  and library paths are shortened to their role. A report never contains
+  audio, track names, measurements, documents, or lyrics.</li>
+  <li><strong>What is sent is exactly:</strong> the app version, macOS version
+  and chip type, the kind of failure, the scrubbed error summary and stack
+  trace, when it happened, and a random install ID that identifies the
+  install — not you. With a linked device it also carries the report token,
+  so the report appears on your dashboard.</li>
+</ul>
+<p>A report you write yourself on the Report a Problem page additionally
+contains what you typed, and — only if you tick the box — a scrubbed excerpt
+of WavRead's own error log, shown to you in full before sending.</p>
 
-<p class="measured">Last checked against WavRead 1.4.4. The model download sizes
+<h2>Optional accounts on this website</h2>
+<p>Early Build owners and registered testers may sign in to a separate area on
+this website. That account is not used by the desktop app and never receives
+audio, filenames, analyses, documents, or app activity. The account service
+stores a WavRead-owned account ID, account email, join date, status, future
+complimentary-release eligibility, purchases, entitlements, linked-device
+records, and the reports and feedback described above. Feedback may include the
+selected feedback type, title, description, optional reproduction steps, app
+version, operating-system name, and whether follow-up is allowed.</p>
+<p>A $5 Early Build purchase is processed by Stripe on Stripe's own pages;
+WavRead never sees or stores card numbers. WavRead keeps the purchase record —
+your email, the amount, the date, and Stripe's checkout reference — because
+that record is what makes the purchase yours across devices and years.
+Stripe's own processing is governed by
+<a href="https://stripe.com/privacy" rel="noopener">Stripe's privacy policy</a>.</p>
+<p>Access, ownership, and reports are protected by account ownership and
+database policies. Removing the sign-in-provider account disconnects access but
+does not erase the stable account record, its purchases, or its reports,
+because that history is what future eligibility is honored from. A deletion
+request can still be handled by WavRead directly. The public product website
+uses no analytics or advertising trackers.</p>
+
+<p class="measured">Last checked against WavRead 1.4.8. The model download sizes
 are the actual sizes on disk after a first run: 80 MB for separation, 464 MB for
 lyric transcription.</p>
 
