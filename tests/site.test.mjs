@@ -9,18 +9,21 @@ const read = (path) => readFile(resolve(path), "utf8");
 
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /Beta 1\.4\.4/);
+  assert.match(html, /Beta 1\.4\.8/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /Free beta/, "the public beta stays free and the page says so");
-  assert.match(html, /Early Build — \$5/);
+  assert.match(html, /\$5/, "the beta is paid and the page leads with the price");
   assert.match(html, /early-build\.html/);
+  // A paid beta must not still advertise a free download of itself.
+  assert.doesNotMatch(html, /free beta|download free/i);
+  assert.doesNotMatch(html, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "no ungated DMG link");
   assert.doesNotMatch(html, /customer logos|trusted by|testimonials/i);
 });
 
-test("the early build page sells $5 honestly and takes no card itself", async () => {
+test("the purchase page sells $5 honestly and takes no card itself", async () => {
   const html = await read("docs/early-build.html");
   assert.match(html, /\$5/);
+  assert.match(html, /paid beta/i);
   assert.match(html, /no subscription|never renews/i);
   assert.match(html, /Stripe/);
   assert.match(html, /unsigned/i, "the unsigned-installer consequence stays disclosed");
@@ -66,7 +69,7 @@ test("public pages share one destination-based primary navigation", async () => 
     ["capture.html", "DAW capture"],
     ["documents.html", "Documents"],
     ["requirements.html", "Requirements"],
-    ["early-build.html", "Early Build"],
+    ["early-build.html", "Get WavRead"],
     ["privacy.html", "Privacy"],
     ["faq.html", "FAQ"]
   ];
@@ -90,7 +93,7 @@ test("tester routes fail closed and never make users testers in the browser", as
   assert.match(auth, /tester_id: currentTesterId/);
   assert.match(auth, /status !== "active"/);
   assert.doesNotMatch(auth, /service[_-]?role/i);
-  assert.match(signin, /Early Build owners and pre-registered beta testers/);
+  assert.match(signin, /owners and pre-registered beta testers/i);
   assert.match(dashboard, /id="unauthorized-state"/);
   assert.match(dashboard, /autocomplete|noindex/);
 });
@@ -107,6 +110,20 @@ test("ownership and reports reach the browser read-only", async () => {
   assert.match(auth, /functions\/v1\/download-build/);
   assert.match(dashboard, /link-code-button/);
   assert.match(dashboard, /early-build\.html/);
+  assert.doesNotMatch(dashboard, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "the dashboard serves builds through signed URLs, not public links");
+});
+
+test("no page offers an ungated build download", async () => {
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, `${file} must not link a build directly`);
+  }
+});
+
+test("sign-in explains an unknown account instead of blaming an outage", async () => {
+  const auth = await read("docs/js/beta-auth.js");
+  assert.match(auth, /otp_disabled/);
+  assert.match(auth, /no WavRead account for that email/i);
 });
 
 test("edge functions keep the money and token boundaries", async () => {
@@ -177,9 +194,9 @@ test("release channels and production staging are explicit", async () => {
   const dashboard = await read("docs/beta-dashboard.html");
   const backend = await read("BETA_BACKEND.md");
   const deploy = await read("deploy.sh");
-  assert.match(dashboard, /Public stable build/);
+  assert.match(dashboard, /Current build/);
   assert.match(dashboard, /SHA-256/);
-  assert.match(dashboard, /in-app updater checks public GitHub releases/);
+  assert.match(dashboard, /updater checks public release listings/);
   assert.match(backend, /must be marked as a \*\*prerelease\*\*/);
   assert.match(backend, /64-character SHA-256/);
   assert.match(deploy, /npm run check/);

@@ -1,23 +1,26 @@
-# Web Update 2 — The Early Build
+# Web Update 2 — The paid beta
 
-Web Update 2 turns the website's account area commercial, carefully. The
-public site stays account-free and the public beta stays free; what changes is
-that the next build, and a place to see your own reports, can now be bought
-for five dollars.
+Web Update 2 turns the website into a storefront. WavRead is now sold: five
+dollars, once, buys the beta — every build while it runs, and a place where
+your reports actually land. Reading the site still needs no account, and using
+the app still needs no account; buying is what gets you the download.
 
 ## What ships
 
-- **`/early-build`** — the purchase page. $5, one time, through Stripe's
-  hosted checkout; the page itself never touches a card. It says what the
-  money buys, what it does not (no 1.0 licence, no subscription, no signed
-  installer yet), and how refunds work.
+- **`/early-build`** — the purchase page, and the site's main call to action.
+  $5, one time, through Stripe's hosted checkout; the page itself never
+  touches a card. It says what the money buys, what it does not (no 1.0
+  licence, no subscription, no signed installer yet), that it is beta software
+  sold as beta software, and how refunds work.
 - **`/purchase-complete`** — where Stripe returns to; points at sign-in.
 - **Dashboard** — grows Early Build ownership, a gated-builds list with
   per-build SHA-256 and signed-URL downloads, linked devices with link-code
   generation and revocation, and a live view of the account's own reports:
   feedback (web and app) and crash reports, each with status.
-- **Sign-in** — now for Early Build owners as well as invited testers. Still
-  one-time email links, still no open signup.
+- **Sign-in** — for owners as well as invited testers. Still one-time email
+  links, still no open signup — and an unknown address is now told exactly
+  that ("there is no WavRead account for that email") instead of being blamed
+  on an outage.
 - **Privacy and FAQ** — updated first, not after: problem reports (off by
   default, scrubbed, fully listed), the purchase record, and Stripe's role
   are all disclosed on the pages people actually read.
@@ -27,6 +30,14 @@ for five dollars.
   tokens are stored only as hashes; crash intake is validated, deduplicated,
   and rate-limited. `BETA_BACKEND.md` is the full model and the provisioning
   runbook.
+
+## What the price changed
+
+Every page that advertised a free download now sells the beta instead: the
+homepage hero and download section, the purchase page, the FAQ, the dashboard
+(which no longer carries a public DMG button), and the EULA's "free beta"
+line. A test asserts no page links a build directly — downloads go through
+signed URLs earned by an entitlement.
 
 ## Boundaries kept
 

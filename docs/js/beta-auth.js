@@ -22,7 +22,14 @@ function setStatus(element, message, state = "") {
 }
 
 function friendlyAuthError(error) {
+  const code = String(error?.code || error?.error_code || "").toLowerCase();
   const message = String(error?.message || "").toLowerCase();
+  // Supabase answers an unknown address with "signups not allowed for otp",
+  // because the client asks it never to create users. That is not an outage
+  // and saying so sends people to wait instead of to checkout.
+  if (code.includes("otp_disabled") || message.includes("signups not allowed")) {
+    return "There is no WavRead account for that email. Buy WavRead to create one, or check the address you used.";
+  }
   if (message.includes("rate") || message.includes("email rate")) return "Too many sign-in attempts. Wait a few minutes and try again.";
   if (message.includes("invalid") || message.includes("expired")) return "That sign-in link is invalid or has expired. Request a new one.";
   return "Sign-in is unavailable right now. Please try again shortly.";
