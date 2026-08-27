@@ -74,27 +74,43 @@ Deno.serve(async (req: Request) => {
     return json(req, 429, { error: "too many reports from this install right now" });
   }
 
-  // The crash the report is about, when one is attached.
+  // The crash the report is about, when one is attached. A crash the app
+  // already sent (or sends twice) is recognized by the same install +
+  // fingerprint + version window crash-report uses, and its row is reused.
   let crashReportId: number | null = null;
   if (body.crash && typeof body.crash === "object" && !Array.isArray(body.crash)) {
     const checked = validateCrash(body.crash as Record<string, unknown>);
     if ("error" in checked) {
       return json(req, 400, { error: `attached crash: ${checked.error}` });
     }
-    const inserted = await db
+    const windowStart = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+    const existing = await db
       .from("crash_reports")
-      .insert({
-        ...checked.crash,
-        tester_id: device.testerId,
-        device_id: device.deviceId,
-      })
       .select("id")
-      .single();
-    if (inserted.error) {
-      console.error("attached crash insert failed", inserted.error);
-      return json(req, 500, { error: "report service problem" });
+      .eq("install_id", checked.crash.install_id)
+      .eq("fingerprint", checked.crash.fingerprint)
+      .eq("app_version", checked.crash.app_version)
+      .gt("created_at", windowStart)
+      .limit(1)
+      .maybeSingle();
+    if (!existing.error && existing.data) {
+      crashReportId = existing.data.id;
+    } else {
+      const inserted = await db
+        .from("crash_reports")
+        .insert({
+          ...checked.crash,
+          tester_id: device.testerId,
+          device_id: device.deviceId,
+        })
+        .select("id")
+        .single();
+      if (inserted.error) {
+        console.error("attached crash insert failed", inserted.error);
+        return json(req, 500, { error: "report service problem" });
+      }
+      crashReportId = inserted.data.id;
     }
-    crashReportId = inserted.data.id;
   }
 
   const saved = await db

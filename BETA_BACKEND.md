@@ -116,9 +116,9 @@ or eligibility, add it as an explicit, disclosed server-side event linked to
 - Every GitHub beta release must be marked as a **prerelease**. The desktop
   updater queries GitHub's `/releases/latest` endpoint, so publishing a beta
   as a normal release would offer it to stable users.
-- Every installable release needs a `.dmg` asset and a matching 64-character
-  SHA-256 checksum in the release body. The app verifies that checksum before
-  installing.
+- Every installable release needs a `.dmg` asset and a matching
+  64-character SHA-256 checksum in the release body. The app verifies that
+  checksum before installing.
 - A gated early-channel DMG cannot be installed by the in-app updater, which
   performs an unauthenticated HTTPS download. Early builds are downloaded
   manually from the dashboard, which labels public and gated builds clearly
