@@ -70,8 +70,38 @@ revocable report token, and only after its user typed a link code.
 
 Secrets the functions need, set with `supabase secrets set` (never in source,
 never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
-`SITE_URL`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are injected by the
-platform.
+`SITE_URL`, `ALLOWED_ORIGINS`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`
+are injected by the platform.
+
+## Email
+
+Sign-in links go out through **Resend** as `noreply@wavread.com`, configured
+in Supabase auth as custom SMTP (`smtp.resend.com:465`, user `resend`, the
+password being a Resend API key scoped to sending only). Supabase's built-in
+sender is not used: it arrives from a `supabase.io` address, which for a paid
+product reads like phishing, and it is rate-limited to a handful an hour,
+which would silently drop sign-ins during any burst of buyers.
+
+DNS on Cloudflare, verified in public DNS rather than trusted from a
+dashboard:
+
+| Purpose | Record |
+| --- | --- |
+| DKIM (sending) | `resend._domainkey` TXT, the Resend key |
+| SPF (bounces) | `send` TXT `v=spf1 include:amazonses.com ~all` |
+| Bounce path | `send` MX → `feedback-smtp.us-east-1.amazonses.com` |
+| SPF (root) | `v=spf1 include:amazonses.com include:_spf.mx.cloudflare.net ~all` |
+| DMARC | `_dmarc` TXT `v=DMARC1; p=none; rua=mailto:erikmann509@gmail.com` |
+| Receiving | root MX → `route{1,2,3}.mx.cloudflare.net` + `cf2024-1._domainkey` |
+
+The root SPF names **both** senders deliberately. Cloudflare Email Routing
+adds only itself, but Resend sends *as* `wavread.com`; DMARC would still pass
+on DKIM alignment alone, and a filter that checks SPF against the From domain
+would otherwise score the sign-in mail as unauthenticated.
+
+`support@wavread.com` forwards to the operator's inbox through Cloudflare
+Email Routing. There is no mailbox behind `noreply@` — it is a From address
+only, and mail sent to it is not received.
 
 ### The campaign label
 
