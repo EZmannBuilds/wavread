@@ -26,7 +26,7 @@ test("the purchase page sells $5 honestly and takes no card itself", async () =>
   assert.match(html, /paid beta/i);
   assert.match(html, /no subscription|never renews/i);
   assert.match(html, /Stripe/);
-  assert.match(html, /unsigned/i, "the unsigned-installer consequence stays disclosed");
+  assert.match(html, /notarised|notarized/i, "signing status is stated where people decide to buy");
   assert.match(html, /Refunds/);
   assert.match(html, /id="checkout-form"/);
   assert.match(html, /type="email"/);
@@ -113,6 +113,13 @@ test("ownership and reports reach the browser read-only", async () => {
   assert.doesNotMatch(dashboard, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "the dashboard serves builds through signed URLs, not public links");
 });
 
+test("no page still tells buyers to click past a security warning", async () => {
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /Open Anyway/i, `${file} still describes the pre-1.4.8 unsigned launch`);
+  }
+});
+
 test("no page offers an ungated build download", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
@@ -160,6 +167,56 @@ test("edge functions keep the money and token boundaries", async () => {
   for (const fn of [checkout, webhook, link, crash, report, download]) {
     assert.doesNotMatch(fn, /console\.log\([^)]*token/i, "tokens never reach function logs");
   }
+});
+
+test("shared links carry a canonical URL and a real social card", async () => {
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html"];
+  for (const file of publicPages) {
+    const html = await read(join("docs", file));
+    const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
+    const description = html.match(/<meta name="description" content="(.*?)">/s)[1];
+    // The card repeats the page's own claims rather than inventing new ones.
+    assert.match(html, /<link rel="canonical" href="https:\/\/wavread\.vercel\.app\/[^"]*">/, `${file} needs a canonical URL`);
+    assert.ok(html.includes(`<meta property="og:title" content="${title}">`), `${file}: og:title must match its own title`);
+    assert.ok(html.includes(`<meta property="og:description" content="${description}">`), `${file}: og:description must match its own description`);
+    assert.match(html, /<meta name="twitter:card" content="summary_large_image">/, `${file} needs a large-image card`);
+    const card = html.match(/<meta property="og:image" content="https:\/\/wavread\.vercel\.app\/([^"]+)">/);
+    assert.ok(card, `${file} needs a social card image`);
+    await assert.doesNotReject(access(join(root, card[1])), `${file} points at a missing card image: ${card[1]}`);
+  }
+});
+
+test("an ad campaign label is a label, not a tracker", async () => {
+  const shared = await read("supabase/functions/_shared/mod.ts");
+  const checkout = await read("supabase/functions/create-checkout/index.ts");
+  const page = await read("docs/js/early-build.js");
+  const privacy = await read("docs/privacy.html");
+  const vercel = await read("vercel.json");
+
+  // The label reaches Stripe with the purchase and stops there.
+  assert.match(checkout, /metadata\[source\]/);
+  assert.match(checkout, /if \(source\) params\.set/, "an unrecognized label is dropped, never a failed purchase");
+  assert.match(page, /campaignLabel/);
+  assert.doesNotMatch(page, /document\.cookie|localStorage|sessionStorage/, "the label is read from the URL and sent once, never stored in the browser");
+
+  // The channel comes from a list WavRead knows, and the pattern is anchored:
+  // a label that merely contains "reels" is not a label WavRead accepts.
+  const channels = JSON.parse(shared.match(/const CAMPAIGN_CHANNELS = (\[[\s\S]*?\]);/)[1]);
+  const template = shared.match(/const CAMPAIGN_RE = new RegExp\(\s*`([^`]+)`/)[1];
+  assert.ok(template.startsWith("^(") && template.endsWith("$"), "the campaign pattern is anchored at both ends");
+  const pattern = new RegExp(template.replace('${CAMPAIGN_CHANNELS.join("|")}', channels.join("|")));
+  for (const good of ["reels", "reels-a", "tiktok-hook2"]) {
+    assert.ok(pattern.test(good), `${good} is a label WavRead buys`);
+  }
+  for (const bad of ["not-a-channel", "reels-a plus prose", "xreels", `reels-${"x".repeat(40)}`]) {
+    assert.ok(!pattern.test(bad), `${bad} must never reach a payment record`);
+  }
+
+  // Disclosure ships in the same release as the behaviour, and the site still
+  // loads no third-party script — a pixel cannot be slipped in quietly.
+  assert.match(privacy, /campaign label/i);
+  assert.match(privacy, /no analytics or advertising trackers/);
+  assert.match(vercel, /script-src 'self' https:\/\/cdn\.jsdelivr\.net;/, "no third-party script host");
 });
 
 test("database migration enables RLS and ownership checks", async () => {

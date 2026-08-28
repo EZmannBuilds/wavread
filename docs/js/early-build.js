@@ -6,6 +6,18 @@
 
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
+// If this page was reached from an advertisement, the link carries a short
+// campaign label — `?from=reels-a`. It is read from the address bar, sent once
+// with the purchase, and kept nowhere else: no cookie, no storage, no script
+// from anyone else. The server decides which labels it recognizes; this only
+// keeps something obviously wrong from being sent at all.
+function campaignLabel() {
+  const raw = new URLSearchParams(location.search).get("from");
+  if (!raw) return null;
+  const label = raw.trim().toLowerCase();
+  return /^[a-z0-9-]{1,24}$/.test(label) ? label : null;
+}
+
 async function loadConfiguration() {
   if (LOCAL_HOSTS.has(location.hostname)) return window.WAVREAD_BETA_CONFIG;
   try {
@@ -43,13 +55,14 @@ async function initializeCheckout() {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const email = new FormData(form).get("email").trim().toLowerCase();
+    const source = campaignLabel();
     submit.disabled = true;
     setStatus(status, "Preparing the payment page…");
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(source ? { email, source } : { email }),
       });
       const result = await response.json().catch(() => ({}));
       if (response.status === 503) {

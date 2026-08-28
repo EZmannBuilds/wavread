@@ -5,6 +5,15 @@
 <title>WavRead — music analysis you can read</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="WavRead measures your music locally and translates the results into clear language, evidence, and documents for producers, engineers, and artists.">
+<link rel="canonical" href="https://wavread.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WavRead">
+<meta property="og:title" content="WavRead — music analysis you can read">
+<meta property="og:description" content="WavRead measures your music locally and translates the results into clear language, evidence, and documents for producers, engineers, and artists.">
+<meta property="og:url" content="https://wavread.vercel.app/">
+<meta property="og:image" content="https://wavread.vercel.app/img/og-card.png">
+<meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -50,13 +59,13 @@
     </div>
     <div class="hero-product">
       <div class="measurement-rail" aria-label="Measurements shown in the product screenshot">
-        <span><b>79.5</b><small>BPM · DETECTED</small></span>
-        <span><b>G MINOR</b><small>KEY · 86% CONFIDENCE</small></span>
-        <span><b>2:48</b><small>DURATION · MEASURED</small></span>
+        <span><b>132.5</b><small>BPM · DETECTED</small></span>
+        <span><b>F# MINOR</b><small>KEY · 64% CONFIDENCE</small></span>
+        <span><b>&minus;12.7</b><small>LUFS · MEASURED</small></span>
       </div>
       <figure class="app-window">
         <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>WavRead — Track Workspace</span></div>
-        <img src="img/workspace-overview.png" alt="WavRead Track Workspace showing detected tempo, estimated key, measured duration, and evidence-based findings for an analyzed song." width="1100" height="900">
+        <img src="img/workspace-overview.png" alt="WavRead Track Workspace showing detected tempo, estimated key, measured loudness and duration, and evidence-based findings for an analyzed song." width="1100" height="900">
       </figure>
       <p class="product-note"><span>Analysis complete</span> Measured locally · audio never leaves your computer.</p>
     </div>
@@ -85,7 +94,7 @@
       <ul class="inline-facts"><li>Evidence-linked findings</li><li>Time-based graphs</li><li>Per-part measurements</li></ul>
     </div>
     <figure class="feature-visual reveal">
-      <img src="img/frequency-balance.png" alt="WavRead frequency balance view with a one-third-octave spectrum and an evidence-based low-mid finding." width="1100" height="760" loading="lazy">
+      <img src="img/frequency-balance.png" alt="WavRead frequency balance view with a one-third-octave spectrum, per-band percentages, and an evidence-based finding about a dark top end." width="1100" height="860" loading="lazy">
       <figcaption><span>Frequency balance</span> The finding names the measurement and the part of the spectrum it stands on.</figcaption>
     </figure>
   </section>
@@ -146,9 +155,9 @@
   <section class="download-section" id="download" aria-labelledby="download-title">
     <p class="eyebrow"><span>Current release</span> 1.4.8 · August 27, 2026</p>
     <h2 id="download-title">Your music is ready to be read.</h2>
-    <p>$5, once — no subscription. Apple Silicon Macs running macOS 14 or later. The
-    installer is not yet code-signed, so first launch takes one extra step: open it,
-    choose Done, then System Settings → Privacy &amp; Security → Open Anyway.</p>
+    <p>$5, once — no subscription. Apple Silicon Macs running macOS 14 or later.
+    Signed with an Apple Developer ID and notarised by Apple, so it opens with no
+    security warning to click past.</p>
     <a class="btn primary download-button" href="early-build.html">Buy WavRead 1.4.8 <span>$5 · one-time · 236 MB DMG</span></a>
     <div class="release-summary"><strong>Latest update</strong><p>Problem reports you control, a Report a Problem page, DAW capture with the Bridge plugin, master-bus measurements, and per-part true peak and clipping.</p><a href="early-build.html">What the $5 buys →</a></div>
   </section>
