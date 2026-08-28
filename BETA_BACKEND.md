@@ -63,11 +63,20 @@ Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
   database security advisors report zero findings.
 - All six Edge Functions deployed and smoke-tested; only `download-build`
   requires a JWT at the gateway, matching `[functions.*]` in `config.toml`.
-- Secrets set: `SITE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` —
-  **Stripe test mode**. The webhook endpoint `we_1U99c2FkYWeYuh7hzM8KNYy4`
-  points at the deployed `stripe-webhook` function with the three fulfillment
-  events. Going live later means swapping the two Stripe secrets for live
-  ones and creating the live-mode webhook endpoint; nothing else changes.
+- Secrets set: `SITE_URL`, `ALLOWED_ORIGINS`, `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET` — **Stripe LIVE mode** since 2026-08-27. The live
+  account is `acct_1U99tmFqkBB7rT8v`; its webhook endpoint
+  `we_1U9GQbFqkBB7rT8vVs1cQpaf` carries the three fulfillment events. The key
+  and the secret that validates it were set in one call, so there was never a
+  window where a real payment could be taken without fulfillment wired.
+  Verified after the swap: checkout issues `cs_live_…` sessions and a forged
+  signature is still rejected.
+
+  *The earlier test-mode account (`acct_1U99uPC2IxgG0EgS`) and its webhook are
+  a different Stripe account entirely and no longer participate. Erik's
+  test-mode purchase remains in the database as a real, owned entitlement —
+  its `stripe_checkout_session_id` starts `cs_test_`, which is the honest
+  record of how it was made.*
 - Auth: site URL `https://www.wavread.com`, dashboard redirect URLs
   allow-listed for the custom domain, its apex, and the vercel.app hostname;
   public signup disabled.
@@ -78,8 +87,13 @@ Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
 The site is deployed and live at **https://www.wavread.com** (the apex
 redirects to www; the vercel.app hostname still answers).
 
-Still open: one end-to-end test purchase with a Stripe test card, and the
-live-mode Stripe swap when real sales begin.
+The full purchase chain was proven end to end in test mode on 2026-08-27:
+paid session → delivered webhook → account, purchase and entitlement written →
+sign-in accepted → signed download whose bytes matched the catalog SHA-256.
+A signed-in non-owner got 403 and an empty builds list.
+
+Still open: the first real purchase on the live account, and code signing —
+see the app repository's roadmap for the Developer ID gate.
 
 ## Provisioning, in order
 
