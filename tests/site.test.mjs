@@ -67,12 +67,13 @@ test("all local links and assets resolve", async () => {
 });
 
 test("public pages share one destination-based primary navigation", async () => {
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html"];
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
   const expectedLinks = [
     ["how-it-works.html", "How it works"],
     ["capture.html", "DAW capture"],
     ["documents.html", "Documents"],
     ["requirements.html", "Requirements"],
+    ["install.html", "Install"],
     ["early-build.html", "Get WavRead"],
     ["privacy.html", "Privacy"],
     ["faq.html", "FAQ"]
@@ -147,6 +148,23 @@ test("every page offers a way to reach a person", async () => {
   }
 });
 
+test("the install guide prepares people for the dialog they will actually see", async () => {
+  const html = await read("docs/install.html");
+  // Promising "no warning" was wrong: macOS always confirms a downloaded app.
+  // The guide has to show the benign dialog and the refusal side by side, or
+  // the first thing a buyer sees contradicts the page that sold it to them.
+  assert.match(html, /downloaded from the Internet/i, "names the dialog people actually get");
+  assert.match(html, /none was detected|nothing malicious/i, "explains the sentence that proves notarisation");
+  assert.match(html, /cannot check it for malicious\s+software/i, "shows the failure case for contrast");
+  assert.match(html, /shasum -a 256/, "tells people how to verify what they downloaded");
+  assert.match(html, /mailto:support@wavread\.com/);
+  for (const file of ["index.html", "faq.html", "requirements.html", "early-build.html"]) {
+    const page = await read(join("docs", file));
+    assert.doesNotMatch(page, /no security warning|without a warning|opens with no\s+security/i,
+      `${file} still promises a launch with no dialog at all`);
+  }
+});
+
 test("no page still tells buyers to click past a security warning", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
@@ -215,7 +233,7 @@ test("edge functions keep the money and token boundaries", async () => {
 test("shared links carry a canonical URL and a real social card", async () => {
   // www redirects to the bare domain, so a canonical naming www would point
   // every shared link at a redirect.
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html"];
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
@@ -387,7 +405,7 @@ test("the approved website mark is vector-only and used consistently", async () 
   assert.match(mark, /@keyframes trace-acquire/);
   assert.match(mark, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(mark, /infinite/);
-  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "purchase-complete.html", "EULA.html"];
+  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "purchase-complete.html", "EULA.html"];
   for (const file of brandedPages) {
     const html = await read(join("docs", file));
     assert.match(html, /class="brand-mark" src="img\/wavread-mark\.svg"/, `${file} needs the approved vector wordmark`);

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Installing WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Every step of installing WavRead on a Mac, including the exact dialog macOS shows on first launch and what it means.">
+<link rel="canonical" href="https://wavread.com/install">
+<meta property="og:title" content="Installing WavRead">
+<meta property="og:description" content="Every step of installing WavRead on a Mac, including the exact dialog macOS shows on first launch and what it means.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wavread.com/install">
+<meta property="og:image" content="https://wavread.com/img/workspace-overview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
+</head>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
+</nav></header>
+<main id="main">
+
+<h1>Installing WavRead</h1>
+<p class="lede">Four steps, about two minutes. The third one shows a dialog that
+looks alarming and is not — it is on this page so you know before you see it.</p>
+
+<h2>1. Download it from your dashboard</h2>
+<p>Sign in at <a href="signin.html">wavread.com/signin</a> with the email you
+bought with. A one-time link arrives; there is no password. Your dashboard lists
+the current build with a <strong>Download</strong> button beside it.</p>
+<p>Downloads come from the dashboard rather than from inside the app, because
+the app's own updater can only see public releases and these builds are not
+public.</p>
+
+<h2>2. Check the checksum <span class="optional-tag">(optional, but it is there for a reason)</span></h2>
+<p>The dashboard prints a SHA-256 next to every build. If you want to prove the
+file you received is the file WavRead published — not something a network in
+between altered — run this in Terminal and compare:</p>
+<pre class="install">shasum -a 256 ~/Downloads/WavRead-1.4.37.dmg</pre>
+<p>It should match the dashboard exactly. Nobody is obliged to do this. It is
+published because a claim you cannot check is just a claim.</p>
+
+<h2>3. Open it, and answer the one question macOS asks</h2>
+<p>Double-click the <code>.dmg</code>, then drag <strong>WavRead</strong> onto
+the <strong>Applications</strong> folder in the window that opens. Open it from
+Applications.</p>
+
+<div class="note">
+  <p><strong>The first launch shows this, once:</strong></p>
+  <p><em>“WavRead” is an app downloaded from the Internet. Are you sure you want
+  to open it?</em> — and underneath, in smaller text: <em>Apple checked it for
+  malicious software and none was detected.</em></p>
+  <p>Click <strong>Open</strong>. It will not ask again.</p>
+</div>
+
+<p>That box is macOS being ordinary. It appears for any program downloaded from
+the internet, from any developer. The sentence that matters is the one about
+Apple checking it: that only appears for software that has been signed and
+notarised, which WavRead is — the ticket is stapled to both the app and the disk
+image, so it works even if your Mac is offline.</p>
+
+<p><strong>Here is what you should not see</strong>, so you can tell the
+difference:</p>
+
+<table class="spec">
+  <tr>
+    <th>Normal — what you will see</th>
+    <td>“…is an app downloaded from the Internet. Are you sure you want to open
+    it?” with an <strong>Open</strong> button, and a line saying Apple found
+    nothing malicious. Click Open.</td>
+  </tr>
+  <tr>
+    <th>Not normal — what you will not see</th>
+    <td>“…cannot be opened because Apple cannot check it for malicious
+    software,” with <em>no</em> Open button. That is what an unsigned or altered
+    app looks like. If WavRead ever shows you this, do not force it open —
+    <a href="mailto:support@wavread.com">email support@wavread.com</a>, because
+    something is genuinely wrong.</td>
+  </tr>
+</table>
+
+<h2>4. Analyze something you know well</h2>
+<p>Drag a finished track onto the window. The first analysis of a track takes
+longer than later ones — it is measuring, not downloading. Nothing is uploaded:
+your audio stays on your Mac, and the
+<a href="privacy.html">privacy page</a> lists every request the app can make.</p>
+
+<h2>Where your files go</h2>
+<p>WavRead keeps everything in one folder you control — analyses, documents,
+separated stems, and copies of the audio you analysed. Settings shows the exact
+path, how large it is, and can move the whole library to another drive, which is
+worth doing if you work with stems. Deleting the app never deletes that
+folder.</p>
+
+<h2>Updating later</h2>
+<p>New builds appear on your dashboard while the Early Launch runs, included in
+what you already paid. Download the new one and drag it over the old app; your
+library and settings are untouched.</p>
+
+<h2>If something goes wrong</h2>
+<p>Email <a href="mailto:support@wavread.com">support@wavread.com</a>. Include
+what you saw and what you expected — and if the app itself is misbehaving, its
+<em>Report a Problem</em> page can send a scrubbed record of the failure, which
+tells us far more than a screenshot. Nothing in that report contains your audio
+or your track names; the <a href="privacy.html">privacy page</a> lists every
+field.</p>
+
+<p class="measured">Written against WavRead 1.4.37 on macOS 14 and later, Apple
+Silicon. Intel Macs are not supported — see
+<a href="requirements.html">requirements</a>.</p>
+
+</main>
+<footer>
+  <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> ·
+  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a> ·
+  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
+  Audio → readable language, on your own machine.
+</footer>
+</body>
+</html>

@@ -25,7 +25,7 @@
 <header class="site-header"><nav aria-label="Main">
   <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html" aria-current="page">FAQ</a></div>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html" aria-current="page">FAQ</a></div>
   <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
 </nav></header>
 <main id="main">
@@ -94,11 +94,18 @@
 
 <div class="qa">
   <h3>Will macOS warn me when I open it?</h3>
-  <p>No. WavRead is signed with an Apple Developer ID and notarised by Apple,
-  and the notarisation ticket is stapled to the disk image — so it opens
-  normally, and it opens normally even on a machine that is offline. Builds
-  before 1.4.37 were unsigned and did need a trip through System Settings →
-  Privacy &amp; Security; that is over.</p>
+  <p>Once, benignly. WavRead is signed with an Apple Developer ID and notarised
+  by Apple, with the ticket stapled to both the app and the disk image, so it
+  works even on a Mac that is offline. The first launch still shows the ordinary
+  <em>"downloaded from the Internet — are you sure you want to open it?"</em>
+  confirmation that macOS shows for any downloaded program. That box also says
+  Apple checked the app and found nothing malicious. Click Open; it will not ask
+  again.</p>
+  <p>What you will <em>not</em> see is the refusal — <em>"cannot be opened
+  because Apple cannot check it for malicious software"</em>, with no Open
+  button. That is what builds before 1.4.37 did, and it needed a trip through
+  System Settings → Privacy &amp; Security. That part is over.
+  <a href="install.html">The install guide</a> shows both, side by side.</p>
 </div>
 
 <div class="qa">
