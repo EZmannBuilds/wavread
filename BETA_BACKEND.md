@@ -12,17 +12,23 @@ revocable report token, and only after its user typed a link code.
   Auth user sets that binding to null without deleting account history.
   Browser clients can read only their own row and cannot grant or change
   anything about it.
-- `purchases` and `entitlements` record what was bought. Since the Early
-  Launch pricing change (migration `20260828040000`) an entitlement names the
-  build it unlocks: **$5 buys one build**, and the next build is another $5.
-  They are written only by the `stripe-webhook` Edge Function after Stripe's
-  signature verifies; fulfillment is idempotent on the checkout session id. A
-  refund marks the purchase and revokes that build's entitlement.
-- `beta_testers.free_updates` is **contributor standing**: every later build
-  included, for what the account already paid. It is granted by hand, with the
+- `purchases` and `entitlements` record what was bought. **$5 buys the whole
+  Early Launch**: the entitlement is granted unscoped (`build_version` null),
+  which `has_build_access` reads as every build. `purchases.build_version`
+  records which build was current at the time — a receipt detail, never a
+  limit. They are written only by the `stripe-webhook` Edge Function after
+  Stripe's signature verifies; fulfillment is idempotent on the checkout
+  session id. A refund marks the purchase and revokes the entitlement.
+- The per-build columns from migration `20260828040000` stay in place because
+  they cost nothing and the schema already honours both shapes. If a future
+  build is ever sold on its own, scope its entitlement; today nothing does.
+- `beta_testers.free_updates` is **contributor standing**: it covers every
+  build, and it is the marker for the promise that the **$49 final 1.0
+  release** stays theirs for the $5 already paid. Granted by hand, with the
   reason in `free_updates_note`, and deliberately not computed from a report
   count — a threshold that grants itself rewards twenty empty reports over one
-  useful one. Find candidates by reading their reports, then:
+  useful one. When 1.0 ships, this flag is what separates who pays $49 from
+  who does not. Find candidates by reading their reports, then:
   `update public.beta_testers set free_updates = true, free_updates_note = '…' where email = '…';`
 - `public.has_build_access(account, build)` is the single access rule, used by
   both the builds RLS policy and `download-build`, so the dashboard and the

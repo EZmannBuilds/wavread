@@ -196,21 +196,21 @@ async function loadOwnership() {
   const spent = paid.reduce((sum, p) => sum + (p.amount_cents || 0), 0);
 
   if (account.data?.free_updates) {
-    title.textContent = "Every build included";
+    title.textContent = "Owned · 1.0 included";
     detail.textContent = account.data.free_updates_note
-      || "Your reports earned it: later builds are included at no further cost.";
+      || "Your reports earned it: the $49 1.0 release stays yours for what you already paid.";
     action.hidden = true;
   } else if (everything) {
-    title.textContent = "Every build included";
-    detail.textContent = "Bought under the original Early Build terms, which still stand.";
+    title.textContent = "Owned";
+    detail.textContent = `Every Early Launch build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}. The 1.0 release will be $49 unless your reports earn it.`;
     action.hidden = true;
   } else if (owned.size) {
     title.textContent = owned.size === 1 ? "1 build owned" : `${owned.size} builds owned`;
-    detail.textContent = `${[...owned].join(", ")} · $${(spent / 100).toFixed(2)} paid so far. Later builds are $5 each until your reports earn them.`;
+    detail.textContent = `${[...owned].join(", ")} · $${(spent / 100).toFixed(2)} paid.`;
     action.hidden = false;
   } else {
-    title.textContent = "No build owned yet";
-    detail.textContent = "Each build is $5. Report problems that help and later builds are included.";
+    title.textContent = "Not owned yet";
+    detail.textContent = "Five dollars covers every build of the Early Launch.";
     action.hidden = false;
   }
   return { owned, everything };
@@ -300,7 +300,7 @@ async function loadBuilds(standing) {
     }
     const state = document.createElement("span");
     state.className = "table-status";
-    state.textContent = standing.everything ? "included" : (standing.owned.has(build.version) ? "owned" : "not owned");
+    state.textContent = standing.everything || standing.owned.has(build.version) ? "included" : "not owned";
     return [build.version, fmtDate(build.released_at), size, sha, state, action];
   });
   list.append(buildTable(["Version", "Published", "Size", "SHA-256", "", ""], rows));

@@ -59,9 +59,7 @@ Deno.serve(async (req: Request) => {
   if (!found.error && found.data) build = found.data;
 
   const amountCents = build?.price_cents ?? DEFAULT_AMOUNT_CENTS;
-  const productName = build
-    ? `WavRead ${build.version}`
-    : "WavRead Early Launch";
+  const productName = "WavRead Early Launch";
 
   const params = new URLSearchParams();
   params.set("mode", "payment");
@@ -72,13 +70,13 @@ Deno.serve(async (req: Request) => {
   params.set("line_items[0][price_data][product_data][name]", productName);
   params.set(
     "line_items[0][price_data][product_data][description]",
-    "This build, downloadable from your dashboard, with your reports tracked against your account.",
+    "Every build of the Early Launch, downloadable from your dashboard, with your reports tracked against your account.",
   );
   params.set("metadata[product]", "early_build");
-  if (build) {
-    params.set("metadata[build_version]", build.version);
-    params.set("metadata[build_id]", String(build.id));
-  }
+  // No build_version: one payment covers every build of the Early Launch, so
+  // the entitlement the webhook grants must stay unscoped. Naming a build here
+  // would quietly sell access to that build alone.
+  if (build) params.set("metadata[bought_at_version]", build.version);
   // Which advertisement this purchase came from, when the buyer arrived by
   // one. A label like "reels-a" and nothing else — no identifier, no profile,
   // and no consequence for the buyer. An unrecognized label is dropped rather

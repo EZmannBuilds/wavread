@@ -12,7 +12,7 @@ test("public homepage tells the real release story", async () => {
   assert.match(html, /Early Launch · 1\.4\.37/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /\$5 a build/, "the price is per build and the page says so");
+  assert.match(html, /\$5 once|Five dollars now/, "one payment covers the Early Launch");
   assert.match(html, /early-build\.html/);
   // A paid beta must not still advertise a free download of itself.
   assert.doesNotMatch(html, /free beta|download free/i);
@@ -24,7 +24,8 @@ test("the purchase page sells $5 honestly and takes no card itself", async () =>
   const html = await read("docs/early-build.html");
   assert.match(html, /\$5/);
   assert.match(html, /Early Launch/i);
-  assert.match(html, /five dollars a build|\$5 per build|\$5\.00 per build/i, "per-build pricing is stated plainly");
+  assert.match(html, /every build/i, "the Early Launch includes later builds");
+  assert.match(html, /\$49/, "the final release price is stated where people buy");
   assert.match(html, /no subscription|nothing renews/i);
   assert.match(html, /no free version|nothing here is free|There is\s+no free version/i, "the absence of a free tier is explicit");
   assert.doesNotMatch(html, /covers the whole beta|every build while the beta runs/i, "no leftover all-access promise");
@@ -119,7 +120,7 @@ test("ownership and reports reach the browser read-only", async () => {
 test("no page promises builds the per-build model does not include", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
-    assert.doesNotMatch(html, /Pay once[.,]?\s*<br>?\s*Every beta build is yours/i, `${file} still sells one payment for every build`);
+    assert.doesNotMatch(html, /another five dollars|\$5 each|per build/i, `${file} still charges per build`);
     assert.doesNotMatch(html, /(?<!no )(?<!nothing )free (?:beta|trial|download)\b/i, `${file} offers something free`);
     assert.doesNotMatch(html, /download free|try it free|free for everyone/i, `${file} offers something free`);
   }
@@ -172,7 +173,14 @@ test("edge functions keep the money and token boundaries", async () => {
   assert.match(checkout, /unit_amount\]", String\(amountCents\)/);
   assert.match(checkout, /DEFAULT_AMOUNT_CENTS = 500/);
   assert.match(checkout, /price_cents/, "the price comes from the build catalog, not the browser");
-  assert.match(checkout, /metadata\[build_version\]/, "the payment records which build it bought");
+  assert.match(checkout, /metadata\[bought_at_version\]/, "the receipt records where they came in");
+  assert.doesNotMatch(checkout, /metadata\[build_version\]/, "checkout must not scope the purchase to one build");
+  // The $5 covers every Early Launch build: the granted entitlement stays
+  // unscoped, and a future edit that scopes it would silently sell less.
+  assert.match(webhook, /build_version: null/, "the entitlement covers every build");
+  // The version belongs on the receipt, not on the grant.
+  assert.match(webhook, /\.from\("purchases"\)[\s\S]{0,400}build_version: boughtAt/, "the purchase records which build was current");
+  assert.match(webhook, /\.from\("entitlements"\)\.insert\(\{[\s\S]{0,200}build_version: null/, "the grant is not tied to a build");
   assert.match(checkout, /metadata\[product\]/);
   assert.match(webhook, /stripe-signature/);
   assert.match(webhook, /timingSafeEqual/);
@@ -283,7 +291,7 @@ test("release channels and production staging are explicit", async () => {
   const deploy = await read("deploy.sh");
   assert.match(dashboard, /Current build/);
   assert.match(dashboard, /SHA-256/);
-  assert.match(dashboard, /updater checks public release listings/);
+  assert.match(dashboard, /updater checks public\s+release listings/);
   assert.match(backend, /must be marked as a \*\*prerelease\*\*/);
   assert.match(backend, /64-character SHA-256/);
   assert.match(deploy, /npm run check/);
