@@ -1,5 +1,5 @@
 const SUPABASE_MODULE = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm";
-const CURRENT_VERSION = "1.4.4";
+const CURRENT_VERSION = "1.4.37";
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
 let supabase = null;

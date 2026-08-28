@@ -9,7 +9,7 @@ const read = (path) => readFile(resolve(path), "utf8");
 
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /Beta 1\.4\.8/);
+  assert.match(html, /Beta 1\.4\.37/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
   assert.match(html, /\$5/, "the beta is paid and the page leads with the price");
@@ -116,7 +116,7 @@ test("ownership and reports reach the browser read-only", async () => {
 test("no page still tells buyers to click past a security warning", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
-    assert.doesNotMatch(html, /Open Anyway/i, `${file} still describes the pre-1.4.8 unsigned launch`);
+    assert.doesNotMatch(html, /Open Anyway/i, `${file} still describes the pre-1.4.37 unsigned launch`);
   }
 });
 
@@ -278,7 +278,7 @@ test("the privacy page discloses reports and purchases in full", async () => {
   assert.match(privacy, /install ID/);
   assert.match(privacy, /Stripe/);
   assert.match(privacy, /never sees or stores card numbers/i);
-  assert.match(privacy, /1\.4\.8/);
+  assert.match(privacy, /1\.4\.37/);
   const faq = await read("docs/faq.html");
   assert.match(faq, /crash report/i);
   assert.match(faq, /\$5/);
