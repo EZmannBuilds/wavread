@@ -133,6 +133,20 @@ test("no page promises builds the per-build model does not include", async () =>
   assert.match(sql, /build_version is null/, "purchases made under the old all-access terms stay honoured");
 });
 
+test("every page offers a way to reach a person", async () => {
+  // noreply@ is a sending address with no mailbox behind it, so a page that
+  // shows only that address is a dead end for someone with a problem.
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.match(html, /mailto:support@wavread\.com/, `${file} gives no way to contact support`);
+  }
+  // And nowhere should invite a reply to the address that cannot receive one.
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /reply to\s+<?noreply@|email\s+<?noreply@/i, `${file} invites mail to an address with no mailbox`);
+  }
+});
+
 test("no page still tells buyers to click past a security warning", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
