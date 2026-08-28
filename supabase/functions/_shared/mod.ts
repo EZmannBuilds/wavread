@@ -22,30 +22,39 @@ function siteOrigin(): string {
   return (Deno.env.get("SITE_URL") ?? "").replace(/\/$/, "");
 }
 
+// One site can answer to several names — a custom domain, its www form, and
+// the platform hostname — and a browser judges CORS by the exact one in the
+// address bar. ALLOWED_ORIGINS lists every name the site legitimately serves;
+// SITE_URL stays the canonical one used for redirects back from Stripe.
 function allowedOrigins(): string[] {
-  const origins = ["http://127.0.0.1:4173", "http://localhost:4173"];
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((value) => value.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  const origins = [...configured, "http://127.0.0.1:4173", "http://localhost:4173"];
   const site = siteOrigin();
   if (site) origins.unshift(site);
-  return origins;
+  return [...new Set(origins)];
 }
 
 // Vercel gives every preview deployment its own hostname —
 // `<project>-<hash>-<team>.vercel.app` — so a fixed list can only ever allow
-// production. Previews of *this* project are derived from SITE_URL rather
-// than hardcoded, and nothing else on vercel.app is accepted: without this,
-// checkout works in production and mysteriously fails on every preview.
-function previewPattern(): RegExp | null {
-  const match = siteOrigin().match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
-  if (!match) return null;
-  const project = match[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`^https://${project}-[a-z0-9-]+\\.vercel\\.app$`);
+// production. Previews are derived from whichever allowed origin is a
+// vercel.app hostname, and nothing else on vercel.app is accepted.
+function previewPatterns(): RegExp[] {
+  return allowedOrigins()
+    .map((origin) => origin.match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/))
+    .filter((match): match is RegExpMatchArray => Boolean(match))
+    .map((match) => {
+      const project = match[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return new RegExp(`^https://${project}-[a-z0-9-]+\\.vercel\\.app$`);
+    });
 }
 
 function allowOrigin(origin: string): string {
   const allowed = allowedOrigins();
   if (allowed.includes(origin)) return origin;
-  const preview = previewPattern();
-  if (preview && preview.test(origin)) return origin;
+  if (previewPatterns().some((pattern) => pattern.test(origin))) return origin;
   return allowed[0] ?? "";
 }
 

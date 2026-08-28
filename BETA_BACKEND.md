@@ -68,14 +68,18 @@ Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
   points at the deployed `stripe-webhook` function with the three fulfillment
   events. Going live later means swapping the two Stripe secrets for live
   ones and creating the live-mode webhook endpoint; nothing else changes.
-- Auth: site URL `https://wavread.vercel.app`, dashboard redirect URLs
-  allow-listed, public signup disabled.
+- Auth: site URL `https://www.wavread.com`, dashboard redirect URLs
+  allow-listed for the custom domain, its apex, and the vercel.app hostname;
+  public signup disabled.
 - Vercel project `wavread`: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`
   set for Production and Preview. They take effect on the next deployment;
   running `./deploy.sh` remains its own approval.
 
-Still open: the production site deploy, one end-to-end test purchase with a
-Stripe test card, and the live-mode Stripe swap when real sales begin.
+The site is deployed and live at **https://www.wavread.com** (the apex
+redirects to www; the vercel.app hostname still answers).
+
+Still open: one end-to-end test purchase with a Stripe test card, and the
+live-mode Stripe swap when real sales begin.
 
 ## Provisioning, in order
 
@@ -94,7 +98,10 @@ is a separate decision.
    auth user from the webhook; testers are still invited by hand.
 4. **Edge Functions.** Deploy all six from `supabase/functions/` —
    `verify_jwt` on for `download-build` only. Set the three secrets first;
-   `SITE_URL` is the production origin (`https://wavread.vercel.app`).
+   `SITE_URL` is the canonical origin (`https://www.wavread.com`) and
+   `ALLOWED_ORIGINS` lists every other host the site answers to — a browser
+   judges CORS by the exact name in the address bar, so a site reachable at
+   three names needs all three here or checkout fails on the ones missing.
 5. **Stripe.** Create the Stripe account (live mode needs business details),
    copy the secret key, then add a webhook endpoint pointing at
    `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`

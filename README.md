@@ -5,7 +5,7 @@
 WavRead analyzes music on your own computer and turns it into measurements,
 explanations, and readable documents — for you, or for any AI assistant.
 
-- **Website:** https://wavread.vercel.app
+- **Website:** https://www.wavread.com
 - **Downloads:** [Releases](https://github.com/EZmannBuilds/wavread/releases)
 - **Licence:** [EULA.md](EULA.md)
 - **Third-party components:** [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
