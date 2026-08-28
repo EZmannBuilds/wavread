@@ -8,11 +8,18 @@
 // Deployed with verify_jwt disabled: buying does not require an account —
 // the account is created by fulfillment, keyed to the checkout email.
 
-import { json, normalizeEmail, preflight, readJson } from "../_shared/mod.ts";
+import {
+  campaignSource,
+  json,
+  normalizeEmail,
+  preflight,
+  readJson,
+  serviceClient,
+} from "../_shared/mod.ts";
 
-const PRODUCT_NAME = "WavRead Early Build";
-const AMOUNT_CENTS = 500;
 const CURRENCY = "usd";
+// Fallback for a checkout that names no build — the current price of entry.
+const DEFAULT_AMOUNT_CENTS = 500;
 
 Deno.serve(async (req: Request) => {
   const early = preflight(req);
@@ -36,18 +43,48 @@ Deno.serve(async (req: Request) => {
     return json(req, 400, { error: "Enter a valid email address." });
   }
 
+  // Each build is bought on its own, so the price and the name come from the
+  // catalog rather than from anything the browser says. A checkout that names
+  // no build buys the current one.
+  const db = serviceClient();
+  let build = null;
+  const wanted = Number(body?.build_id);
+  const query = db
+    .from("builds")
+    .select("id, version, price_cents")
+    .eq("published", true);
+  const found = Number.isInteger(wanted) && wanted > 0
+    ? await query.eq("id", wanted).maybeSingle()
+    : await query.order("released_at", { ascending: false }).limit(1).maybeSingle();
+  if (!found.error && found.data) build = found.data;
+
+  const amountCents = build?.price_cents ?? DEFAULT_AMOUNT_CENTS;
+  const productName = build
+    ? `WavRead ${build.version}`
+    : "WavRead Early Launch";
+
   const params = new URLSearchParams();
   params.set("mode", "payment");
   params.set("customer_email", email);
   params.set("line_items[0][quantity]", "1");
   params.set("line_items[0][price_data][currency]", CURRENCY);
-  params.set("line_items[0][price_data][unit_amount]", String(AMOUNT_CENTS));
-  params.set("line_items[0][price_data][product_data][name]", PRODUCT_NAME);
+  params.set("line_items[0][price_data][unit_amount]", String(amountCents));
+  params.set("line_items[0][price_data][product_data][name]", productName);
   params.set(
     "line_items[0][price_data][product_data][description]",
-    "Early channel builds, the report dashboard, and a recorded early-supporter purchase.",
+    "This build, downloadable from your dashboard, with your reports tracked against your account.",
   );
   params.set("metadata[product]", "early_build");
+  if (build) {
+    params.set("metadata[build_version]", build.version);
+    params.set("metadata[build_id]", String(build.id));
+  }
+  // Which advertisement this purchase came from, when the buyer arrived by
+  // one. A label like "reels-a" and nothing else — no identifier, no profile,
+  // and no consequence for the buyer. An unrecognized label is dropped rather
+  // than refused: a mistyped link must still be able to sell.
+  const source = campaignSource(body?.source);
+  if (source) params.set("metadata[source]", source);
   params.set(
     "success_url",
     `${siteUrl}/purchase-complete?session_id={CHECKOUT_SESSION_ID}`,

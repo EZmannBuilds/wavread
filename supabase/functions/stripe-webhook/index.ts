@@ -113,11 +113,16 @@ async function fulfill(db: any, session: any): Promise<string> {
   }
 
   // 2. The purchase, exactly once per checkout session.
+  const boughtVersion = typeof session?.metadata?.build_version === "string"
+    ? session.metadata.build_version
+    : null;
+
   const purchase = await db
     .from("purchases")
     .upsert({
       tester_id: testerId,
       product: "early_build",
+      build_version: boughtVersion,
       amount_cents: session.amount_total ?? 0,
       currency: (session.currency ?? "usd").toLowerCase(),
       stripe_checkout_session_id: session.id,
@@ -139,19 +144,26 @@ async function fulfill(db: any, session: any): Promise<string> {
   if (purchaseRow.error) throw purchaseRow.error;
 
   // 3. The entitlement, if nothing active grants it already.
-  const active = await db
+  // An entitlement is per build now: buying 1.4.37 does not hand over 1.4.38.
+  // Contributor standing (beta_testers.free_updates) is what covers later
+  // builds, and it is granted by hand rather than bought.
+  let entitlementQuery = db
     .from("entitlements")
     .select("id")
     .eq("tester_id", testerId)
     .eq("entitlement", "early_build")
-    .is("revoked_at", null)
-    .maybeSingle();
+    .is("revoked_at", null);
+  entitlementQuery = boughtVersion
+    ? entitlementQuery.eq("build_version", boughtVersion)
+    : entitlementQuery.is("build_version", null);
+  const active = await entitlementQuery.maybeSingle();
   if (active.error) throw active.error;
   if (!active.data) {
     const granted = await db.from("entitlements").insert({
       tester_id: testerId,
       entitlement: "early_build",
       source: "purchase",
+      build_version: boughtVersion,
       purchase_id: purchaseRow.data.id,
     });
     // A concurrent retry can lose this race; the partial unique index makes

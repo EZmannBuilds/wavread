@@ -60,17 +60,23 @@ Deno.serve(async (req: Request) => {
     return json(req, 404, { error: "that build is not available" });
   }
 
-  if (build.data.channel === "early") {
-    const entitled = await db
-      .from("entitlements")
-      .select("id")
-      .eq("tester_id", account.data.tester_id)
-      .eq("entitlement", "early_build")
-      .is("revoked_at", null)
-      .maybeSingle();
-    if (entitled.error || !entitled.data) {
-      return json(req, 403, { error: "this build needs the Early Build purchase" });
-    }
+  // Access is per build, and the rule lives in the database so this function
+  // and the dashboard cannot drift apart: an entitlement for this build, a
+  // legacy all-access entitlement, or contributor standing.
+  const allowed = await db.rpc("has_build_access", {
+    account: account.data.tester_id,
+    build: build.data.id,
+  });
+  if (allowed.error) {
+    console.error("access check failed", allowed.error);
+    return json(req, 500, { error: "the download could not be prepared" });
+  }
+  if (allowed.data !== true) {
+    return json(req, 403, {
+      error: "This build has not been purchased on this account.",
+      purchasable: true,
+      build_id: build.data.id,
+    });
   }
 
   const signed = await db.storage

@@ -173,30 +173,67 @@ async function loadOwnership() {
   const title = document.querySelector("#ownership-title");
   const detail = document.querySelector("#ownership-detail");
   const action = document.querySelector("#ownership-action");
-  const [entitled, purchases] = await Promise.all([
-    supabase.from("entitlements").select("entitlement, granted_at")
-      .eq("entitlement", "early_build").is("revoked_at", null).maybeSingle(),
-    supabase.from("purchases").select("amount_cents, currency, purchased_at, status")
+  const [account, entitlements, purchases] = await Promise.all([
+    supabase.from("beta_testers").select("free_updates, free_updates_note")
+      .eq("auth_user_id", currentUser.id).maybeSingle(),
+    supabase.from("entitlements").select("build_version, granted_at")
+      .eq("entitlement", "early_build").is("revoked_at", null),
+    supabase.from("purchases").select("amount_cents, build_version, purchased_at, status")
       .order("purchased_at", { ascending: false })
   ]);
-  if (entitled.error) {
-    title.textContent = "Ownership unavailable";
-    detail.textContent = "Your entitlements could not be read. Refresh this page.";
-    return false;
+  if (entitlements.error || account.error) {
+    title.textContent = "Standing unavailable";
+    detail.textContent = "Your purchases could not be read. Refresh this page.";
+    return { owned: new Set(), everything: false };
   }
-  if (entitled.data) {
-    const paid = (purchases.data || []).find((p) => p.status === "paid");
-    title.textContent = "Owned";
-    detail.textContent = paid
-      ? `Purchased ${fmtDate(paid.purchased_at)} · $${(paid.amount_cents / 100).toFixed(2)}. Early-channel builds and your reports are unlocked.`
-      : "Granted to this account. Early-channel builds and your reports are unlocked.";
+
+  // Contributor standing, or a legacy all-access entitlement from the original
+  // programme, covers every build. Otherwise access is build by build.
+  const rows = entitlements.data || [];
+  const everything = Boolean(account.data?.free_updates) || rows.some((r) => !r.build_version);
+  const owned = new Set(rows.map((r) => r.build_version).filter(Boolean));
+  const paid = (purchases.data || []).filter((p) => p.status === "paid");
+  const spent = paid.reduce((sum, p) => sum + (p.amount_cents || 0), 0);
+
+  if (account.data?.free_updates) {
+    title.textContent = "Every build included";
+    detail.textContent = account.data.free_updates_note
+      || "Your reports earned it: later builds are included at no further cost.";
     action.hidden = true;
-    return true;
+  } else if (everything) {
+    title.textContent = "Every build included";
+    detail.textContent = "Bought under the original Early Build terms, which still stand.";
+    action.hidden = true;
+  } else if (owned.size) {
+    title.textContent = owned.size === 1 ? "1 build owned" : `${owned.size} builds owned`;
+    detail.textContent = `${[...owned].join(", ")} · $${(spent / 100).toFixed(2)} paid so far. Later builds are $5 each until your reports earn them.`;
+    action.hidden = false;
+  } else {
+    title.textContent = "No build owned yet";
+    detail.textContent = "Each build is $5. Report problems that help and later builds are included.";
+    action.hidden = false;
   }
-  title.textContent = "Not owned yet";
-  detail.textContent = "This account can use the dashboard and send feedback. The $5 Early Build adds early-channel downloads.";
-  action.hidden = false;
-  return false;
+  return { owned, everything };
+}
+
+// Buying one specific build, rather than a blanket purchase.
+async function buyBuild(build, statusEl) {
+  setStatus(statusEl, `Opening checkout for ${build.version}…`);
+  try {
+    const response = await fetch(`${betaConfig.url.replace(/\/$/, "")}/functions/v1/create-checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: currentUser.email, build_id: build.id })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.url) {
+      setStatus(statusEl, result.error || "Checkout could not be started. Try again shortly.", "error");
+      return;
+    }
+    location.assign(result.url);
+  } catch {
+    setStatus(statusEl, "Checkout could not be reached. Check your connection.", "error");
+  }
 }
 
 async function downloadBuild(build, statusEl) {
@@ -225,40 +262,48 @@ async function downloadBuild(build, statusEl) {
   }
 }
 
-async function loadBuilds(owned) {
+async function loadBuilds(standing) {
   const list = document.querySelector("#builds-list");
   const empty = document.querySelector("#builds-empty");
   const locked = document.querySelector("#builds-locked");
   const status = document.querySelector("#builds-status");
   const { data, error } = await supabase
     .from("builds")
-    .select("id, version, channel, file_name, sha256, size_bytes, notes, released_at")
+    .select("id, version, channel, file_name, sha256, size_bytes, notes, released_at, price_cents")
     .order("released_at", { ascending: false });
   if (error) {
     setStatus(status, "The build list could not be loaded. Try refreshing this page.", "error");
     return;
   }
-  const early = (data || []).filter((b) => b.channel === "early");
-  locked.hidden = owned;
+  const builds = data || [];
+  const has = (b) => standing.everything || standing.owned.has(b.version);
+  locked.hidden = builds.length === 0 || builds.some(has);
   list.replaceChildren();
-  if (!early.length) {
-    empty.hidden = !owned;
+  if (!builds.length) {
+    empty.hidden = false;
     return;
   }
   empty.hidden = true;
-  const rows = early.map((build) => {
+  const rows = builds.map((build) => {
     const sha = document.createElement("code");
     sha.textContent = build.sha256;
     const size = `${(build.size_bytes / (1024 * 1024)).toFixed(0)} MB`;
-    if (!owned) return [build.version, fmtDate(build.released_at), size, sha, "Needs Early Build"];
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "btn tiny";
-    button.textContent = "Download";
-    button.addEventListener("click", () => downloadBuild(build, status));
-    return [build.version, fmtDate(build.released_at), size, sha, button];
+    const action = document.createElement("button");
+    action.type = "button";
+    action.className = "btn tiny";
+    if (has(build)) {
+      action.textContent = "Download";
+      action.addEventListener("click", () => downloadBuild(build, status));
+    } else {
+      action.textContent = `Buy — $${((build.price_cents ?? 500) / 100).toFixed(2)}`;
+      action.addEventListener("click", () => buyBuild(build, status));
+    }
+    const state = document.createElement("span");
+    state.className = "table-status";
+    state.textContent = standing.everything ? "included" : (standing.owned.has(build.version) ? "owned" : "not owned");
+    return [build.version, fmtDate(build.released_at), size, sha, state, action];
   });
-  list.append(buildTable(["Version", "Published", "Size", "SHA-256", ""], rows));
+  list.append(buildTable(["Version", "Published", "Size", "SHA-256", "", ""], rows));
 }
 
 async function loadDevices() {
@@ -431,8 +476,8 @@ async function initializeDashboard() {
   showDashboardState("dashboard-content");
 
   initializeLinkCode();
-  const owned = await loadOwnership();
-  loadBuilds(owned);
+  const standing = await loadOwnership();
+  loadBuilds(standing);
   loadDevices();
   loadReports();
 

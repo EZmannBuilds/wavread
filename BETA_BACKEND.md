@@ -12,10 +12,23 @@ revocable report token, and only after its user typed a link code.
   Auth user sets that binding to null without deleting account history.
   Browser clients can read only their own row and cannot grant or change
   anything about it.
-- `purchases` and `entitlements` record the $5 Early Build. They are written
-  only by the `stripe-webhook` Edge Function after Stripe's signature
-  verifies; fulfillment is idempotent on the checkout session id. A refund
-  marks the purchase and revokes the entitlement without deleting either.
+- `purchases` and `entitlements` record what was bought. Since the Early
+  Launch pricing change (migration `20260828040000`) an entitlement names the
+  build it unlocks: **$5 buys one build**, and the next build is another $5.
+  They are written only by the `stripe-webhook` Edge Function after Stripe's
+  signature verifies; fulfillment is idempotent on the checkout session id. A
+  refund marks the purchase and revokes that build's entitlement.
+- `beta_testers.free_updates` is **contributor standing**: every later build
+  included, for what the account already paid. It is granted by hand, with the
+  reason in `free_updates_note`, and deliberately not computed from a report
+  count — a threshold that grants itself rewards twenty empty reports over one
+  useful one. Find candidates by reading their reports, then:
+  `update public.beta_testers set free_updates = true, free_updates_note = '…' where email = '…';`
+- `public.has_build_access(account, build)` is the single access rule, used by
+  both the builds RLS policy and `download-build`, so the dashboard and the
+  download cannot drift apart. There is no free tier: `builds.price_cents` is
+  checked `> 0`, and an account with no purchase and no standing reaches
+  nothing.
 - `builds` is the gated download catalog. Files live in the private `builds`
   storage bucket; `download-build` checks the entitlement and issues a 60-second
   signed URL. Public stable releases stay on GitHub, exactly as before.
@@ -42,17 +55,39 @@ revocable report token, and only after its user typed a link code.
 
 | Function | JWT | Purpose |
 | --- | --- | --- |
-| `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`) |
+| `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign label) |
 | `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase, entitlement, auth user |
 | `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
 | `crash-report` | no (optional token) | validated, deduplicated, rate-limited crash intake |
 | `submit-report` | no (token required) | the app's Report a Problem submissions |
-| `download-build` | yes | entitlement check → 60-second signed URL + SHA-256 |
+| `download-build` | yes | `has_build_access` → 60-second signed URL + SHA-256 |
 
 Secrets the functions need, set with `supabase secrets set` (never in source,
 never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `SITE_URL`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are injected by the
 platform.
+
+### The campaign label
+
+An advertisement's link carries `?from=<label>` — `reels-a` and the like. The
+purchase page reads it from the address bar and sends it once with the
+checkout request; `create-checkout` validates it and, when it is recognized,
+writes it to the Stripe session as `metadata[source]`. Attribution then lives
+beside the revenue in Stripe, and WavRead needs no analytics script, no cookie,
+and no third-party host — none of which the site's CSP or its privacy page
+would permit anyway.
+
+The label is bounded on purpose: the channel must be one of
+`CAMPAIGN_CHANNELS` in `_shared/mod.ts` and the variant after it is at most
+twelve characters, so a stranger cannot write prose into a payment record.
+An unrecognized label is dropped rather than refused — attribution must never
+be able to block a sale.
+
+**Adding a channel means redeploying:** `supabase functions deploy
+create-checkout`. New *variants* of an existing channel need no deploy, which
+is why the shape is a known channel plus a free suffix rather than a fixed
+list. Until that function is redeployed, `metadata[source]` is never written
+and links carrying `?from=` still sell normally.
 
 ## Provisioning status — 2026-08-27
 

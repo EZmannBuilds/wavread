@@ -166,6 +166,25 @@ export function optionalText(value: unknown, max: number): string | null {
   return value.trim().slice(0, max);
 }
 
+// The campaign label carried by an advertisement's link — "reels-a" and the
+// like. It records which advertisement was paid for, never who clicked it:
+// there is no cookie, no third-party script, and nothing to combine it with.
+//
+// The channel must be one WavRead actually buys, so a stranger cannot write
+// prose into a payment record; the variant after it is a short free label so
+// that testing a new creative needs no deploy. Anything unrecognized returns
+// null and is dropped — attribution must never be able to block a sale.
+const CAMPAIGN_CHANNELS = ["reels", "tiktok", "shorts", "yt", "direct"];
+const CAMPAIGN_RE = new RegExp(
+  `^(${CAMPAIGN_CHANNELS.join("|")})(-[a-z0-9]{1,12})?$`,
+);
+
+export function campaignSource(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const label = value.trim().toLowerCase();
+  return CAMPAIGN_RE.test(label) ? label : null;
+}
+
 // The desktop app's report token: random bytes the server only ever stores
 // hashed. 32 bytes of entropy, base64url without padding.
 export function newDeviceToken(): string {

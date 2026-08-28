@@ -9,10 +9,10 @@ const read = (path) => readFile(resolve(path), "utf8");
 
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /Beta 1\.4\.37/);
+  assert.match(html, /Early Launch · 1\.4\.37/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /\$5/, "the beta is paid and the page leads with the price");
+  assert.match(html, /\$5 a build/, "the price is per build and the page says so");
   assert.match(html, /early-build\.html/);
   // A paid beta must not still advertise a free download of itself.
   assert.doesNotMatch(html, /free beta|download free/i);
@@ -23,8 +23,11 @@ test("public homepage tells the real release story", async () => {
 test("the purchase page sells $5 honestly and takes no card itself", async () => {
   const html = await read("docs/early-build.html");
   assert.match(html, /\$5/);
-  assert.match(html, /paid beta/i);
-  assert.match(html, /no subscription|never renews/i);
+  assert.match(html, /Early Launch/i);
+  assert.match(html, /five dollars a build|\$5 per build|\$5\.00 per build/i, "per-build pricing is stated plainly");
+  assert.match(html, /no subscription|nothing renews/i);
+  assert.match(html, /no free version|nothing here is free|There is\s+no free version/i, "the absence of a free tier is explicit");
+  assert.doesNotMatch(html, /covers the whole beta|every build while the beta runs/i, "no leftover all-access promise");
   assert.match(html, /Stripe/);
   assert.match(html, /notarised|notarized/i, "signing status is stated where people decide to buy");
   assert.match(html, /Refunds/);
@@ -113,6 +116,22 @@ test("ownership and reports reach the browser read-only", async () => {
   assert.doesNotMatch(dashboard, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "the dashboard serves builds through signed URLs, not public links");
 });
 
+test("no page promises builds the per-build model does not include", async () => {
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /Pay once[.,]?\s*<br>?\s*Every beta build is yours/i, `${file} still sells one payment for every build`);
+    assert.doesNotMatch(html, /(?<!no )(?<!nothing )free (?:beta|trial|download)\b/i, `${file} offers something free`);
+    assert.doesNotMatch(html, /download free|try it free|free for everyone/i, `${file} offers something free`);
+  }
+  // The access rule the site describes must be the one the database enforces.
+  const migrations = (await readdir("supabase/migrations")).sort();
+  const sql = await read(join("supabase/migrations", migrations[migrations.length - 1]));
+  assert.match(sql, /has_build_access/, "one access rule, used by both the policy and the function");
+  assert.match(sql, /free_updates/, "contributor standing exists in the schema");
+  assert.match(sql, /price_cents integer not null default 500\s*\n?\s*check \(price_cents > 0\)/, "a build cannot cost nothing");
+  assert.match(sql, /build_version is null/, "purchases made under the old all-access terms stay honoured");
+});
+
 test("no page still tells buyers to click past a security warning", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
@@ -150,8 +169,10 @@ test("edge functions keep the money and token boundaries", async () => {
   const report = await read("supabase/functions/submit-report/index.ts");
   const download = await read("supabase/functions/download-build/index.ts");
   const shared = await read("supabase/functions/_shared/mod.ts");
-  assert.match(checkout, /unit_amount\]", String\(AMOUNT_CENTS\)/);
-  assert.match(checkout, /AMOUNT_CENTS = 500/);
+  assert.match(checkout, /unit_amount\]", String\(amountCents\)/);
+  assert.match(checkout, /DEFAULT_AMOUNT_CENTS = 500/);
+  assert.match(checkout, /price_cents/, "the price comes from the build catalog, not the browser");
+  assert.match(checkout, /metadata\[build_version\]/, "the payment records which build it bought");
   assert.match(checkout, /metadata\[product\]/);
   assert.match(webhook, /stripe-signature/);
   assert.match(webhook, /timingSafeEqual/);
@@ -176,11 +197,11 @@ test("shared links carry a canonical URL and a real social card", async () => {
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
     const description = html.match(/<meta name="description" content="(.*?)">/s)[1];
     // The card repeats the page's own claims rather than inventing new ones.
-    assert.match(html, /<link rel="canonical" href="https:\/\/wavread\.vercel\.app\/[^"]*">/, `${file} needs a canonical URL`);
+    assert.match(html, /<link rel="canonical" href="https:\/\/www\.wavread\.com\/[^"]*">/, `${file} needs a canonical URL on the real domain`);
     assert.ok(html.includes(`<meta property="og:title" content="${title}">`), `${file}: og:title must match its own title`);
     assert.ok(html.includes(`<meta property="og:description" content="${description}">`), `${file}: og:description must match its own description`);
     assert.match(html, /<meta name="twitter:card" content="summary_large_image">/, `${file} needs a large-image card`);
-    const card = html.match(/<meta property="og:image" content="https:\/\/wavread\.vercel\.app\/([^"]+)">/);
+    const card = html.match(/<meta property="og:image" content="https:\/\/www\.wavread\.com\/([^"]+)">/);
     assert.ok(card, `${file} needs a social card image`);
     await assert.doesNotReject(access(join(root, card[1])), `${file} points at a missing card image: ${card[1]}`);
   }
