@@ -199,17 +199,19 @@ test("edge functions keep the money and token boundaries", async () => {
 });
 
 test("shared links carry a canonical URL and a real social card", async () => {
+  // www redirects to the bare domain, so a canonical naming www would point
+  // every shared link at a redirect.
   const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "early-build.html", "privacy.html", "faq.html"];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
     const description = html.match(/<meta name="description" content="(.*?)">/s)[1];
     // The card repeats the page's own claims rather than inventing new ones.
-    assert.match(html, /<link rel="canonical" href="https:\/\/www\.wavread\.com\/[^"]*">/, `${file} needs a canonical URL on the real domain`);
+    assert.match(html, /<link rel="canonical" href="https:\/\/wavread\.com\/[^"]*">/, `${file} needs a canonical URL on the bare domain`);
     assert.ok(html.includes(`<meta property="og:title" content="${title}">`), `${file}: og:title must match its own title`);
     assert.ok(html.includes(`<meta property="og:description" content="${description}">`), `${file}: og:description must match its own description`);
     assert.match(html, /<meta name="twitter:card" content="summary_large_image">/, `${file} needs a large-image card`);
-    const card = html.match(/<meta property="og:image" content="https:\/\/www\.wavread\.com\/([^"]+)">/);
+    const card = html.match(/<meta property="og:image" content="https:\/\/wavread\.com\/([^"]+)">/);
     assert.ok(card, `${file} needs a social card image`);
     await assert.doesNotReject(access(join(root, card[1])), `${file} points at a missing card image: ${card[1]}`);
   }
