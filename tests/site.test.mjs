@@ -120,6 +120,15 @@ test("no page offers an ungated build download", async () => {
   }
 });
 
+test("browser-facing functions allow this project's previews, not the whole web", async () => {
+  const shared = await read("supabase/functions/_shared/mod.ts");
+  assert.match(shared, /previewPattern/);
+  assert.match(shared, /SITE_URL/, "the allow-list is derived from the configured site, never hardcoded");
+  assert.doesNotMatch(shared, /Access-Control-Allow-Origin":\s*"\*"/, "no wildcard origin");
+  assert.doesNotMatch(shared, /\^https:\/\/\[a-z0-9-\]\+\\\.vercel\\\.app\$/, "any-project vercel.app must not be allowed");
+  assert.match(shared, /"Vary": "Origin"/);
+});
+
 test("sign-in explains an unknown account instead of blaming an outage", async () => {
   const auth = await read("docs/js/beta-auth.js");
   assert.match(auth, /otp_disabled/);

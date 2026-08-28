@@ -64,7 +64,9 @@ async function initializeCheckout() {
       setStatus(status, "Opening Stripe checkout…", "success");
       location.assign(result.url);
     } catch {
-      setStatus(status, "The payment page could not be reached. Check your connection and try again.", "error");
+      // A blocked cross-origin response and a dead network look identical
+      // here, so the message names both rather than guessing wrong.
+      setStatus(status, `Checkout could not be reached from ${location.host}. If this is a preview or test address, use the main site; otherwise check your connection and try again.`, "error");
     } finally {
       submit.disabled = false;
     }

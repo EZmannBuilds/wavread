@@ -18,19 +18,40 @@ export function serviceClient(): SupabaseClient {
 
 // Origins allowed to call the browser-facing functions. The desktop app is
 // not a browser and sends no Origin; CORS never gates it.
+function siteOrigin(): string {
+  return (Deno.env.get("SITE_URL") ?? "").replace(/\/$/, "");
+}
+
 function allowedOrigins(): string[] {
-  const site = (Deno.env.get("SITE_URL") ?? "").replace(/\/$/, "");
   const origins = ["http://127.0.0.1:4173", "http://localhost:4173"];
+  const site = siteOrigin();
   if (site) origins.unshift(site);
   return origins;
 }
 
-export function corsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get("Origin") ?? "";
+// Vercel gives every preview deployment its own hostname —
+// `<project>-<hash>-<team>.vercel.app` — so a fixed list can only ever allow
+// production. Previews of *this* project are derived from SITE_URL rather
+// than hardcoded, and nothing else on vercel.app is accepted: without this,
+// checkout works in production and mysteriously fails on every preview.
+function previewPattern(): RegExp | null {
+  const match = siteOrigin().match(/^https:\/\/([a-z0-9-]+)\.vercel\.app$/);
+  if (!match) return null;
+  const project = match[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^https://${project}-[a-z0-9-]+\\.vercel\\.app$`);
+}
+
+function allowOrigin(origin: string): string {
   const allowed = allowedOrigins();
-  const allow = allowed.includes(origin) ? origin : allowed[0] ?? "";
+  if (allowed.includes(origin)) return origin;
+  const preview = previewPattern();
+  if (preview && preview.test(origin)) return origin;
+  return allowed[0] ?? "";
+}
+
+export function corsHeaders(req: Request): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Origin": allowOrigin(req.headers.get("Origin") ?? ""),
     "Access-Control-Allow-Headers":
       "authorization, apikey, content-type, x-client-info",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
