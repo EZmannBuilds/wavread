@@ -7,9 +7,35 @@ const root = resolve("docs");
 const htmlFiles = (await readdir(root)).filter((file) => extname(file) === ".html");
 const read = (path) => readFile(resolve(path), "utf8");
 
+// The current version is declared once, in beta-auth.js, because the dashboard
+// uses it to decide which build is current. Pinning a literal here meant every
+// release broke this test, and the fix was always to edit the literal — which
+// is not a check, it is a chore. Asserting the pages agree with that one
+// declaration catches the failure that actually matters: a release that
+// updates some version strings and misses others.
+const CURRENT_VERSION = (await read("docs/js/beta-auth.js"))
+  .match(/CURRENT_VERSION\s*=\s*"(\d+\.\d+\.\d+)"/)?.[1];
+
+test("the site agrees with itself about which build is current", async () => {
+  assert.ok(CURRENT_VERSION, "beta-auth.js must declare CURRENT_VERSION");
+  for (const [file, pattern] of [
+    ["docs/index.html", /Early Launch · (\d+\.\d+\.\d+)/],
+    ["docs/index.html", /<span>Current release<\/span> (\d+\.\d+\.\d+) ·/],
+    ["docs/index.html", /Buy WavRead (\d+\.\d+\.\d+) <span>/],
+    ["docs/beta-dashboard.html", /<h2>WavRead (\d+\.\d+\.\d+)<\/h2>/],
+    ["docs/beta-dashboard.html", /What changed in (\d+\.\d+\.\d+)</],
+    ["docs/install.html", /WavRead-(\d+\.\d+\.\d+)\.dmg/],
+    ["docs/install.html", /Written against WavRead (\d+\.\d+\.\d+)/],
+    ["docs/privacy.html", /Last checked against WavRead (\d+\.\d+\.\d+)/],
+  ]) {
+    const found = (await read(file)).match(pattern)?.[1];
+    assert.equal(found, CURRENT_VERSION,
+      `${file} says ${found}, but beta-auth.js says ${CURRENT_VERSION}`);
+  }
+});
+
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /Early Launch · 1\.4\.37/);
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
   assert.match(html, /\$5 once|Five dollars now/, "one payment covers the Early Launch");
