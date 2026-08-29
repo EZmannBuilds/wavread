@@ -317,11 +317,19 @@ test("the archive, the platform, and the name of what comes next", async () => {
   assert.match(early, /stable commercial build/, "the next paid release is named");
   assert.match(early, /\$49/, "and still priced");
 
-  // The archive stays public, and the pages say what it is rather than
-  // pretending it is not there.
-  const ARCHIVE = /archived builds are unsigned, use an unsupported runtime/;
-  assert.match(early, ARCHIVE, "the purchase page explains the archive");
-  assert.match(faq, ARCHIVE, "and so does the FAQ");
+  // The old beta downloads are NOT public: every release carrying a DMG was
+  // unpublished on 2026-08-28, and the GitHub API reports zero public
+  // releases. An earlier draft of this test asserted "the archive stays
+  // public" — copy written ahead of a republication that never happened, on
+  // a site whose tests exist to keep the copy true. The pages now say what
+  // occurred: the downloads were withdrawn.
+  const WITHDRAWN = /downloads were withdrawn/;
+  assert.match(early, WITHDRAWN, "the purchase page says the old builds went");
+  assert.match(faq, WITHDRAWN, "and so does the FAQ");
+  assert.doesNotMatch(early, /publicly available on\s+GitHub|as an archive/i,
+    "no page claims an archive that is not there");
+  assert.doesNotMatch(faq, /not hidden|as an archive/i,
+    "the FAQ does not either");
   assert.doesNotMatch(early, /There is no free version and no trial\./, "the claim is qualified to the current build");
 
   // Never teach a customer to walk past Gatekeeper.

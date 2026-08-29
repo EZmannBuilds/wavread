@@ -196,7 +196,7 @@ async function loadOwnership() {
   const spent = paid.reduce((sum, p) => sum + (p.amount_cents || 0), 0);
 
   if (account.data?.free_updates) {
-    title.textContent = "Owned · 1.0 included";
+    title.textContent = "Owned";
     detail.textContent = account.data.free_updates_note
       || "Your reports earned it: the $49 1.0 release stays yours for what you already paid.";
     action.hidden = true;
