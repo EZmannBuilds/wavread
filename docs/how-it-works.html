@@ -58,9 +58,10 @@ more certain than the analysis allows.</p>
   <tr><th>Straight from your DAW</th>
       <td>The <a href="capture.html">Bridge plugin</a> records what passes
       through it. No exporting at all.</td></tr>
-  <tr><th>A mix, separated</th>
-      <td>WavRead can estimate parts from a finished mix. Those stems are
-      guesses and the document says so — real parts always beat estimated
+  <tr><th>A mix, split by your own tool</th>
+      <td>WavRead does not separate audio. Point it at a separation tool you
+      already have and it will read what that tool writes — the document says
+      the stems were estimated, because real parts always beat guessed
       ones.</td></tr>
 </table>
 
@@ -80,8 +81,8 @@ which one it is. That labelling is the product, as much as the numbers are.</p>
   </div>
   <div class="card">
     <h3>Estimated</h3>
-    <p>Inferred by a model: key, chords, melody, lyrics, separated stems. A good
-    first draft, carrying a confidence where one exists.</p>
+    <p>Inferred by a model: key, chords, melody, lyrics. A good first draft,
+    carrying a confidence where one exists.</p>
   </div>
 </div>
 <div class="note">
@@ -131,11 +132,9 @@ keeps its own licence, reproduced in full in the
 <code>THIRD_PARTY_LICENSES</code> file that ships with the app.</p>
 <table>
 <tr><th scope="col">Project</th><th scope="col">Used for</th></tr>
-<tr><td><a href="https://github.com/facebookresearch/demucs">Demucs</a> (Meta AI, MIT)</td>
-    <td>Neural stem separation</td></tr>
 <tr><td><a href="https://github.com/openai/whisper">Whisper</a> (OpenAI, MIT) via
         <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></td>
-    <td>Lyric transcription from the isolated vocal stem</td></tr>
+    <td>Lyric transcription from the vocal stem you supply</td></tr>
 <tr><td><a href="https://github.com/spotify/basic-pitch">Basic Pitch</a> (Spotify, Apache-2.0)</td>
     <td>Melody transcription to notes</td></tr>
 <tr><td><a href="https://librosa.org">librosa</a> (ISC)</td>

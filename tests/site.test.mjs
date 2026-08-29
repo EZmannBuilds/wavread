@@ -156,7 +156,15 @@ test("no page promises builds the per-build model does not include", async () =>
   const sql = await read(join("supabase/migrations", migrations[migrations.length - 1]));
   assert.match(sql, /has_build_access/, "one access rule, used by both the policy and the function");
   assert.match(sql, /free_updates/, "contributor standing exists in the schema");
-  assert.match(sql, /price_cents integer not null default 500\s*\n?\s*check \(price_cents > 0\)/, "a build cannot cost nothing");
+  // The edition column is gone: separation was removed, so there is one kind
+  // of build and nothing for it to distinguish. What replaced it is quieter —
+  // price zero means not for sale, and the three builds that carry Demucs sit
+  // at zero with the reason written into their notes, because dropping the
+  // column would otherwise lose the only record of which files those are.
+  assert.doesNotMatch(sql, /add column edition/, "the edition split is not reintroduced");
+  assert.match(sql, /drop column edition/, "the edition column is dropped");
+  assert.match(sql, /may be given away but never sold/, "why those builds are unsellable is recorded in the catalog");
+  assert.match(sql, /Zero means it is not for sale/, "a price of zero is documented as 'not for sale'");
   assert.match(sql, /build_version is null/, "purchases made under the old all-access terms stay honoured");
 });
 
@@ -229,8 +237,17 @@ test("edge functions keep the money and token boundaries", async () => {
   const download = await read("supabase/functions/download-build/index.ts");
   const shared = await read("supabase/functions/_shared/mod.ts");
   assert.match(checkout, /unit_amount\]", String\(amountCents\)/);
-  assert.match(checkout, /DEFAULT_AMOUNT_CENTS = 500/);
   assert.match(checkout, /price_cents/, "the price comes from the build catalog, not the browser");
+  // The default price is gone on purpose. It used to let a checkout proceed
+  // when the catalog had nothing published, taking five dollars and granting
+  // an entitlement for a file that did not exist.
+  assert.doesNotMatch(checkout, /DEFAULT_AMOUNT_CENTS/, "no fallback price outside the catalog");
+  assert.match(checkout, /There is no build on sale right now/, "nothing published, nothing charged");
+  // A build priced at zero is not for sale, which is what now keeps the three
+  // Demucs-carrying builds unsellable — no edition column required.
+  assert.match(checkout, /build\.price_cents > 0/, "a build with no price is never sold");
+  assert.doesNotMatch(checkout, /edition/, "the edition split is gone from checkout");
+  assert.doesNotMatch(download, /edition/, "and from the download gate");
   assert.match(checkout, /metadata\[bought_at_version\]/, "the receipt records where they came in");
   assert.doesNotMatch(checkout, /metadata\[build_version\]/, "checkout must not scope the purchase to one build");
   // The $5 covers every Early Launch build: the granted entitlement stays
@@ -272,6 +289,45 @@ test("shared links carry a canonical URL and a real social card", async () => {
     const card = html.match(/<meta property="og:image" content="https:\/\/wavread\.com\/([^"]+)">/);
     assert.ok(card, `${file} needs a social card image`);
     await assert.doesNotReject(access(join(root, card[1])), `${file} points at a missing card image: ${card[1]}`);
+  }
+});
+
+test("the archive, the platform, and the name of what comes next", async () => {
+  const early = await read("docs/early-build.html");
+  const requirements = await read("docs/requirements.html");
+  const faq = await read("docs/faq.html");
+  const index = await read("docs/index.html");
+  const WINDOWS = "Windows version coming soon. No release date announced.";
+  // The sentence is one sentence wherever it wraps in the source.
+  const flat = (html) => html.replace(/\s+/g, " ");
+
+  // Windows is stated in exactly two places, in exactly these words. A port
+  // that has not started gets a sentence that promises nothing but a sentence.
+  assert.equal(flat(early).split(WINDOWS).length - 1, 1, "early-build states Windows once");
+  assert.equal(flat(requirements).split(WINDOWS).length - 1, 1, "requirements states Windows once");
+  for (const [name, html] of [["index", index], ["faq", faq]]) {
+    assert.doesNotMatch(html, /Windows version coming soon/, `${name} must not repeat the Windows line`);
+  }
+
+  // 1.0 is behind this application, not ahead of it. The next paid release has
+  // a name and a price, and the name is not a version number.
+  for (const [name, html] of [["early-build", early], ["faq", faq], ["index", index]]) {
+    assert.doesNotMatch(html, /final 1\.0|the 1\.0 release|1\.0 pricing/i, `${name} must not name 1.0 as a future release`);
+    }
+  assert.match(early, /stable commercial build/, "the next paid release is named");
+  assert.match(early, /\$49/, "and still priced");
+
+  // The archive stays public, and the pages say what it is rather than
+  // pretending it is not there.
+  const ARCHIVE = /archived builds are unsigned, use an unsupported runtime/;
+  assert.match(early, ARCHIVE, "the purchase page explains the archive");
+  assert.match(faq, ARCHIVE, "and so does the FAQ");
+  assert.doesNotMatch(early, /There is no free version and no trial\./, "the claim is qualified to the current build");
+
+  // Never teach a customer to walk past Gatekeeper.
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /Open Anyway/i, `${file} must not instruct a Gatekeeper bypass`);
   }
 });
 

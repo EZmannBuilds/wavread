@@ -18,8 +18,6 @@ import {
 } from "../_shared/mod.ts";
 
 const CURRENCY = "usd";
-// Fallback for a checkout that names no build — the current price of entry.
-const DEFAULT_AMOUNT_CENTS = 500;
 
 Deno.serve(async (req: Request) => {
   const early = preflight(req);
@@ -45,7 +43,9 @@ Deno.serve(async (req: Request) => {
 
   // Each build is bought on its own, so the price and the name come from the
   // catalog rather than from anything the browser says. A checkout that names
-  // no build buys the current one.
+  // no build buys the current one. A build priced at zero is not for sale and
+  // is skipped by the guard below — that is how the pre-2026-08-29 builds,
+  // which carry a separation backend that may not be sold, stay unsellable.
   const db = serviceClient();
   let build = null;
   const wanted = Number(body?.build_id);
@@ -58,7 +58,18 @@ Deno.serve(async (req: Request) => {
     : await query.order("released_at", { ascending: false }).limit(1).maybeSingle();
   if (!found.error && found.data) build = found.data;
 
-  const amountCents = build?.price_cents ?? DEFAULT_AMOUNT_CENTS;
+  // No sellable build, no sale. This used to fall through to a default price,
+  // which meant the store would take five dollars and grant an entitlement
+  // while there was nothing published for it to unlock — money for a file that
+  // does not exist. Refusing is the only honest answer.
+  if (!build || !(build.price_cents > 0)) {
+    return json(req, 409, {
+      error: "There is no build on sale right now. Nothing has been charged.",
+      available: false,
+    });
+  }
+
+  const amountCents = build.price_cents;
   const productName = "WavRead Early Launch";
 
   const params = new URLSearchParams();
@@ -76,7 +87,7 @@ Deno.serve(async (req: Request) => {
   // No build_version: one payment covers every build of the Early Launch, so
   // the entitlement the webhook grants must stay unscoped. Naming a build here
   // would quietly sell access to that build alone.
-  if (build) params.set("metadata[bought_at_version]", build.version);
+  params.set("metadata[bought_at_version]", build.version);
   // Which advertisement this purchase came from, when the buyer arrived by
   // one. A label like "reels-a" and nothing else — no identifier, no profile,
   // and no consequence for the buyer. An unrecognized label is dropped rather
