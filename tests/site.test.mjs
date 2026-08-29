@@ -310,9 +310,15 @@ test("the archive, the platform, and the name of what comes next", async () => {
   }
 
   // 1.0 is behind this application, not ahead of it. The next paid release has
-  // a name and a price, and the name is not a version number.
-  for (const [name, html] of [["early-build", early], ["faq", faq], ["index", index]]) {
-    assert.doesNotMatch(html, /final 1\.0|the 1\.0 release|1\.0 pricing/i, `${name} must not name 1.0 as a future release`);
+  // a name and a price, and the name is not a version number. Every page —
+  // and the dashboard's script, whose strings are copy too: two of them kept
+  // "the 1.0 release" through the rename precisely because this loop only
+  // read HTML.
+  const auth = await read("docs/js/beta-auth.js");
+  for (const [name, text] of [["early-build", early], ["faq", faq],
+                              ["index", index], ["beta-auth.js", auth]]) {
+    assert.doesNotMatch(text, /final 1\.0|the 1\.0 release|1\.0 pricing|\$49 1\.0|1\.0 included/i,
+      `${name} must not name 1.0 as a future release`);
     }
   assert.match(early, /stable commercial build/, "the next paid release is named");
   assert.match(early, /\$49/, "and still priced");

@@ -198,11 +198,11 @@ async function loadOwnership() {
   if (account.data?.free_updates) {
     title.textContent = "Owned";
     detail.textContent = account.data.free_updates_note
-      || "Your reports earned it: the $49 1.0 release stays yours for what you already paid.";
+      || "Your reports earned it: the $49 stable commercial build stays yours for what you already paid.";
     action.hidden = true;
   } else if (everything) {
     title.textContent = "Owned";
-    detail.textContent = `Every Early Launch build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}. The 1.0 release will be $49 unless your reports earn it.`;
+    detail.textContent = `Every Early Launch build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}. The stable commercial build will be $49 unless your reports earn it.`;
     action.hidden = true;
   } else if (owned.size) {
     title.textContent = owned.size === 1 ? "1 build owned" : `${owned.size} builds owned`;
