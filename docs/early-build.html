@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WavRead Early Launch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="WavRead Early Launch: $5 a build, nothing free, and every build included for the people whose reports make the next one better.">
+<link rel="canonical" href="https://wavread.com/early-build">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WavRead">
+<meta property="og:title" content="WavRead Early Launch">
+<meta property="og:description" content="WavRead Early Launch: $5 a build, nothing free, and every build included for the people whose reports make the next one better.">
+<meta property="og:url" content="https://wavread.com/early-build">
+<meta property="og:image" content="https://wavread.com/img/og-card.png">
+<meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
+<script src="js/early-build.js" type="module"></script>
+</head>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html" aria-current="page">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="#buy">Buy — $5</a>
+</nav></header>
+<main id="main">
+
+<h1>Five dollars, the whole Early Launch</h1>
+<p class="lede">WavRead is in Early Launch. It works, it is improving quickly,
+and five dollars buys it — including every build that follows while the Early
+Launch runs. There is no free version and no trial of the current build. When
+WavRead reaches its
+stable commercial build the price becomes $49; if your reports helped get it
+there, you keep it for the five dollars you already paid.</p>
+
+<div class="cols">
+  <div class="card">
+    <h3>Every Early Launch build</h3>
+    <p>Five dollars, once. Each new build appears on your dashboard with its
+    SHA-256 to verify against, at no further cost, for as long as the Early
+    Launch lasts.</p>
+  </div>
+  <div class="card">
+    <h3>Report, and keep it at $49</h3>
+    <p>The stable commercial build costs $49. Send reports that actually help — a bug
+    worth fixing, a case nobody thought of — and it stays yours for the five
+    dollars you already paid. Judged by a person reading them, not counted,
+    because twenty empty reports are not worth one good one.</p>
+  </div>
+  <div class="card">
+    <h3>An account that lasts</h3>
+    <p>Ownership is recorded against a durable WavRead account keyed to your
+    email, not to a browser session. Sign-in is a one-time email link; there is
+    no password.</p>
+  </div>
+  <div class="card">
+    <h3>On the record as early</h3>
+    <p>Every purchase is dated and kept. When stable-build pricing is decided, the
+    people who paid five dollars at a time during Early Launch are the first
+    question, not an afterthought.</p>
+  </div>
+</div>
+
+<p>The beta-era downloads were withdrawn when the Early Launch began. The current build is the paid one, and it is the only one that is signed, notarised and supported.</p>
+
+<p class="measured">Windows version coming soon. No release date announced.</p>
+
+<h2>What five dollars is not</h2>
+<p>It is not a subscription: nothing renews, and nothing charges you again on
+its own. It is also not a licence for the stable commercial build, which is a
+separate $49 purchase when it arrives — unless your reports earned it. What
+five dollars covers is the Early Launch: this build and every build after it
+while the Early Launch runs.</p>
+
+<p>What it does buy is a build macOS trusts: WavRead is signed with an Apple
+Developer ID and notarised by Apple. The first time you open it you get the
+ordinary "downloaded from the Internet — are you sure?" confirmation, which
+says in as many words that <em>Apple checked it for malicious software and none
+was detected</em>. Click Open and it never asks again. What you will not see is
+the refusal unsigned apps get, where there is no Open button at all.</p>
+
+<p>WavRead is Early Launch software sold as exactly that: it measures carefully
+and says when it is estimating, it is still moving fast, and the honest reason
+the price is five dollars rather than fifty is that you are buying it early,
+one build at a time.</p>
+
+<h2 id="buy">Buy WavRead</h2>
+<p>Enter the email your account should live under. The current build appears on
+your dashboard the moment the payment confirms, and so does every build after
+it. Payment happens on Stripe's hosted checkout — the card never touches
+WavRead — and your account and sign-in are created from the same email.</p>
+
+<form class="auth-panel" id="checkout-form" novalidate>
+  <div class="form-field">
+    <label for="email">Account email</label>
+    <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+    <p class="field-help">Used for sign-in links, purchase receipts, and nothing else.</p>
+  </div>
+  <button class="btn primary" type="submit">Continue to payment — $5</button>
+  <p class="form-status" id="checkout-status" role="status" aria-live="polite"></p>
+</form>
+<div class="setup-notice" id="checkout-unconfigured" hidden><strong>Purchases are not configured in this preview.</strong><br>The rest of the website works normally. Connect the approved payment environment to enable checkout.</div>
+
+<h2>The terms, in plain words</h2>
+<table class="spec">
+  <tr><th>Price</th>
+      <td>$5.00, once, for the whole Early Launch. Charged by Stripe at
+      checkout; WavRead never sees or stores card details. Nothing recurring,
+      nothing automatic.</td></tr>
+  <tr><th>What is stored</th>
+      <td>Your email, the amount, the date, and Stripe's checkout reference —
+      the record that makes the purchase yours. See
+      <a href="privacy.html">Privacy</a> for the complete accounting.</td></tr>
+  <tr><th>Later builds</th>
+      <td>Included. Every build published during the Early Launch appears on
+      your dashboard at no further cost.</td></tr>
+  <tr><th>The stable commercial build</th>
+      <td>$49, as a separate purchase when it arrives — with no promised date.
+      Testers whose reports helped keep it for the $5 already paid, and the
+      dashboard says which you are.</td></tr>
+  <tr><th>Refunds</th>
+      <td>Ask within 14 days — email <a href="mailto:support@wavread.com">support@wavread.com</a>
+      from your account address, or use the dashboard's feedback form — and the
+      purchase is refunded; a refund ends access to the builds and nothing
+      else.</td></tr>
+  <tr><th>The desktop app</th>
+      <td>Stays account-free. Buying changes what your dashboard offers, not
+      what the app sends — which remains nothing, unless you turn problem
+      reports on.</td></tr>
+</table>
+
+<p class="measured">Already bought it? <a href="signin.html">Sign in</a> with
+your purchase email to reach your dashboard. Anything else — a question before
+buying, a problem after — reaches a person at
+<a href="mailto:support@wavread.com">support@wavread.com</a>.</p>
+
+</main>
+<footer>
+  <span>© 2026 Erik Mann · EZmannBuilds</span>
+</footer>
+</body>
+</html>

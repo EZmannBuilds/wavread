@@ -1,0 +1,2 @@
+-- Intentionally empty. Testers are invited and granted eligibility explicitly;
+-- no email address or production identity is committed to source control.

@@ -4,24 +4,31 @@
 <meta charset="utf-8">
 <title>Device requirements — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="What WavRead needs to run, what it runs well on, and the upper limits of what it will accept — measured, not estimated.">
+<link rel="canonical" href="https://wavread.com/requirements">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WavRead">
+<meta property="og:title" content="Device requirements — WavRead">
+<meta property="og:description" content="What WavRead needs to run, what it runs well on, and the upper limits of what it will accept — measured, not estimated.">
+<meta property="og:url" content="https://wavread.com/requirements">
+<meta property="og:image" content="https://wavread.com/img/og-card.png">
+<meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
 </head>
-<body>
-
-<nav aria-label="Main">
-  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="capture.html">DAW capture</a>
-  <a href="documents.html">The documents</a>
-  <a href="requirements.html">Requirements</a>
-  <a href="faq.html">FAQ</a>
-  <span class="spacer"></span>
-  <a class="btn primary" style="height:34px" href="/#download">Download</a>
-</nav>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html" aria-current="page">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
+</nav></header>
+<main id="main">
 
 <h1>Device requirements</h1>
 <p class="lede">What WavRead needs, what it runs well on, and where its ceiling
@@ -36,6 +43,8 @@ estimated — how, and on what, is at the bottom of the page.</p>
   <tr><th>macOS</th><td><strong>macOS 14 Sonoma</strong> or later. That floor
   comes from the Python runtime and the audio libraries built into the app; on
   macOS 13 or earlier it will not launch.</td></tr>
+  <tr><th>Windows</th><td><strong>Windows version coming soon. No release date
+  announced.</strong> WavRead is macOS-only today.</td></tr>
   <tr><th>Memory</th><td><strong>8 GB</strong>. Enough for songs of ordinary
   length — see the ceiling below, because memory is what actually limits
   WavRead, and it grows with the length of the track.</td></tr>
@@ -121,8 +130,9 @@ minute</strong> of audio, on top of a 2.5 GB base.</p>
     <p>Analysis runs entirely offline. Nothing is uploaded, ever.</p>
   </div>
   <div class="card">
-    <h3>No account</h3>
-    <p>There is no sign-in, no licence server, and no telemetry.</p>
+    <h3>No app account</h3>
+    <p>The desktop app has no sign-in, licence server, or telemetry. Optional
+    tester website accounts remain separate.</p>
   </div>
   <div class="card">
     <h3>No dedicated GPU</h3>
@@ -130,8 +140,11 @@ minute</strong> of audio, on top of a 2.5 GB base.</p>
   </div>
   <div class="card">
     <h3>No admin rights</h3>
-    <p>Drag it to Applications. The app is unsigned, so on first launch
-    right-click it and choose Open.</p>
+    <p>Drag it to Applications and open it. No administrator password is
+    needed. macOS asks once whether to open a program downloaded from the
+    Internet — the ordinary confirmation, which also reports that Apple checked
+    the app and found nothing malicious. <a href="install.html">The install
+    guide</a> shows exactly what appears.</p>
   </div>
 </div>
 
@@ -151,9 +164,11 @@ binaries inside the app bundle, taking the highest. Your own times will differ
 with your chip and what else is running — the shape of the numbers is what
 matters, not the last digit.</p>
 
+</main>
 <footer>
   <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> · <a href="faq.html">FAQ</a><br>
+  <a href="documents.html">The documents</a> · <a href="faq.html">FAQ</a> ·
+  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
   Audio → readable language, on your own machine.
 </footer>
 

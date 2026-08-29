@@ -1,0 +1,248 @@
+# WavRead Backend — accounts, ownership, and reports
+
+The account area is optional website infrastructure. WavRead itself remains
+local and account-free; the only thing a desktop install can ever hold is a
+revocable report token, and only after its user typed a link code.
+
+## Model
+
+- `beta_testers.tester_id` is the stable, WavRead-owned identity — the durable
+  account record (the table name predates paid accounts). The optional
+  `auth_user_id` is only a replaceable sign-in binding. Deleting the Supabase
+  Auth user sets that binding to null without deleting account history.
+  Browser clients can read only their own row and cannot grant or change
+  anything about it.
+- `purchases` and `entitlements` record what was bought. **$5 buys the whole
+  Early Launch**: the entitlement is granted unscoped (`build_version` null),
+  which `has_build_access` reads as every build. `purchases.build_version`
+  records which build was current at the time — a receipt detail, never a
+  limit. They are written only by the `stripe-webhook` Edge Function after
+  Stripe's signature verifies; fulfillment is idempotent on the checkout
+  session id. A refund marks the purchase and revokes the entitlement.
+- The per-build columns from migration `20260828040000` stay in place because
+  they cost nothing and the schema already honours both shapes. If a future
+  build is ever sold on its own, scope its entitlement; today nothing does.
+- `beta_testers.free_updates` is **contributor standing**: it covers every
+  build, and it is the marker for the promise that the **$49 final 1.0
+  release** stays theirs for the $5 already paid. Granted by hand, with the
+  reason in `free_updates_note`, and deliberately not computed from a report
+  count — a threshold that grants itself rewards twenty empty reports over one
+  useful one. When 1.0 ships, this flag is what separates who pays $49 from
+  who does not. Find candidates by reading their reports, then:
+  `update public.beta_testers set free_updates = true, free_updates_note = '…' where email = '…';`
+- `public.has_build_access(account, build)` is the single access rule, used by
+  both the builds RLS policy and `download-build`, so the dashboard and the
+  download cannot drift apart. There is no free tier: `builds.price_cents` is
+  checked `> 0`, and an account with no purchase and no standing reaches
+  nothing.
+- `builds` is the gated download catalog. Files live in the private `builds`
+  storage bucket; `download-build` checks the entitlement and issues a 60-second
+  signed URL. Public stable releases stay on GitHub, exactly as before.
+- `link_codes` are server-generated (a trigger overwrites whatever the browser
+  sends), last 15 minutes, work once, and are rate-limited to 5 per account
+  per hour.
+- `devices` holds one row per linked install: install id, label, and the
+  SHA-256 of the report token — never the token itself. Revoking (dashboard or
+  app) sets `revoked_at`; the browser's only write to the table is that column,
+  and it cannot be set back to null.
+- `crash_reports` accepts writes only from the `crash-report` and
+  `submit-report` Edge Functions, which validate against the same bounds the
+  database enforces, deduplicate one failure per install per day, and
+  rate-limit per install. Reports with a valid token are attributed to the
+  account; anonymous ones carry only the random install id.
+- `beta_feedback` now records `source` (`web` or `app`). The browser can only
+  insert `web` rows for itself; `app` rows come from `submit-report` through a
+  linked device and may carry a crash reference and a user-approved log excerpt.
+- `beta_known_issues` is unchanged: readable by active accounts when published.
+- `complimentary_release_eligible` remains a future marker only. The $5 Early
+  Build is recorded as a purchase and entitlement, not as a 1.0 licence.
+
+## Edge Functions
+
+| Function | JWT | Purpose |
+| --- | --- | --- |
+| `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign label) |
+| `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase, entitlement, auth user |
+| `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
+| `crash-report` | no (optional token) | validated, deduplicated, rate-limited crash intake |
+| `submit-report` | no (token required) | the app's Report a Problem submissions |
+| `download-build` | yes | `has_build_access` → 60-second signed URL + SHA-256 |
+
+Secrets the functions need, set with `supabase secrets set` (never in source,
+never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+`SITE_URL`, `ALLOWED_ORIGINS`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`
+are injected by the platform.
+
+## Email
+
+Sign-in links go out through **Resend** as `noreply@wavread.com`, configured
+in Supabase auth as custom SMTP (`smtp.resend.com:465`, user `resend`, the
+password being a Resend API key scoped to sending only). Supabase's built-in
+sender is not used: it arrives from a `supabase.io` address, which for a paid
+product reads like phishing, and it is rate-limited to a handful an hour,
+which would silently drop sign-ins during any burst of buyers.
+
+DNS on Cloudflare, verified in public DNS rather than trusted from a
+dashboard:
+
+| Purpose | Record |
+| --- | --- |
+| DKIM (sending) | `resend._domainkey` TXT, the Resend key |
+| SPF (bounces) | `send` TXT `v=spf1 include:amazonses.com ~all` |
+| Bounce path | `send` MX → `feedback-smtp.us-east-1.amazonses.com` |
+| SPF (root) | `v=spf1 include:amazonses.com include:_spf.mx.cloudflare.net ~all` |
+| DMARC | `_dmarc` TXT `v=DMARC1; p=none; rua=mailto:erikmann509@gmail.com` |
+| Receiving | root MX → `route{1,2,3}.mx.cloudflare.net` + `cf2024-1._domainkey` |
+
+The root SPF names **both** senders deliberately. Cloudflare Email Routing
+adds only itself, but Resend sends *as* `wavread.com`; DMARC would still pass
+on DKIM alignment alone, and a filter that checks SPF against the From domain
+would otherwise score the sign-in mail as unauthenticated.
+
+`support@wavread.com` forwards to the operator's inbox through Cloudflare
+Email Routing. There is no mailbox behind `noreply@` — it is a From address
+only, and mail sent to it is not received.
+
+### The campaign label
+
+An advertisement's link carries `?from=<label>` — `reels-a` and the like. The
+purchase page reads it from the address bar and sends it once with the
+checkout request; `create-checkout` validates it and, when it is recognized,
+writes it to the Stripe session as `metadata[source]`. Attribution then lives
+beside the revenue in Stripe, and WavRead needs no analytics script, no cookie,
+and no third-party host — none of which the site's CSP or its privacy page
+would permit anyway.
+
+The label is bounded on purpose: the channel must be one of
+`CAMPAIGN_CHANNELS` in `_shared/mod.ts` and the variant after it is at most
+twelve characters, so a stranger cannot write prose into a payment record.
+An unrecognized label is dropped rather than refused — attribution must never
+be able to block a sale.
+
+**Adding a channel means redeploying:** `supabase functions deploy
+create-checkout`. New *variants* of an existing channel need no deploy, which
+is why the shape is a known channel plus a free suffix rather than a fixed
+list. Until that function is redeployed, `metadata[source]` is never written
+and links carrying `?from=` still sell normally.
+
+## Provisioning status — 2026-08-27
+
+Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
+(us-east-1, $10/month, approved):
+
+- Both migrations applied and recorded under their file versions; the
+  database security advisors report zero findings.
+- All six Edge Functions deployed and smoke-tested; only `download-build`
+  requires a JWT at the gateway, matching `[functions.*]` in `config.toml`.
+- Secrets set: `SITE_URL`, `ALLOWED_ORIGINS`, `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET` — **Stripe LIVE mode** since 2026-08-27. The live
+  account is `acct_1U99tmFqkBB7rT8v`; its webhook endpoint
+  `we_1U9GQbFqkBB7rT8vVs1cQpaf` carries the three fulfillment events. The key
+  and the secret that validates it were set in one call, so there was never a
+  window where a real payment could be taken without fulfillment wired.
+  Verified after the swap: checkout issues `cs_live_…` sessions and a forged
+  signature is still rejected.
+
+  *The earlier test-mode account (`acct_1U99uPC2IxgG0EgS`) and its webhook are
+  a different Stripe account entirely and no longer participate. Erik's
+  test-mode purchase remains in the database as a real, owned entitlement —
+  its `stripe_checkout_session_id` starts `cs_test_`, which is the honest
+  record of how it was made.*
+- Auth: site URL `https://www.wavread.com`, dashboard redirect URLs
+  allow-listed for the custom domain, its apex, and the vercel.app hostname;
+  public signup disabled.
+- Vercel project `wavread`: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`
+  set for Production and Preview. They take effect on the next deployment;
+  running `./deploy.sh` remains its own approval.
+
+The site is deployed and live at **https://www.wavread.com** (the apex
+redirects to www; the vercel.app hostname still answers).
+
+The full purchase chain was proven end to end in test mode on 2026-08-27:
+paid session → delivered webhook → account, purchase and entitlement written →
+sign-in accepted → signed download whose bytes matched the catalog SHA-256.
+A signed-in non-owner got 403 and an empty builds list.
+
+Still open: the first real purchase on the live account, and code signing —
+see the app repository's roadmap for the Developer ID gate.
+
+## Provisioning, in order
+
+The original checklist, kept for rebuilding from nothing. Each numbered step
+is a separate decision.
+
+1. **Supabase project.** Create a dedicated `wavread` project (the org's next
+   project bills at $10/month — a standing cost to approve deliberately). Do
+   not reuse another product's project.
+2. **Migrations.** Apply `supabase/migrations/` in order:
+   `20260816170852_beta_tester_experience.sql`, then
+   `20260827150000_early_build_ownership_and_reports.sql`. Run the database
+   advisors afterwards and read what they say.
+3. **Auth.** Keep public signup disabled. Add the production and preview
+   `/beta-dashboard` URLs to the redirect allow-list. Purchasers get their
+   auth user from the webhook; testers are still invited by hand.
+4. **Edge Functions.** Deploy all six from `supabase/functions/` —
+   `verify_jwt` on for `download-build` only. Set the three secrets first;
+   `SITE_URL` is the canonical origin (`https://www.wavread.com`) and
+   `ALLOWED_ORIGINS` lists every other host the site answers to — a browser
+   judges CORS by the exact name in the address bar, so a site reachable at
+   three names needs all three here or checkout fails on the ones missing.
+5. **Stripe.** Create the Stripe account (live mode needs business details),
+   copy the secret key, then add a webhook endpoint pointing at
+   `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`
+   subscribed to `checkout.session.completed`,
+   `checkout.session.async_payment_succeeded`, and `charge.refunded`; copy its
+   signing secret into `STRIPE_WEBHOOK_SECRET`. Test the whole loop in Stripe
+   test mode before switching the key to live.
+6. **Vercel.** Set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in the
+   environment. Never add a service-role or secret key to the site.
+7. **First gated build.** Build the DMG, `shasum -a 256` it, upload it to the
+   `builds` bucket (path like `early/WavRead-1.4.8.dmg`), and insert its
+   `builds` row with `published = true` and `channel = 'early'`. The dashboard
+   lists it from that moment.
+8. **Deploy the site** with `./deploy.sh` (runs checks, tests, and the build
+   first). Production deployment remains its own approval.
+
+Test mode: with no Stripe secrets set, `create-checkout` answers 503 and the
+purchase page shows its honest "not configured" notice; the rest of the site,
+sign-in, and dashboard work normally. With no Supabase env on Vercel, the
+account area falls back to its existing setup-state pages.
+
+## Security and operations
+
+The publishable key is intentionally available to the browser; RLS and explicit
+grants are the authorization boundary. The config endpoint is `no-store`.
+Feedback has database length constraints plus browser validation, and the
+app-side paths have server-side rate limits in the Edge Functions. Supabase
+Auth rate limits protect sign-in email delivery.
+
+Device tokens exist in exactly two places: the user's own machine and, hashed,
+in `devices`. Function logs never print them. Crash reports are scrubbed on
+the device before they are sent; the service enforces sizes and shapes, not
+content, so the app-side scrubber is the privacy boundary and is tested in the
+app repository (`tests/test_reporting.py`).
+
+The site does not silently record build downloads. `download-build` issues
+signed URLs on request; if download history ever becomes necessary for support
+or eligibility, add it as an explicit, disclosed server-side event linked to
+`tester_id`, with a retention policy, before collecting it.
+
+## Release channels
+
+- Every GitHub beta release must be marked as a **prerelease**. The desktop
+  updater queries GitHub's `/releases/latest` endpoint, so publishing a beta
+  as a normal release would offer it to stable users.
+- Every installable release needs a `.dmg` asset and a matching
+  64-character SHA-256 checksum in the release body. The app verifies that
+  checksum before installing.
+- A gated early-channel DMG cannot be installed by the in-app updater, which
+  performs an unauthenticated HTTPS download. Early builds are downloaded
+  manually from the dashboard, which labels public and gated builds clearly
+  and shows the SHA-256 to verify.
+- Promoting an early build to public means publishing the same DMG and
+  checksum as a GitHub release; the updater takes over from there.
+
+No account emails belong in source control. Known issues are inserted by an
+admin and become visible only when `published = true`. Report triage (status
+changes on `beta_feedback` and `crash_reports`) happens in Supabase Studio;
+owners see status changes on their dashboard.

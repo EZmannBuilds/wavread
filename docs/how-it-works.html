@@ -4,24 +4,31 @@
 <meta charset="utf-8">
 <title>How it works — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="What WavRead measures, what it only estimates, and how it tells you which is which — the whole path from an audio file to a document you can read.">
+<link rel="canonical" href="https://wavread.com/how-it-works">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WavRead">
+<meta property="og:title" content="How it works — WavRead">
+<meta property="og:description" content="What WavRead measures, what it only estimates, and how it tells you which is which — the whole path from an audio file to a document you can read.">
+<meta property="og:url" content="https://wavread.com/how-it-works">
+<meta property="og:image" content="https://wavread.com/img/og-card.png">
+<meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
 </head>
-<body>
-
-<nav aria-label="Main">
-  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="capture.html">DAW capture</a>
-  <a href="documents.html">The documents</a>
-  <a href="requirements.html">Requirements</a>
-  <a href="faq.html">FAQ</a>
-  <span class="spacer"></span>
-  <a class="btn primary" style="height:34px" href="/#download">Download</a>
-</nav>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html" aria-current="page">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
+</nav></header>
+<main id="main">
 
 <h1>How WavRead works</h1>
 <p class="lede">Audio goes in. Measurements come out, in language rather than
@@ -51,9 +58,10 @@ more certain than the analysis allows.</p>
   <tr><th>Straight from your DAW</th>
       <td>The <a href="capture.html">Bridge plugin</a> records what passes
       through it. No exporting at all.</td></tr>
-  <tr><th>A mix, separated</th>
-      <td>WavRead can estimate parts from a finished mix. Those stems are
-      guesses and the document says so — real parts always beat estimated
+  <tr><th>A mix, split by your own tool</th>
+      <td>WavRead does not separate audio. Point it at a separation tool you
+      already have and it will read what that tool writes — the document says
+      the stems were estimated, because real parts always beat guessed
       ones.</td></tr>
 </table>
 
@@ -73,8 +81,8 @@ which one it is. That labelling is the product, as much as the numbers are.</p>
   </div>
   <div class="card">
     <h3>Estimated</h3>
-    <p>Inferred by a model: key, chords, melody, lyrics, separated stems. A good
-    first draft, carrying a confidence where one exists.</p>
+    <p>Inferred by a model: key, chords, melody, lyrics. A good first draft,
+    carrying a confidence where one exists.</p>
   </div>
 </div>
 <div class="note">
@@ -124,11 +132,9 @@ keeps its own licence, reproduced in full in the
 <code>THIRD_PARTY_LICENSES</code> file that ships with the app.</p>
 <table>
 <tr><th scope="col">Project</th><th scope="col">Used for</th></tr>
-<tr><td><a href="https://github.com/facebookresearch/demucs">Demucs</a> (Meta AI, MIT)</td>
-    <td>Neural stem separation</td></tr>
 <tr><td><a href="https://github.com/openai/whisper">Whisper</a> (OpenAI, MIT) via
         <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></td>
-    <td>Lyric transcription from the isolated vocal stem</td></tr>
+    <td>Lyric transcription from the vocal stem you supply</td></tr>
 <tr><td><a href="https://github.com/spotify/basic-pitch">Basic Pitch</a> (Spotify, Apache-2.0)</td>
     <td>Melody transcription to notes</td></tr>
 <tr><td><a href="https://librosa.org">librosa</a> (ISC)</td>
@@ -142,11 +148,13 @@ keeps its own licence, reproduced in full in the
 the document's provenance line. A measurement is only reproducible if you know
 what made it.</p>
 
+</main>
 <footer>
   <a href="/">WavRead</a> · <a href="privacy.html">Privacy</a> ·
   <a href="capture.html">DAW capture</a> ·
   <a href="documents.html">The documents</a> ·
-  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a><br>
+  <a href="requirements.html">Requirements</a> · <a href="faq.html">FAQ</a> ·
+  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
   Audio → readable language, on your own machine.
 </footer>
 

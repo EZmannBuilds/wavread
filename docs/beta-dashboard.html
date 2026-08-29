@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dashboard — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
+<meta name="description" content="Downloads, Early Build ownership, linked devices, reports, release notes, known issues, and feedback for WavRead accounts.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="site.css">
+<script src="js/beta-config.js" defer></script>
+<script src="js/beta-auth.js" type="module"></script>
+</head>
+<body class="beta-app">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main"><a class="wordmark" href="/"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="30" height="30"><span>WavRead</span></a><span class="spacer"></span><a href="/">Public website</a><button class="small-button" id="signout-button" type="button" hidden>Sign out</button></nav></header>
+<main id="main" class="beta-shell">
+  <h1 class="sr-only">WavRead account dashboard</h1>
+  <div class="state-panel loading-state" id="loading-state" role="status">Verifying your account…</div>
+  <section class="state-panel" id="setup-state" hidden><h2>Account area setup required</h2><p>The secure backend is not connected in this preview. Follow the project setup guide, then refresh this page.</p><a class="btn" href="/">Return to WavRead</a></section>
+  <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p id="session-message" role="alert">Sign in to open your dashboard.</p><a class="btn primary" href="signin.html">Go to sign in</a></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>No WavRead account found</h2><p>You are signed in, but this email has no active WavRead account. Access is controlled by the account registry, not by this page. If you just bought the Early Build, the recording step can take a minute — sign in again shortly.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+
+  <div id="dashboard-content" hidden>
+    <header class="dashboard-head">
+      <div><p class="tester-badge">WavRead account</p><h2>Your workspace</h2><p id="tester-email"></p></div>
+    </header>
+
+    <div class="dashboard-grid" aria-label="Account overview">
+      <article class="dashboard-card"><span class="card-kicker">Your standing</span><h2 id="ownership-title">Checking…</h2><p id="ownership-detail">Reading your purchases.</p><a id="ownership-action" href="early-build.html" hidden>Get WavRead — $5 →</a></article>
+      <article class="dashboard-card"><span class="card-kicker">Current build</span><h2>WavRead 1.4.39</h2><p>Published August 28, 2026 · Apple Silicon · macOS 14+. Download it below and check its SHA-256 before installing.</p><a href="#builds-title">Go to your builds →</a></article>
+    </div>
+
+    <section class="dashboard-section" aria-labelledby="builds-title">
+      <span class="card-kicker">Downloads</span><h2 id="builds-title">Your builds</h2>
+      <p>Every Early Launch build is included in what you paid, and downloaded
+      from here rather than by the app: the in-app updater checks public
+      release listings and cannot reach owner-only downloads. Each build lists
+      the SHA-256 to verify against.</p>
+      <p id="builds-status" class="form-status" role="status" aria-live="polite"></p>
+      <div id="builds-list"></div>
+      <div id="builds-empty" class="empty-state" hidden>No build is published right now. The next one lands here as soon as it ships.</div>
+      <div id="builds-locked" class="note caution" hidden><p><strong>You do not own WavRead yet.</strong> Five dollars covers every build of the Early Launch. <a href="early-build.html">Get WavRead — $5</a></p></div>
+    </section>
+
+    <div class="dashboard-columns">
+    <section class="dashboard-section" aria-labelledby="devices-title">
+      <span class="card-kicker">Problem reports</span><h2 id="devices-title">Linked devices</h2>
+      <p>Linking connects a WavRead install to this account so its problem
+      reports appear below. The app holds only a revocable report token —
+      never your email or a session. Generate a code here, then enter it in
+      WavRead under Settings&nbsp;→&nbsp;Problem&nbsp;reports.</p>
+      <div class="inline-actions">
+        <button class="btn" id="link-code-button" type="button">Generate a link code</button>
+        <p class="form-status" id="link-code-status" role="status" aria-live="polite"></p>
+      </div>
+      <div id="link-code-panel" hidden>
+        <p class="link-code" id="link-code-value"></p>
+        <p class="field-help">Valid for 15 minutes, works once. Type it into the app; nothing else is needed.</p>
+      </div>
+      <div id="devices-list"></div>
+      <div id="devices-empty" class="empty-state" hidden>No devices are linked. The desktop app works fully without linking — linking only attributes problem reports to this account.</div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="reports-title">
+      <span class="card-kicker">Your reports</span><h2 id="reports-title">What you sent, and where it stands</h2>
+      <p>Feedback sent from this dashboard and reports sent from the app, with
+      their current status. Crash reports appear only if you turned problem
+      reports on in the app.</p>
+      <p id="reports-status" class="form-status" role="status" aria-live="polite"></p>
+      <h3>Reports and feedback</h3>
+      <div id="feedback-list"></div>
+      <div id="feedback-empty" class="empty-state" hidden>Nothing sent yet. The form below and the app's Report a Problem page both land here.</div>
+      <h3>Crash reports</h3>
+      <div id="crashes-list"></div>
+      <div id="crashes-empty" class="empty-state" hidden>No crash reports. Either nothing crashed, or problem reports are off in the app — both are fine.</div>
+    </section>
+
+    </div>
+
+    <section class="dashboard-section" aria-labelledby="getting-started-title">
+      <span class="card-kicker">Getting started</span><h2 id="getting-started-title">From download to useful feedback</h2><p>One short pass is enough to help.</p>
+      <ol class="onboarding-list"><li><span>01</span>Download the build and open the DMG.</li><li><span>02</span>Drag to Applications; macOS asks once — click Open. <a href="install.html">Full guide</a></li><li><span>03</span>Analyze a track you know well.</li><li><span>04</span>Read the evidence and press Listen.</li><li><span>05</span>Tell us what helped or got in the way.</li></ol>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="release-title">
+      <span class="card-kicker">Release notes</span><h2 id="release-title">What changed in 1.4.39</h2>
+      <ul><li>The interface was rebuilt to read like an instrument rather than a web form: square panels with measured headings, a tab strip, and drawn controls instead of the browser's own.</li><li>A track's headline numbers — tempo, key, loudness, length — are now a bordered readout you can scan in one look.</li><li>The header shows the build you are running, which is what you want to hand over when something misbehaves. support@wavread.com is in the footer.</li><li>The licence and third-party notices read correctly whatever your Mac's language settings, and a crash record can no longer fail to be written because of an unusual character in it.</li><li>Everything from 1.4.37 is still here: problem reports you control, the Report a Problem page, account linking, and the capture line through 1.4.36.</li></ul>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="issues-title">
+      <span class="card-kicker">Known issues</span><h2 id="issues-title">Check before reporting</h2><p id="issues-status" class="form-status" role="status" aria-live="polite"></p><div id="issue-list" class="issue-list"></div><div id="issues-empty" class="empty-state" hidden>No significant published issues are listed right now. If you find one, report it below.</div>
+    </section>
+
+    <section class="dashboard-section" id="feedback" aria-labelledby="feedback-title">
+      <span class="card-kicker">Feedback</span><h2 id="feedback-title">What did you notice?</h2><p>Keep it short or give us the full trail. Please do not include private audio, passwords, or unrelated personal information. Refund requests belong here too — send one as general feedback from your purchase email, or email <a href="mailto:support@wavread.com">support@wavread.com</a> directly.</p>
+      <form class="feedback-form" id="feedback-form" novalidate>
+        <div class="form-row"><div class="form-field"><label for="feedback-type">Feedback type</label><select id="feedback-type" name="feedback_type" required><option value="bug">Bug report</option><option value="feature">Feature request</option><option value="general">General feedback</option></select></div><div class="form-field"><label for="feedback-title-input">Short title</label><input id="feedback-title-input" name="title" minlength="3" maxlength="120" required></div></div>
+        <div class="form-field"><label for="feedback-description">What happened or what would help?</label><textarea id="feedback-description" name="description" minlength="20" maxlength="4000" required></textarea></div>
+        <div class="form-field"><label for="reproduction-steps">Steps to reproduce <span class="field-help">(optional)</span></label><textarea id="reproduction-steps" name="reproduction_steps" maxlength="3000"></textarea></div>
+        <div class="form-row"><div class="form-field"><label for="feedback-app-version">App version</label><input id="feedback-app-version" name="app_version" readonly></div><div class="form-field"><label for="feedback-os">Operating system</label><input id="feedback-os" name="operating_system" maxlength="120"></div></div>
+        <div class="form-field checkbox-field"><input id="follow-up" name="follow_up_allowed" type="checkbox"><label for="follow-up">You may contact me at my account email if follow-up would help.</label></div>
+        <button class="btn primary" type="submit">Send feedback</button><p class="form-status" id="feedback-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </div>
+</main>
+</body>
+</html>

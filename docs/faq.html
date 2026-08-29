@@ -4,27 +4,43 @@
 <meta charset="utf-8">
 <title>Questions — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Straight answers about what WavRead measures, what it refuses to guess, what leaves your machine, and what it costs.">
+<link rel="canonical" href="https://wavread.com/faq">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WavRead">
+<meta property="og:title" content="Questions — WavRead">
+<meta property="og:description" content="Straight answers about what WavRead measures, what it refuses to guess, what leaves your machine, and what it costs.">
+<meta property="og:url" content="https://wavread.com/faq">
+<meta property="og:image" content="https://wavread.com/img/og-card.png">
+<meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="site.css">
+<script src="js/site.js" defer></script>
 </head>
-<body>
-
-<nav aria-label="Main">
-  <a class="wordmark" href="/" style="color:var(--wr-text)">WavRead</a>
-  <a href="how-it-works.html">How it works</a>
-  <a href="privacy.html">Privacy</a>
-  <a href="capture.html">DAW capture</a>
-  <a href="documents.html">The documents</a>
-  <a href="requirements.html">Requirements</a>
-  <a href="faq.html">FAQ</a>
-  <span class="spacer"></span>
-  <a class="btn primary" style="height:34px" href="/#download">Download</a>
-</nav>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><nav aria-label="Main">
+  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html" aria-current="page">FAQ</a></div>
+  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
+</nav></header>
+<main id="main">
 
 <h1>Questions</h1>
 <p class="lede">Including the ones with awkward answers.</p>
+
+<div class="qa">
+  <h3>How do I reach a human?</h3>
+  <p><a href="mailto:support@wavread.com">support@wavread.com</a> — that address reaches a real
+  inbox and a real person. Sign-in links and receipts arrive from
+  <code>noreply@wavread.com</code>, which is a sending address only; replies to
+  it go nowhere. If you own a build, the dashboard's feedback form works too and
+  has the advantage of showing you the status of what you sent.</p>
+</div>
 
 <div class="qa">
   <h3>Does it change my audio?</h3>
@@ -35,30 +51,76 @@
 
 <div class="qa">
   <h3>Does anything get uploaded?</h3>
-  <p>No audio, no analysis, no identifier, ever. Two requests exist in the whole
-  app: a once-a-day check for a newer version, which you can switch off, and a
-  one-time 80 MB model download <em>if</em> you use the built-in stem separation.
+  <p>No audio, no analysis, no measurements, ever. The app's own requests are a
+  once-a-day version check you can switch off, the update you press the button
+  for, and one-time model downloads <em>if</em> you use separation or lyrics.
+  From 1.4.37 there is one more, and it is off by default: problem reports,
+  which send a scrubbed crash record only after you turn them on.
+  <a href="privacy.html">Privacy</a> lists every request and every field.
   Everything else runs offline, and the app works with the network cable out.</p>
 </div>
 
 <div class="qa">
   <h3>Is there an account or a subscription?</h3>
-  <p>No account, no sign-in, no licence server. WavRead is free today. It will
-  become a paid app — a one-time purchase — and the plan is that people using it
-  before then keep what they have.</p>
+  <p>There is a price but no subscription: WavRead's Early Launch costs $5,
+  once, and nothing renews. Nothing is free. The desktop app itself still has
+  no account, sign-in, or licence server — the account lives on this website,
+  where you download builds and see your reports. The stable commercial build
+  will be $49 as its own purchase, and testers whose reports helped keep it for
+  the $5 they already paid.</p>
 </div>
 
 <div class="qa">
-  <h3>Why does macOS say the app is from an unidentified developer?</h3>
-  <p>Because it is not code-signed with an Apple Developer certificate yet.
-  Right-click the app and choose Open the first time. Signing and notarisation
-  are on the list; until then that prompt is the honest consequence.</p>
+  <h3>What does the $5 buy, and do I pay again?</h3>
+  <p>Five dollars buys WavRead and every build published while the Early Launch
+  runs — each on your dashboard, verified by SHA-256. You do not pay again
+  during Early Launch. The stable commercial build is a separate $49 purchase
+  when it arrives, with one exception: if you send reports that genuinely help, it
+  stays yours for the five dollars you already paid. That is decided by someone
+  reading your reports, not by counting them, so filing twenty empty ones earns
+  nothing. Refunds: ask within 14 days from your account email.
+  <a href="early-build.html">Details and checkout.</a></p>
+</div>
+
+<div class="qa">
+  <h3>Do crash reports mean WavRead is watching what I do?</h3>
+  <p>No. With reports off — the default — the app sends nothing. With reports
+  on, it sends a record only when something actually fails, and the record is
+  scrubbed before it exists: no audio, no track names, no username, no
+  measurements. Every record is kept on your machine where you can read it,
+  including after it was sent. <a href="privacy.html">Privacy</a> lists the
+  exact fields.</p>
+</div>
+
+<div class="qa">
+  <h3>Will macOS warn me when I open it?</h3>
+  <p>Once, benignly. WavRead is signed with an Apple Developer ID and notarised
+  by Apple, with the ticket stapled to both the app and the disk image, so it
+  works even on a Mac that is offline. The first launch still shows the ordinary
+  <em>"downloaded from the Internet — are you sure you want to open it?"</em>
+  confirmation that macOS shows for any downloaded program. That box also says
+  Apple checked the app and found nothing malicious. Click Open; it will not ask
+  again.</p>
+  <p>What you will <em>not</em> see is the refusal — <em>"cannot be opened
+  because Apple cannot check it for malicious software"</em>, with no Open
+  button. That is what builds before 1.4.37 did, and it needed a trip through
+  System Settings → Privacy &amp; Security. That part is over.
+  <a href="install.html">The install guide</a> shows both, side by side.</p>
 </div>
 
 <div class="qa">
   <h3>Will it run on my Intel Mac?</h3>
   <p>No. The build is Apple Silicon only. See
   <a href="requirements.html">requirements</a> for the full picture.</p>
+</div>
+
+<div class="qa">
+  <h3>I remember the free betas. Can I still get one?</h3>
+  <p>No. The old beta downloads were withdrawn when WavRead became a paid
+  product — they were unsigned, they used a runtime that no longer gets
+  fixes, and offering them beside a paid build would have sold the past as
+  the present. The Early Launch build is the only one available, and the only
+  one that is signed, notarised and supported.</p>
 </div>
 
 <div class="qa">
@@ -133,12 +195,16 @@
   <p>Only when you press the button. Update now downloads the release, checks it
   against the checksum published in the release notes, confirms the app inside is
   the version it claims to be, and swaps it in — moving your current app aside
-  first and putting it back if anything fails.</p>
+  first and putting it back if anything fails. The updater checks public GitHub
+  releases; sign-in-protected tester builds must be downloaded manually from the
+  tester dashboard.</p>
 </div>
 
+</main>
 <footer>
   <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a><br>
+  <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a> ·
+  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
   Audio → readable language, on your own machine.
 </footer>
 

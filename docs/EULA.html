@@ -4,120 +4,16 @@
 <meta charset="utf-8">
 <title>WavRead — Licence</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B0D10">
 <link rel="icon" type="image/png" href="favicon.png">
-<style>
-  /* WavRead design tokens (see DESIGN.md in the repo) */
-  :root {
-    --wr-bg: #0F1216;
-    --wr-surface-1: #15191E;
-    --wr-surface-2: #1B2027;
-    --wr-border: #292F38;
-    --wr-border-strong: #3B444F;
-    --wr-text: #F3F5F7;
-    --wr-text-2: #AEB6C1;
-    --wr-muted: #78828E;
-    --wr-accent: #4D8DFF;
-    --wr-accent-hover: #6AA0FF;
-    --wr-signal: #42C7BD;
-    --wr-success: #4CC38A;
-    color-scheme: dark;
-  }
-  @media (prefers-color-scheme: light) {
-    :root {
-      --wr-bg: #F7F8FA;
-      --wr-surface-1: #FFFFFF;
-      --wr-surface-2: #F0F2F5;
-      --wr-border: #D9DEE5;
-      --wr-border-strong: #C4CBD4;
-      --wr-text: #171A1F;
-      --wr-text-2: #59616C;
-      --wr-muted: #78828E;
-      --wr-accent: #2E6FE0;
-      --wr-accent-hover: #1F5ECC;
-      color-scheme: light;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: var(--wr-bg); color: var(--wr-text);
-    margin: 0 auto; max-width: 880px; padding: 48px 20px 72px;
-    line-height: 1.6; font-size: 15.5px;
-  }
-  .mono, pre, code { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
-  nav { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 56px; font-size: 14px; }
-  nav .wordmark { font-weight: 700; font-size: 17px; letter-spacing: -0.2px; }
-  nav a { color: var(--wr-text-2); text-decoration: none; }
-  nav a:hover { color: var(--wr-accent); }
-  nav .spacer { flex: 1; }
-  h1 { font-size: 42px; line-height: 1.12; margin: 0 0 16px; letter-spacing: -0.5px; }
-  h2 { font-size: 22px; margin: 56px 0 12px; }
-  h3 { font-size: 16px; margin: 20px 0 6px; }
-  p { color: var(--wr-text-2); }
-  p strong { color: var(--wr-text); }
-  a { color: var(--wr-accent); }
-  a:hover { color: var(--wr-accent-hover); }
-  .btn {
-    display: inline-flex; align-items: center; height: 42px; padding: 0 18px;
-    border-radius: 6px; border: 1px solid var(--wr-border-strong);
-    background: var(--wr-surface-2); color: var(--wr-text);
-    text-decoration: none; font-size: 14px; margin: 4px 8px 4px 0;
-  }
-  .btn:hover { border-color: var(--wr-accent); color: var(--wr-text); }
-  .btn.primary { background: var(--wr-accent); border-color: var(--wr-accent); color: #fff; }
-  .btn.primary:hover { background: var(--wr-accent-hover); }
-  .trust { font-size: 13.5px; color: var(--wr-muted); margin-top: 10px; }
-  .flow {
-    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
-    border-radius: 10px; padding: 22px 24px; margin: 40px 0;
-    font-size: 13px; overflow-x: auto;
-  }
-  .flow .stage { color: var(--wr-muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
-  .flow .wave { color: var(--wr-signal); letter-spacing: -1px; white-space: nowrap; }
-  .flow .arrow { color: var(--wr-muted); margin: 6px 0; }
-  .flow .metrics { color: var(--wr-text); line-height: 1.7; }
-  .flow .quote { color: var(--wr-text-2); font-family: inherit; font-size: 14px; }
-  .panel {
-    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
-    border-radius: 8px; padding: 18px 22px; margin: 16px 0; font-size: 14px;
-  }
-  .panel pre { margin: 8px 0 0; white-space: pre-wrap; color: var(--wr-text-2); font-size: 12.5px; background: none; padding: 0; }
-  ul { color: var(--wr-text-2); padding-left: 20px; }
-  li { margin: 3px 0; }
-  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14px; }
-  th, td { border: 1px solid var(--wr-border); padding: 8px 12px; text-align: left; }
-  th { color: var(--wr-muted); font-weight: 500; font-size: 12.5px; }
-  td { color: var(--wr-text-2); }
-  pre.install {
-    background: var(--wr-surface-1); border: 1px solid var(--wr-border);
-    border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-size: 12.5px;
-    color: var(--wr-text-2);
-  }
-  .release { margin: 14px 0; }
-  .release h3 { margin-bottom: 2px; }
-  .release .date { color: var(--wr-muted); font-weight: 400; font-size: 13px; }
-  .release ul { margin: 4px 0; }
-  footer {
-    margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--wr-border);
-    font-size: 13.5px; color: var(--wr-muted);
-  }
-  figure.shot { margin: 28px 0; }
-  figure.shot img {
-    width: 100%; height: auto; display: block;
-    border: 1px solid var(--wr-border); border-radius: 10px;
-  }
-  figure.shot figcaption {
-    font-size: 13px; color: var(--wr-muted); margin-top: 8px;
-  }
-  :focus-visible { outline: 2px solid var(--wr-accent); outline-offset: 2px; }
-  @media (max-width: 480px) { h1 { font-size: 32px; } }
-</style>
+<link rel="stylesheet" href="site.css">
 </head>
-<body>
-<nav aria-label="Main"><span class="wordmark">WavRead</span>
+<body class="content-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<nav aria-label="Main"><a class="wordmark" href="index.html" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
 <a href="index.html">Home</a><span class="spacer"></span>
-<a class="btn primary" style="height:34px" href="index.html#download">Download</a></nav>
-<main>
+<a class="btn primary compact" href="index.html#download">Download</a></nav>
+<main id="main">
 <h1>WavRead — End User Licence Agreement</h1>
 
 <p><strong>Version 1.0 · Effective 2026-08-14</strong></p>
@@ -137,7 +33,7 @@
 <p>A purchased licence covers all updates within the same major version. A future</p>
 <p>major version may be a separate purchase.</p>
 
-<p>While WavRead is offered as a free beta, the same terms apply, and the licence</p>
+<p>While WavRead is offered as a paid beta, the same terms apply, and the licence</p>
 <p>lasts for as long as that beta is made available.</p>
 
 <h2>2. What you may not do</h2>
@@ -235,6 +131,6 @@
 
 <p>Erik Mann (EZmannBuilds) — erikmann509@gmail.com</p>
 </main>
-<footer>WavRead · © 2026 Erik Mann · <a href="index.html">wavread</a></footer>
+<footer>WavRead · © 2026 Erik Mann · <a href="index.html">wavread</a> · <a href="mailto:support@wavread.com">support@wavread.com</a></footer>
 </body>
 </html>
