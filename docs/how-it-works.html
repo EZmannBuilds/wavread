@@ -126,27 +126,12 @@ holds everything one would need to talk about your mix specifically rather than
 generically. That is optional — the built-in Feedback Report is written by
 rules, not by a model, and works with the network cable out.</p>
 
-<h2>Built on</h2>
-<p>WavRead is a commercial product standing on open research. Each component
-keeps its own licence, reproduced in full in the
-<code>THIRD_PARTY_LICENSES</code> file that ships with the app.</p>
-<table>
-<tr><th scope="col">Project</th><th scope="col">Used for</th></tr>
-<tr><td><a href="https://github.com/openai/whisper">Whisper</a> (OpenAI, MIT) via
-        <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></td>
-    <td>Lyric transcription from the vocal stem you supply</td></tr>
-<tr><td><a href="https://github.com/spotify/basic-pitch">Basic Pitch</a> (Spotify, Apache-2.0)</td>
-    <td>Melody transcription to notes</td></tr>
-<tr><td><a href="https://librosa.org">librosa</a> (ISC)</td>
-    <td>Core audio analysis</td></tr>
-<tr><td><a href="https://github.com/csteinmetz1/pyloudnorm">pyloudnorm</a> (MIT)</td>
-    <td>Broadcast-standard LUFS measurement</td></tr>
-<tr><td><a href="https://juce.com">JUCE</a> (AGPLv3 / commercial)</td>
-    <td>The AU and VST3 capture plugin</td></tr>
-</table>
-<p>Every analysis records which of these produced it, and at which version, in
-the document's provenance line. A measurement is only reproducible if you know
-what made it.</p>
+<h2>What produced a measurement</h2>
+<p>Every analysis records the engine that produced it, and at which
+version, in the document's provenance line. A measurement is only
+reproducible if you know what made it. The components WavRead is built
+on keep their own licences, reproduced in full in the
+<code>THIRD_PARTY_LICENSES</code> file that ships inside the app.</p>
 
 </main>
 <footer>
