@@ -128,13 +128,16 @@ test("all local links and assets resolve", async () => {
 });
 
 test("public pages share one destination-based primary navigation", async () => {
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
-  // Five buyer destinations. Install, Privacy and FAQ live in the footer of
-  // every page instead of competing in the header (Update 1.4.47).
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "agent.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
+  // Six buyer destinations. Install, Privacy and FAQ live in the footer of
+  // every page instead of competing in the header (Update 1.4.47). Agent skill
+  // joined the header rather than the footer because it is a reason to buy —
+  // it sits after Reports, since it is what reads them.
   const expectedLinks = [
     ["how-it-works.html", "How it works"],
     ["capture.html", "DAW capture"],
     ["documents.html", "Reports"],
+    ["agent.html", "Agent skill"],
     ["requirements.html", "Requirements"],
     ["early-build.html", "Get WavRead"]
   ];

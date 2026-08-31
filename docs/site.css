@@ -653,3 +653,15 @@ textarea:disabled { color: var(--wr-disabled); cursor: not-allowed; }
   .wordmark:hover .brand-mark,
   .wordmark:focus-visible .brand-mark { transform: none; filter: none; }
 }
+
+/* Agent skill page — the install command and its copy button. The site's CSP is
+   style-src 'self', so these cannot live in the page. */
+.cmd { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin: 18px 0 6px; }
+.cmd code { flex: 1 1 320px; min-width: 0; padding: 12px 18px; overflow-x: auto; border: 1px solid var(--wr-border-strong); background: var(--wr-surface-1); color: var(--wr-signal); font: 600 15px/1.5 var(--wr-font-mono); letter-spacing: 0.04em; white-space: nowrap; }
+.cmd .copy { flex: 0 0 auto; padding: 12px 18px; border: 1px solid var(--wr-border-control); background: var(--wr-surface-input); color: var(--wr-text); font: 500 13px/1.5 var(--wr-font-body); cursor: pointer; }
+.cmd .copy:hover { border-color: var(--wr-border-control-hover); color: var(--wr-accent); }
+.cmd .copy:focus-visible { outline: 2px solid var(--wr-focus); outline-offset: 2px; }
+.cmd .copy[data-done] { color: var(--wr-success); border-color: var(--wr-success); }
+.install-alt { margin: 6px 0 0; color: var(--wr-muted); font-size: 13.5px; }
+.filemeta { margin-top: 14px; color: var(--wr-muted); font-size: 12.5px; }
+@media (max-width: 520px) { .cmd code { font-size: 13px; } }

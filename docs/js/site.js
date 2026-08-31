@@ -43,3 +43,33 @@ if ("IntersectionObserver" in window && !window.matchMedia("(prefers-reduced-mot
 } else {
   revealItems.forEach((item) => item.classList.add("is-visible"));
 }
+
+// Copy buttons: [data-copy] names the element whose text to put on the clipboard.
+// An inline handler would be blocked by the site's CSP (script-src 'self'), so it
+// lives here. Clipboard access needs a secure context, and the site is served over
+// HTTPS — but a local file:// or http:// preview is not, so the failure path
+// selects the text instead of silently doing nothing.
+document.querySelectorAll(".copy").forEach((button) => {
+  const restore = () => {
+    button.textContent = "Copy";
+    button.removeAttribute("data-done");
+  };
+  button.addEventListener("click", () => {
+    const source = document.getElementById(button.dataset.copy);
+    if (!source) return;
+    const selectInstead = () => {
+      const range = document.createRange();
+      range.selectNodeContents(source);
+      const selection = getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = "Select + copy";
+    };
+    if (!navigator.clipboard || !navigator.clipboard.writeText) return selectInstead();
+    navigator.clipboard.writeText(source.textContent).then(() => {
+      button.textContent = "Copied";
+      button.dataset.done = "1";
+      setTimeout(restore, 1600);
+    }, selectInstead);
+  });
+});
