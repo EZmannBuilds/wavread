@@ -25,7 +25,7 @@
 <header class="site-header"><nav aria-label="Main">
   <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
   <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html" aria-current="page">DAW capture</a><a href="documents.html">Documents</a><a href="requirements.html">Requirements</a><a href="install.html">Install</a><a href="early-build.html">Get WavRead</a><a href="privacy.html">Privacy</a><a href="faq.html">FAQ</a></div>
+  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html" aria-current="page">DAW capture</a><a href="documents.html">Reports</a><a href="requirements.html">Requirements</a><a href="early-build.html">Get WavRead</a></div>
   <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="early-build.html">Buy — $5</a>
 </nav></header>
 <main id="main">
@@ -103,7 +103,18 @@ reverb and delay get measured rather than guessed:</p>
   in a gap where the parts have stopped. No gap in the take, no claim made</li>
   <li><strong>Tone change through the bus</strong>, per band, and how much of the
   master's energy is not in the parts at all</li>
+  <li><strong>New in 1.4.46</strong> — the residual itself is saved and playable,
+  so you can hear exactly what your bus chain adds; and the bus's gain movement
+  is drawn over time</li>
 </ul>
+
+<figure class="shot">
+  <img src="img/bus-gain-trace.svg" alt="The master-bus gain trace from a WavRead analysis: the bus's level against the level match over the whole song, dipping about four decibels where the bus was ridden down through the breakdown." width="792" height="152" loading="lazy">
+  <figcaption>The bus gain trace, new in 1.4.46 — the dip is a 4 dB ride through
+  the breakdown, measured from the captured master against the sum of the parts.
+  Notice that it is read from the audio: no plugin needs to be opened, and mixes
+  you did not make trace the same way.</figcaption>
+</figure>
 <div class="note caution">
   <p>Three things look like a delay and are not one: reverb, which correlates
   with its own source; the music's own period, since a part playing every bar
@@ -127,6 +138,7 @@ One, Reaper and Live use the VST3. Rescan plugins in your DAW afterwards.</p>
 </main>
 <footer>
   <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="requirements.html">Requirements</a> ·
+  <a href="install.html">Install</a> ·
   <a href="documents.html">The documents</a> · <a href="faq.html">FAQ</a> ·
   <a href="mailto:support@wavread.com">support@wavread.com</a><br>
   Audio → readable language, on your own machine.

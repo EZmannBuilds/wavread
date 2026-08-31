@@ -1,0 +1,9 @@
+# wavread.com — public marketing and documentation pages are crawlable.
+# Account surfaces are not for indexes: they render nothing useful signed out.
+User-agent: *
+Disallow: /signin
+Disallow: /beta-dashboard
+Disallow: /purchase-complete
+Disallow: /api/
+
+Sitemap: https://wavread.com/sitemap.xml

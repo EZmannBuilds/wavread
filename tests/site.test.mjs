@@ -44,6 +44,32 @@ test("public homepage tells the real release story", async () => {
   assert.doesNotMatch(html, /free beta|download free/i);
   assert.doesNotMatch(html, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "no ungated DMG link");
   assert.doesNotMatch(html, /customer logos|trusted by|testimonials/i);
+  // The release summary must describe the release it names, not an older one
+  // (1.4.46's features went unmentioned for a day while the summary still
+  // advertised the interface rebuild).
+  assert.match(html, /Latest update — 1\.4\.46/);
+  assert.match(html, /spectral timeline/i, "the release's own features are named");
+  assert.match(html, /master-bus residual|what your (master )?bus chain adds/i);
+  assert.match(html, /never tunes, repairs, or modifies/i, "vocal tuning is analysis only");
+});
+
+test("search engines get a truthful, bounded map of the site", async () => {
+  const robots = await read("docs/robots.txt");
+  assert.ok(robots.includes("Sitemap: https://wavread.com/sitemap.xml"));
+  for (const hidden of ["/signin", "/beta-dashboard", "/purchase-complete", "/api/"]) {
+    assert.ok(robots.includes(`Disallow: ${hidden}`), `${hidden} stays out of indexes`);
+  }
+  const sitemap = await read("docs/sitemap.xml");
+  for (const pub of ["/", "/how-it-works", "/capture", "/documents", "/requirements", "/early-build", "/faq"]) {
+    assert.ok(sitemap.includes(`<loc>https://wavread.com${pub}</loc>`), `${pub} is sitemapped`);
+  }
+  for (const hidden of ["signin", "beta-dashboard", "purchase-complete"]) {
+    assert.ok(!sitemap.includes(hidden), "account routes are not sitemapped");
+  }
+  const home = await read("docs/index.html");
+  assert.ok(home.includes("application/ld+json"));
+  assert.ok(home.includes('"softwareVersion": "1.4.46"'), "structured data names the real version");
+  assert.ok(home.includes('"price": "5"'));
 });
 
 test("the purchase page sells $5 honestly and takes no card itself", async () => {
@@ -94,15 +120,14 @@ test("all local links and assets resolve", async () => {
 
 test("public pages share one destination-based primary navigation", async () => {
   const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
+  // Five buyer destinations. Install, Privacy and FAQ live in the footer of
+  // every page instead of competing in the header (Update 1.4.47).
   const expectedLinks = [
     ["how-it-works.html", "How it works"],
     ["capture.html", "DAW capture"],
-    ["documents.html", "Documents"],
+    ["documents.html", "Reports"],
     ["requirements.html", "Requirements"],
-    ["install.html", "Install"],
-    ["early-build.html", "Get WavRead"],
-    ["privacy.html", "Privacy"],
-    ["faq.html", "FAQ"]
+    ["early-build.html", "Get WavRead"]
   ];
   for (const file of publicPages) {
     const html = await read(join("docs", file));

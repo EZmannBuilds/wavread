@@ -18,6 +18,27 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="site.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "WavRead",
+  "operatingSystem": "macOS 14 or later (Apple Silicon)",
+  "applicationCategory": "MultimediaApplication",
+  "softwareVersion": "1.4.46",
+  "url": "https://wavread.com/",
+  "description": "WavRead measures your music locally and translates the results into clear language, evidence, and documents. Audio never leaves your Mac.",
+  "offers": {
+    "@type": "Offer",
+    "price": "5",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "description": "Early Launch: $5 once includes every build published during the Early Launch."
+  },
+  "author": {"@type": "Person", "name": "Erik Mann"},
+  "publisher": {"@type": "Organization", "name": "EZmannBuilds"}
+}
+</script>
 <script src="js/site.js" defer></script>
 </head>
 <body class="home">
@@ -27,16 +48,7 @@
   <nav aria-label="Main">
     <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="34" height="34"><span>WavRead</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-    <div class="nav-links" id="nav-links">
-      <a href="how-it-works.html">How it works</a>
-      <a href="capture.html">DAW capture</a>
-      <a href="documents.html">Documents</a>
-      <a href="requirements.html">Requirements</a>
-      <a href="install.html">Install</a>
-      <a href="early-build.html">Get WavRead</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="faq.html">FAQ</a>
-    </div>
+    <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="requirements.html">Requirements</a><a href="early-build.html">Get WavRead</a></div>
     <span class="spacer"></span>
     <a class="nav-signin" href="signin.html">Sign in</a>
     <a class="btn compact" href="#download">Buy — $5</a>
@@ -47,9 +59,10 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
       <p class="eyebrow"><span>Local audio analysis</span> Early Launch · 1.4.46</p>
-      <h1 id="hero-title">Reveal what the<br><em>music is doing.</em></h1>
-      <p class="hero-lede">WavRead measures your music and translates the results into clear,
-      useful language for producers, engineers, and artists. Your audio stays on your Mac.</p>
+      <h1 id="hero-title">Reveal what the <br><em>music is doing.</em></h1>
+      <p class="hero-lede">Stop guessing what changed between bounces. WavRead maps your mix
+      track by track and section by section, then translates the evidence into clear
+      language. Your audio stays on your Mac.</p>
       <div class="hero-actions">
         <a class="btn primary" href="#download">Get WavRead — $5</a>
         <a class="text-link" href="#how">See what it does <span aria-hidden="true">↓</span></a>
@@ -76,7 +89,7 @@
 
   <section class="intro-band reveal" id="how" aria-labelledby="how-title">
     <p class="section-kicker">One track in. Clear evidence out.</p>
-    <h2 id="how-title">WavRead observes the music.<br>Your DAW stays in control.</h2>
+    <h2 id="how-title">WavRead observes the music. <br>Your DAW stays in control.</h2>
     <ol class="workflow">
       <li><span>01</span><strong>Load</strong><p>Drop in a finished track, stems, or a DAW capture.</p></li>
       <li><span>02</span><strong>Measure</strong><p>Tempo, key, loudness, dynamics, spectrum, stereo, structure, and more.</p></li>
@@ -88,7 +101,7 @@
   <section class="feature-story" id="features" aria-labelledby="features-title">
     <div class="story-copy reveal">
       <p class="section-kicker">Measure</p>
-      <h2 id="features-title">Technical depth,<br>without the fog.</h2>
+      <h2 id="features-title">Technical depth, <br>without the fog.</h2>
       <p>WavRead maps what is present in a track: frequency balance, true peak, LUFS,
       loudness range, stereo behavior, song sections, chords, melody, lyrics, and stem activity.
       Every result says whether it was measured, detected, estimated, or unavailable.</p>
@@ -131,6 +144,31 @@
     </figure>
   </section>
 
+  <section class="feature-story" id="new-in-1-4-46" aria-labelledby="new-title">
+    <div class="story-copy reveal">
+      <p class="section-kicker">New in 1.4.46</p>
+      <h2 id="new-title">The song's balance, <br>drawn across the song.</h2>
+      <p>The spectral timeline shows where the energy sits — sub to air — from the
+      first bar to the last, so a verse that turns muddy or a chorus that loses its
+      top end is visible before you go looking for it. Every analysis already in
+      your library gains this view without being reanalyzed.</p>
+      <ul class="inline-facts"><li>Seven bands over time</li><li>Reads stored data</li><li>On the Timeline tab</li></ul>
+      <div class="finding-stack" aria-label="Also new in 1.4.46">
+        <div><span class="finding-label measured-label">For engineers</span><p><strong>Hear what your master bus adds.</strong> WavRead plays the measured
+        difference between your captured master and your parts — the bus chain and
+        nothing else — and draws the bus's gain movement over time.</p></div>
+        <div><span class="finding-label possible-label">Vocal tuning</span><p>Held notes carry their offset in cents, with phrase medians.
+        Analysis only — WavRead never tunes, repairs, or modifies the vocal.</p></div>
+        <div><span class="finding-label listen-label">Accuracy</span><p>A melody figure previously labeled “confidence” was the note's
+        loudness; it is now named amplitude everywhere it appears.</p></div>
+      </div>
+    </div>
+    <figure class="feature-visual reveal">
+      <img src="img/spectral-timeline.svg" alt="Three timelines from one WavRead analysis of the same song: short-term loudness, the spectral balance as stacked shares of seven bands from sub to air, and the master-bus gain trace dipping where the bus was ridden down." width="792" height="622" loading="lazy">
+      <figcaption><span>Spectral timeline</span> Notice the balance shifting between sections — that movement is the mix decision the numbers alone don't show.</figcaption>
+    </figure>
+  </section>
+
   <section class="privacy-band reveal" aria-labelledby="privacy-title">
     <div><p class="section-kicker">Built for private listening</p><h2 id="privacy-title">No cloud audio. No silent telemetry. No account for the app.</h2></div>
     <div><p>WavRead runs on your Mac. Accounts live only on this website, and the app sends
@@ -141,7 +179,7 @@
   <section class="beta-section" id="beta" aria-labelledby="beta-title">
     <div class="beta-copy reveal">
       <p class="section-kicker">Early Launch — $5</p>
-      <h2 id="beta-title">Five dollars now.<br>Every Early Launch build.</h2>
+      <h2 id="beta-title">Five dollars now. <br>Every Early Launch build.</h2>
       <p>Nothing here is free. Five dollars buys WavRead and every build published while
       the Early Launch runs, each on your dashboard and verified by SHA-256. The stable
       commercial build will be $49 — and if your reports helped get it there, you keep it
@@ -162,13 +200,13 @@
     whether to open a program downloaded from the Internet, confirms Apple found
     nothing malicious in it, and never asks again.</p>
     <a class="btn primary download-button" href="early-build.html">Buy WavRead 1.4.46 <span>$5 · Early Launch · DMG</span></a>
-    <div class="release-summary"><strong>Latest update</strong><p>An interface rebuilt to read like an instrument: square panels, measured headings, and the track's numbers set as a readout. Plus everything from 1.4.37 — problem reports you control, DAW capture with the Bridge plugin, and master-bus measurements.</p><a href="early-build.html">What the $5 buys →</a></div>
+    <div class="release-summary"><strong>Latest update — 1.4.46</strong><p>A spectral timeline drawing the song's frequency balance across its whole length; a playable master-bus residual so you can hear exactly what your bus chain adds; the bus's gain movement traced over time; vocal intonation measured in cents (analysis only — nothing is tuned or repaired); and a melody figure renamed from “confidence” to what it always was, amplitude.</p><a href="early-build.html">What the $5 buys →</a></div>
   </section>
 </main>
 
 <footer class="site-footer">
   <div><a class="wordmark" href="/"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a><p>Your music, translated into words.</p></div>
-  <div><strong>Product</strong><a href="how-it-works.html">How it works</a><a href="documents.html">Documents</a><a href="capture.html">DAW capture</a><a href="requirements.html">Requirements</a></div>
+  <div><strong>Product</strong><a href="how-it-works.html">How it works</a><a href="documents.html">Documents</a><a href="capture.html">DAW capture</a><a href="requirements.html">Requirements</a><a href="install.html">Install guide</a></div>
   <div><strong>Account</strong><a href="early-build.html">Get WavRead — $5</a><a href="signin.html">Sign in</a><a href="beta-dashboard.html">Dashboard</a></div>
   <div><strong>Company</strong><a href="mailto:support@wavread.com">support@wavread.com</a><a href="privacy.html">Privacy</a><a href="faq.html">Questions</a><a href="/EULA">Licence</a></div>
   <p class="copyright">© 2026 Erik Mann · EZmannBuilds</p>
