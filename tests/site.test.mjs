@@ -178,10 +178,33 @@ test("ownership and reports reach the browser read-only", async () => {
   assert.doesNotMatch(dashboard, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "the dashboard serves builds through signed URLs, not public links");
 });
 
+test("no page claims a separation feature the app does not have", async () => {
+  // Separation was removed in 1.4.45. requirements.html went on promising a
+  // "one-time 80 MB model download if you use built-in stem separation" under
+  // the heading a buyer reads to answer "does it need internet" — while
+  // privacy.html, on the same site, correctly said no separation model is ever
+  // shipped or fetched. Two pages, one fact, opposite answers.
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /built-in stem separation|separated stems|80 MB model/i,
+      `${file} claims a separation feature that was removed`);
+    // privacy.html is the one page allowed to name the model, because it says
+    // the model is never fetched.
+    if (file !== "privacy.html") {
+      assert.doesNotMatch(html, /demucs/i, `${file} names the removed separation backend`);
+    }
+  }
+});
+
 test("no page promises builds the per-build model does not include", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
-    assert.doesNotMatch(html, /another five dollars|\$5 each|per build/i, `${file} still charges per build`);
+    // "$5 a build" is the phrasing that survived in early-build.html's meta
+    // description and og:description long after the per-build model was
+    // dropped — so it was the Google snippet and the share card for the page
+    // every ad points at, while the body of the same page said "once". The
+    // alternation above never matched it. <head> is where this hides.
+    assert.doesNotMatch(html, /another five dollars|\$5 each|per build|\$\d+ a build/i, `${file} still charges per build`);
     assert.doesNotMatch(html, /(?<!no )(?<!nothing )free (?:beta|trial|download)\b/i, `${file} offers something free`);
     assert.doesNotMatch(html, /download free|try it free|free for everyone/i, `${file} offers something free`);
   }

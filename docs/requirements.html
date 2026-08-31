@@ -49,56 +49,59 @@ estimated — how, and on what, is at the bottom of the page.</p>
   length — see the ceiling below, because memory is what actually limits
   WavRead, and it grows with the length of the track.</td></tr>
   <tr><th>Disk</th><td><strong>2 GB free</strong> to install and work in. The app
-  is 626 MB installed, from a 236 MB download.</td></tr>
-  <tr><th>Network</th><td><strong>None.</strong> Analysis never needs it. The
-  only requests WavRead ever makes are the once-a-day update check you can turn
-  off, and a one-time 80 MB model download if you use built-in stem
-  separation.</td></tr>
+  is 345 MB installed, from a 131 MB download.</td></tr>
+  <tr><th>Network</th><td><strong>None.</strong> Analysis never needs it. At
+  most WavRead makes five kinds of request: the once-a-day update check you can
+  switch off, the update you press the button for, a one-time 460 MB model
+  download if you transcribe lyrics, a problem report if you turn reports on,
+  and device linking if you use it. WavRead ships no separation model and never
+  fetches one. <a href="privacy.html">Privacy</a> lists every one, field by
+  field.</td></tr>
 </table>
 
 <h2>Recommended</h2>
 <table class="spec">
   <tr><th>Memory</th><td><strong>16 GB or more.</strong> It buys you long tracks
-  and lets separation run without the machine paging.</td></tr>
-  <tr><th>Disk</th><td><strong>An SSD with room to spare.</strong> Separated stems
-  are about <strong>135 MB per song</strong>, and captures from a DAW run to
-  roughly <strong>1 GB per plugin instance per hour</strong>. WavRead lets you
+  without the machine paging — memory is what limits WavRead, and it grows with
+  the length of the track.</td></tr>
+  <tr><th>Disk</th><td><strong>An SSD with room to spare.</strong> Captures from
+  a DAW run to roughly <strong>1 GB per plugin instance per hour</strong>, and
+  stems you bring yourself take whatever your own files take. WavRead lets you
   put the library on any drive, which is what external drives are for.</td></tr>
-  <tr><th>CPU</th><td>Any Apple Silicon chip is fast enough. Separation is the
-  only heavy step and it uses the GPU (Metal) when one is available, falling
-  back to the CPU when it is not.</td></tr>
+  <tr><th>CPU</th><td>Any Apple Silicon chip is fast enough. Analysis is the
+  heavy step, and it is arithmetic on the samples rather than inference.</td></tr>
   <tr><th>For DAW capture</th><td>A host that loads AU or VST3 plugins. The
   plugin itself is close to free — <a href="capture.html">measured here</a> —
   but plan for the disk.</td></tr>
 </table>
 
 <h2>Measured performance</h2>
-<p>One real 3-minute song, and the same song repeated to nearly 13 minutes, on
+<p>One real 3-minute song, and the same song repeated to over 12 minutes, on
 the machine described at the bottom:</p>
 <table>
   <tr><th>What was run</th><th>Track length</th><th>Time</th><th>Peak memory</th><th>Written to disk</th></tr>
-  <tr><td>Analysis only</td><td>3:12</td><td>12.7 s</td><td>3.6 GB</td><td>133 KB</td></tr>
-  <tr><td>Full run — separation, lyrics, melody</td><td>3:12</td><td>70.8 s</td><td>4.0 GB</td><td>136 MB</td></tr>
-  <tr><td>Analysis only</td><td>12:48</td><td>51.9 s</td><td>6.8 GB</td><td>133 KB</td></tr>
+  <tr><td>Analysis only</td><td>3:06</td><td>5.1 s</td><td>2.1 GB</td><td>16 KB</td></tr>
+  <tr><td>Analysis only</td><td>12:22</td><td>16.5 s</td><td>4.4 GB</td><td>32 KB</td></tr>
 </table>
-<p>Analysis is roughly four times faster than realtime; a full run with
-separation is about three times faster than realtime. Both are one-off costs —
-the documents are written once and read from disk after that.</p>
+<p>Analysis runs roughly <strong>36 to 45 times faster than realtime</strong>,
+and it is a one-off cost — the documents are written once and read from disk
+after that. Lyrics and melody are separate optional passes and are slower;
+they are transcription rather than measurement.</p>
 
 <h2>The ceiling: memory, not speed</h2>
 <p>WavRead holds the whole track in memory to measure it, so <strong>peak memory
-grows with length</strong> — measured at about <strong>0.33 GB per additional
-minute</strong> of audio, on top of a 2.5 GB base.</p>
+grows with length</strong> — measured at about <strong>0.25 GB per additional
+minute</strong> of audio, on top of a 1.3 GB base.</p>
 <table>
   <tr><th>Track length</th><th>Expected peak memory</th><th>Comfortable on</th></tr>
-  <tr><td>3 minutes</td><td>~3.5 GB <span class="tick">measured</span></td><td>8 GB</td></tr>
-  <tr><td>5 minutes</td><td>~4.2 GB</td><td>8 GB</td></tr>
-  <tr><td>10 minutes</td><td>~5.9 GB</td><td>16 GB</td></tr>
-  <tr><td>13 minutes</td><td>~6.8 GB <span class="tick">measured</span></td><td>16 GB</td></tr>
-  <tr><td>30 minutes</td><td>~12 GB (extrapolated)</td><td>16 GB or more</td></tr>
+  <tr><td>3 minutes</td><td>~2.1 GB <span class="tick">measured</span></td><td>8 GB</td></tr>
+  <tr><td>5 minutes</td><td>~2.6 GB</td><td>8 GB</td></tr>
+  <tr><td>10 minutes</td><td>~3.8 GB</td><td>8 GB</td></tr>
+  <tr><td>12 minutes</td><td>~4.4 GB <span class="tick">measured</span></td><td>16 GB</td></tr>
+  <tr><td>30 minutes</td><td>~8.8 GB (extrapolated)</td><td>16 GB or more</td></tr>
 </table>
 <div class="note caution">
-  <p>The 3- and 13-minute rows were measured; the rest follow the straight line
+  <p>The 3- and 12-minute rows were measured; the rest follow the straight line
   between them and are marked as such. macOS will page to disk rather than fail
   outright, so an 8 GB Mac given a 30-minute file gets slow, not broken — but a
   DJ set or a podcast episode is the case to watch.</p>
@@ -136,7 +139,8 @@ minute</strong> of audio, on top of a 2.5 GB base.</p>
   </div>
   <div class="card">
     <h3>No dedicated GPU</h3>
-    <p>Separation uses Apple's Metal GPU when present and the CPU when not.</p>
+    <p>Every measurement is arithmetic on the samples. Any Apple Silicon chip
+    is fast enough.</p>
   </div>
   <div class="card">
     <h3>No admin rights</h3>
@@ -157,7 +161,7 @@ minute</strong> of audio, on top of a 2.5 GB base.</p>
 </ul>
 
 <p class="measured">How these were measured: on an Apple M4 with 24 GB of memory
-running macOS 26.5, using WavRead 1.4.4. Time and peak memory come from
+running macOS 26.5, using WavRead 1.4.47. Time and peak memory come from
 <code>/usr/bin/time -l</code> around a real analysis; disk figures are the bytes
 actually written. The macOS floor was read from the load commands of all 380
 binaries inside the app bundle, taking the highest. Your own times will differ
