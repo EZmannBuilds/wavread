@@ -95,7 +95,7 @@ async function fulfill(db: any, session: any): Promise<string> {
   // 1. The durable account. Email is the recovery identity, so it is the key.
   let testerId: string;
   const existing = await db
-    .from("beta_testers")
+    .from("accounts")
     .select("tester_id, auth_user_id, status")
     .eq("email", email)
     .maybeSingle();
@@ -104,7 +104,7 @@ async function fulfill(db: any, session: any): Promise<string> {
     testerId = existing.data.tester_id;
   } else {
     const inserted = await db
-      .from("beta_testers")
+      .from("accounts")
       .insert({ email, status: "active" })
       .select("tester_id")
       .single();
@@ -174,7 +174,7 @@ async function fulfill(db: any, session: any): Promise<string> {
   const authUserId = await authUserIdFor(db, email);
   if (authUserId && !existing.data?.auth_user_id) {
     const bound = await db
-      .from("beta_testers")
+      .from("accounts")
       .update({ auth_user_id: authUserId })
       .eq("tester_id", testerId)
       .is("auth_user_id", null);

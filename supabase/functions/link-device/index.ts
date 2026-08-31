@@ -76,14 +76,14 @@ Deno.serve(async (req: Request) => {
 
   const found = await db
     .from("link_codes")
-    .select("code, tester_id, expires_at, claimed_at, beta_testers ( email, status )")
+    .select("code, tester_id, expires_at, claimed_at, accounts ( email, status )")
     .eq("code", code)
     .maybeSingle();
   if (found.error) {
     console.error("link code lookup failed", found.error);
     return json(req, 500, { error: "The link service had a problem. Try again." });
   }
-  const account = found.data?.beta_testers as unknown as {
+  const account = found.data?.accounts as unknown as {
     email?: string;
     status?: string;
   } | null;

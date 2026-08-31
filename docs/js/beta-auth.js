@@ -174,7 +174,7 @@ async function loadOwnership() {
   const detail = document.querySelector("#ownership-detail");
   const action = document.querySelector("#ownership-action");
   const [account, entitlements, purchases] = await Promise.all([
-    supabase.from("beta_testers").select("free_updates, free_updates_note")
+    supabase.from("accounts").select("free_updates, free_updates_note")
       .eq("auth_user_id", currentUser.id).maybeSingle(),
     supabase.from("entitlements").select("build_version, granted_at")
       .eq("entitlement", "early_build").is("revoked_at", null),
@@ -460,7 +460,7 @@ async function initializeDashboard() {
   document.querySelector("#unauthorized-signout").addEventListener("click", signOut);
 
   const { data: tester, error: testerError } = await supabase
-    .from("beta_testers")
+    .from("accounts")
     .select("tester_id, status, joined_at, complimentary_release_eligible")
     .eq("auth_user_id", currentUser.id)
     .maybeSingle();

@@ -43,7 +43,7 @@ Deno.serve(async (req: Request) => {
 
   const db = serviceClient();
   const account = await db
-    .from("beta_testers")
+    .from("accounts")
     .select("tester_id, status")
     .eq("auth_user_id", userData.user.id)
     .maybeSingle();
