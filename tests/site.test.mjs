@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { access, readFile, readdir } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 
 const root = resolve("docs");
 const htmlFiles = (await readdir(root)).filter((file) => extname(file) === ".html");
 const read = (path) => readFile(resolve(path), "utf8");
+const readSync = (path) => readFileSync(resolve(path), "utf8");
 
 // The current version is declared once, in beta-auth.js, because the dashboard
 // uses it to decide which build is current. Pinning a literal here meant every
@@ -119,7 +121,7 @@ test("tester routes fail closed and never make users testers in the browser", as
   const dashboard = await read("docs/beta-dashboard.html");
   assert.match(auth, /shouldCreateUser:\s*false/);
   assert.match(auth, /auth\.getUser\(\)/);
-  assert.match(auth, /from\("beta_testers"\)/);
+  assert.match(auth, /from\("accounts"\)/);
   assert.match(auth, /\.eq\("auth_user_id", currentUser\.id\)/);
   assert.match(auth, /tester_id: currentTesterId/);
   assert.match(auth, /status !== "active"/);
@@ -152,20 +154,32 @@ test("no page promises builds the per-build model does not include", async () =>
     assert.doesNotMatch(html, /download free|try it free|free for everyone/i, `${file} offers something free`);
   }
   // The access rule the site describes must be the one the database enforces.
+  //
+  // Read across ALL migrations, not "whichever sorts last". Asserting against
+  // the newest file meant every later migration had to restate the previous
+  // one's contents to keep this passing — a tax on every future change, and
+  // one the rename to `accounts` promptly triggered. Migrations are a history:
+  // what matters is that these decisions appear in it, and that the reversal
+  // came after the thing it reversed.
   const migrations = (await readdir("supabase/migrations")).sort();
-  const sql = await read(join("supabase/migrations", migrations[migrations.length - 1]));
-  assert.match(sql, /has_build_access/, "one access rule, used by both the policy and the function");
-  assert.match(sql, /free_updates/, "contributor standing exists in the schema");
-  // The edition column is gone: separation was removed, so there is one kind
-  // of build and nothing for it to distinguish. What replaced it is quieter —
-  // price zero means not for sale, and the three builds that carry Demucs sit
-  // at zero with the reason written into their notes, because dropping the
-  // column would otherwise lose the only record of which files those are.
-  assert.doesNotMatch(sql, /add column edition/, "the edition split is not reintroduced");
-  assert.match(sql, /drop column edition/, "the edition column is dropped");
-  assert.match(sql, /may be given away but never sold/, "why those builds are unsellable is recorded in the catalog");
-  assert.match(sql, /Zero means it is not for sale/, "a price of zero is documented as 'not for sale'");
-  assert.match(sql, /build_version is null/, "purchases made under the old all-access terms stay honoured");
+  const history = (await Promise.all(
+    migrations.map((m) => read(join("supabase/migrations", m))))).join("\n");
+  assert.match(history, /has_build_access/, "one access rule, used by both the policy and the function");
+  assert.match(history, /free_updates/, "contributor standing exists in the schema");
+  // Separation was removed, so there is one kind of build and nothing for the
+  // edition column to distinguish. What replaced it is quieter — price zero
+  // means not for sale, and the builds that carry Demucs sit at zero with the
+  // reason written into their notes, because dropping the column would
+  // otherwise lose the only record of which files those are.
+  assert.match(history, /drop column edition/, "the edition column is dropped");
+  const added = migrations.findIndex((m) =>
+    /add column edition/.test(readSync(join("supabase/migrations", m))));
+  const dropped = migrations.findIndex((m) =>
+    /drop column edition/.test(readSync(join("supabase/migrations", m))));
+  assert.ok(dropped > added, "the edition column is dropped after it was added, not before");
+  assert.match(history, /may be given away but never sold/, "why those builds are unsellable is recorded in the catalog");
+  assert.match(history, /Zero means it is not for sale/, "a price of zero is documented as 'not for sale'");
+  assert.match(history, /build_version is null/, "purchases made under the old all-access terms stay honoured");
 });
 
 test("every page offers a way to reach a person", async () => {
