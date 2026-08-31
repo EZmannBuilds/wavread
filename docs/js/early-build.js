@@ -30,10 +30,17 @@ async function loadConfiguration() {
   }
 }
 
-function setStatus(element, message, state = "") {
+function setStatus(element, message, state = "", field = null) {
   if (!element) return;
   element.textContent = message;
   element.dataset.state = state;
+  // aria-describedby (in the HTML) points the email field at this paragraph;
+  // aria-invalid says the value is why. Without both, a screen-reader user
+  // tabbing back after a failure hears "Account email, edit text" and the
+  // error is gone.
+  if (field) {
+    field.setAttribute("aria-invalid", state === "error" ? "true" : "false");
+  }
 }
 
 async function initializeCheckout() {
@@ -57,7 +64,8 @@ async function initializeCheckout() {
     const email = new FormData(form).get("email").trim().toLowerCase();
     const source = campaignLabel();
     submit.disabled = true;
-    setStatus(status, "Preparing the payment page…");
+    const emailField = form.querySelector("#email");
+    setStatus(status, "Preparing the payment page…", "", emailField);
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -67,19 +75,19 @@ async function initializeCheckout() {
       const result = await response.json().catch(() => ({}));
       if (response.status === 503) {
         unconfigured.hidden = false;
-        setStatus(status, "");
+        setStatus(status, "", "", emailField);
         return;
       }
       if (!response.ok || !result.url) {
-        setStatus(status, result.error || "The payment page could not be started. Try again shortly.", "error");
+        setStatus(status, result.error || "The payment page could not be started. Try again shortly.", "error", emailField);
         return;
       }
-      setStatus(status, "Opening Stripe checkout…", "success");
+      setStatus(status, "Opening Stripe checkout…", "success", emailField);
       location.assign(result.url);
     } catch {
       // A blocked cross-origin response and a dead network look identical
       // here, so the message names both rather than guessing wrong.
-      setStatus(status, `Checkout could not be reached from ${location.host}. If this is a preview or test address, use the main site; otherwise check your connection and try again.`, "error");
+      setStatus(status, `Checkout could not be reached from ${location.host}. If this is a preview or test address, use the main site; otherwise check your connection and try again.`, "error", emailField);
     } finally {
       submit.disabled = false;
     }

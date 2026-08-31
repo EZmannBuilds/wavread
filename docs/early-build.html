@@ -17,6 +17,31 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "@id": "https://wavread.com/#wavread",
+  "name": "WavRead",
+  "operatingSystem": "macOS 14 or later (Apple Silicon)",
+  "applicationCategory": "MultimediaApplication",
+  "softwareVersion": "1.4.46",
+  "url": "https://wavread.com/",
+  "softwareRequirements": "Apple Silicon Mac (M1 or later), macOS 14 Sonoma or later, 8 GB memory",
+  "description": "WavRead measures a track locally \u2014 tempo, key, loudness, dynamics, spectrum, stereo and structure \u2014 and writes the results as readable documents. Audio never leaves your Mac.",
+  "screenshot": "https://wavread.com/img/workspace-overview.png",
+  "offers": {
+    "@type": "Offer",
+    "price": "5",
+    "priceCurrency": "USD",
+    "url": "https://wavread.com/early-build",
+    "availability": "https://schema.org/InStock",
+    "description": "Early Launch: $5 once, no subscription, including every build published while the Early Launch runs."
+  },
+  "author": {"@type": "Person", "name": "Erik Mann"},
+  "publisher": {"@type": "Organization", "name": "EZmannBuilds"}
+}
+</script>
 <link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
 <script src="js/early-build.js" type="module"></script>
@@ -40,6 +65,7 @@ stable commercial build the price becomes $49 for new buyers. Buying during
 the Early Launch includes it: the stable build is yours for the five dollars
 you already paid.</p>
 
+<h2>What five dollars buys</h2>
 <div class="cols">
   <div class="card">
     <h3>Every Early Launch build</h3>
@@ -64,7 +90,7 @@ you already paid.</p>
   <div class="card">
     <h3>On the record as early</h3>
     <p>Every purchase is dated and kept. When stable-build pricing is decided, the
-    people who paid five dollars at a time during Early Launch are the first
+    people who paid five dollars during the Early Launch are the first
     question, not an afterthought.</p>
   </div>
 </div>
@@ -89,8 +115,8 @@ the refusal unsigned apps get, where there is no Open button at all.</p>
 
 <p>WavRead is Early Launch software sold as exactly that: it measures carefully
 and says when it is estimating, it is still moving fast, and the honest reason
-the price is five dollars rather than fifty is that you are buying it early,
-one build at a time.</p>
+the price is five dollars rather than fifty is that you are buying it while it
+is still moving.</p>
 
 <h2 id="buy">Buy WavRead</h2>
 <p>Enter the email your account should live under. The current build appears on
@@ -101,7 +127,7 @@ WavRead — and your account and sign-in are created from the same email.</p>
 <form class="auth-panel" id="checkout-form" novalidate>
   <div class="form-field">
     <label for="email">Account email</label>
-    <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+    <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com" aria-describedby="checkout-status">
     <p class="field-help">Used for sign-in links, purchase receipts, and nothing else.</p>
   </div>
   <button class="btn primary" type="submit">Continue to payment — $5</button>

@@ -41,6 +41,15 @@
   /* Analytical structure */
   --wr-border: #252c34;
   --wr-border-strong: #37424d;
+  /* Form controls carry their own tokens. The field fill sits 1.03:1 from the
+     page, so the border is the only thing saying where a field is — and
+     --wr-border-strong is 1.85:1 against that fill, under the 3:1 WCAG 1.4.11
+     asks of a control's visual boundary. These clear it: 3.33:1 resting,
+     4.09:1 on hover. All three were hardcoded hex before, which is why none of
+     them had ever been measured against anything. */
+  --wr-surface-input: #0d1116;
+  --wr-border-control: #5c6874;
+  --wr-border-control-hover: #6b7681;
   --wr-grid: rgba(146, 156, 167, 0.1);
   --wr-hairline: 1px solid var(--wr-border);
 
@@ -413,14 +422,22 @@ body.beta-app { max-width: 1600px; }
 .feedback-form label { display: block; margin: 0 0 7px; color: var(--wr-text); font-size: 12.5px; font-weight: 600; }
 input,
 select,
-textarea { width: 100%; border: 1px solid var(--wr-border-strong); border-radius: var(--wr-radius-sm); background: #0d1116; color: var(--wr-text); padding: 12px 13px; font: inherit; }
+textarea { width: 100%; border: 1px solid var(--wr-border-control); border-radius: var(--wr-radius-sm); background: var(--wr-surface-input); color: var(--wr-text); padding: 12px 13px; font: inherit;
+  /* 16px exactly. iOS Safari zooms the viewport on focus for anything smaller,
+     so tapping the email field on the checkout page zoomed the page and left
+     the buyer pinching back out to reach the submit button. */
+  font-size: 16px; }
 textarea { min-height: 130px; resize: vertical; }
 input:hover,
 select:hover,
-textarea:hover { border-color: #4a5662; }
+textarea:hover { border-color: var(--wr-border-control-hover); }
+/* No outline override here. The global :focus-visible ring is 11.5:1; this
+   rule used to replace it with a 32% color-mix that composites to 2.1:1 —
+   throwing the deliberate focus token away on the only elements that most
+   need it. The accent border still marks the focused field as well. */
 input:focus,
 select:focus,
-textarea:focus { border-color: var(--wr-accent); outline: 2px solid color-mix(in srgb, var(--wr-focus) 32%, transparent); outline-offset: 1px; }
+textarea:focus { border-color: var(--wr-accent); }
 input:disabled,
 select:disabled,
 textarea:disabled { color: var(--wr-disabled); cursor: not-allowed; }

@@ -17,7 +17,7 @@ computers you own or control, for as long as you comply with this agreement.
 A purchased licence covers all updates within the same major version. A future
 major version may be a separate purchase.
 
-While WavRead is offered as a free beta, the same terms apply, and the licence
+While WavRead is offered as a paid Early Launch, the same terms apply, and the licence
 lasts for as long as that beta is made available.
 
 ## 2. What you may not do

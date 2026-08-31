@@ -15,10 +15,17 @@ function fmtDate(iso) {
   return Number.isNaN(parsed.getTime()) ? "—" : dateFormat.format(parsed);
 }
 
-function setStatus(element, message, state = "") {
+function setStatus(element, message, state = "", field = null) {
   if (!element) return;
   element.textContent = message;
   element.dataset.state = state;
+  // The status paragraph is a sibling of the form, so on its own it tells a
+  // screen-reader user nothing once they tab back to the field: they hear
+  // "Account email, edit text" and the error is gone. aria-describedby (in the
+  // HTML) points the field at this text; aria-invalid says the value is why.
+  if (field) {
+    field.setAttribute("aria-invalid", state === "error" ? "true" : "false");
+  }
 }
 
 function friendlyAuthError(error) {
@@ -91,7 +98,8 @@ async function initializeSignIn() {
     const email = new FormData(form).get("email").trim();
     if (!form.reportValidity()) return;
     submit.disabled = true;
-    setStatus(status, "Sending a secure sign-in link…");
+    const emailField = form.querySelector("#email");
+    setStatus(status, "Sending a secure sign-in link…", "", emailField);
     const redirectPath = LOCAL_HOSTS.has(location.hostname) ? "beta-dashboard.html" : "/beta-dashboard";
     const redirectTo = new URL(redirectPath, location.origin).href;
     const { error } = await supabase.auth.signInWithOtp({
@@ -100,11 +108,11 @@ async function initializeSignIn() {
     });
     submit.disabled = false;
     if (error) {
-      setStatus(status, friendlyAuthError(error), "error");
+      setStatus(status, friendlyAuthError(error), "error", emailField);
       return;
     }
     form.reset();
-    setStatus(status, "Check your email for a one-time sign-in link. It expires shortly.", "success");
+    setStatus(status, "Check your email for a one-time sign-in link. It expires shortly.", "success", emailField);
   });
 }
 
