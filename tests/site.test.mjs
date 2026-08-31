@@ -78,6 +78,13 @@ test("the purchase page sells $5 honestly and takes no card itself", async () =>
   assert.match(html, /Early Launch/i);
   assert.match(html, /every build/i, "the Early Launch includes later builds");
   assert.match(html, /\$49/, "the final release price is stated where people buy");
+  // The ownership rule is objective since Web Update 3: every Early Launch
+  // purchase includes the stable build. The old judged-helpful rule must not
+  // resurface, and the refund window matches the EULA's 30 days.
+  assert.doesNotMatch(html, /reports (helped|earned)|judged by a person/i, "no subjective entitlement rule");
+  assert.match(html, /stable (commercial )?build is (yours|included)|Early Launch\s+purchase includes it/i);
+  assert.match(html, /within 30 days/, "refund window matches the EULA");
+  assert.doesNotMatch(html, /within 14 days/);
   assert.match(html, /no subscription|nothing renews/i);
   assert.match(html, /no free version|nothing here is free|There is\s+no free version/i, "the absence of a free tier is explicit");
   assert.doesNotMatch(html, /covers the whole beta|every build while the beta runs/i, "no leftover all-access promise");
