@@ -395,6 +395,10 @@ verify_jwt = false
 verify_jwt = false
 [functions.download-build]
 verify_jwt = true
+# The only caller is a signed-in dashboard session; there is no app-side
+# path into it, so the JWT is the whole authentication.
+[functions.report-media]
+verify_jwt = true
 
 [edge_runtime]
 enabled = true

@@ -623,3 +623,37 @@ test("the old price and the old framing do not come back", async () => {
     assert.doesNotMatch(auth, pattern, `the dashboard still mentions ${why}`);
   }
 });
+
+test("attachments are disclosed, bounded, and never written by the browser", async () => {
+  // Accepting files is a change to what leaves someone's machine, so the
+  // promise on the front of the site and the page that documents it have to
+  // agree with the code that does the accepting.
+  const privacy = await read("docs/privacy.html");
+  assert.match(privacy, /Attachments on website feedback/i, "attachments are disclosed");
+  assert.match(privacy, /Audio cannot be attached/i, "and the audio exclusion is explicit");
+  assert.match(await read("docs/index.html"), /Your audio stays on your Mac/,
+    "the claim the exclusion protects still stands");
+
+  const fn = await read("supabase/functions/report-media/index.ts");
+  // The bucket and the column enforce these too; the point is that all three
+  // agree, so a limit cannot be relaxed in one place alone.
+  assert.match(fn, /MAX_PER_REPORT = 2/, "two files per report");
+  assert.match(fn, /MAX_BYTES = 25 \* 1024 \* 1024/, "25 MB each");
+  assert.doesNotMatch(fn, /audio\//, "no audio type is accepted");
+  assert.match(fn, /crypto\.randomUUID\(\)/,
+    "the object path is generated, never taken from the request");
+  assert.match(fn, /source !== "web"/,
+    "reports from the desktop app cannot take attachments");
+
+  const migration = await read("supabase/migrations/20260831130000_report_attachments.sql");
+  assert.match(migration, /file_size_limit/, "the bucket sets its own size limit");
+  assert.doesNotMatch(migration, /'audio\//, "the bucket refuses audio types");
+  assert.match(migration, /enable row level security/i);
+  assert.match(migration, /revoke all on public\.feedback_attachments from anon/);
+  assert.doesNotMatch(migration, /for insert to authenticated/,
+    "the browser cannot write attachment rows — the caps would not be caps");
+
+  const cfg = await read("supabase/config.toml");
+  assert.match(cfg, /\[functions\.report-media\]\n(#[^\n]*\n)*verify_jwt = true/,
+    "report-media requires a signed-in session");
+});

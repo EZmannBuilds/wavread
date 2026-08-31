@@ -508,6 +508,58 @@ async function initializeDashboard() {
     renderKnownIssues(issues || []);
   }
 
+
+/* Attachments are uploaded after the report row exists, because the row is
+   what an attachment belongs to and what the size and count limits are counted
+   against. The report is saved either way: a picture that would not upload is
+   worth saying out loud, and worth nothing if it takes the words with it. */
+async function attachToReport(feedbackId, files, statusEl) {
+  const base = betaConfig.url.replace(/\/$/, "");
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData?.session?.access_token;
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+    "apikey": betaConfig.publishableKey
+  };
+  const failures = [];
+  for (const file of files) {
+    try {
+      const ask = await fetch(`${base}/functions/v1/report-media`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          feedback_id: feedbackId,
+          mime_type: file.type,
+          size_bytes: file.size
+        })
+      });
+      const prepared = await ask.json().catch(() => ({}));
+      if (!ask.ok || !prepared.token) {
+        // The function explains refusals in words — too big, wrong type, too
+        // many — so show its sentence rather than inventing one.
+        failures.push(prepared.error || `${file.name} could not be attached.`);
+        continue;
+      }
+      const put = await supabase.storage
+        .from("report-media")
+        .uploadToSignedUrl(prepared.path, prepared.token, file);
+      if (put.error) {
+        failures.push(`${file.name} did not finish uploading.`);
+        continue;
+      }
+      await fetch(`${base}/functions/v1/report-media`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ attachment_id: prepared.attachment_id })
+      });
+    } catch {
+      failures.push(`${file.name} did not finish uploading.`);
+    }
+  }
+  return failures;
+}
+
   const feedbackForm = document.querySelector("#feedback-form");
   const feedbackStatus = document.querySelector("#feedback-status");
   feedbackForm.addEventListener("submit", async (event) => {
@@ -527,16 +579,33 @@ async function initializeDashboard() {
       operating_system: fields.get("operating_system").trim() || null,
       follow_up_allowed: fields.get("follow_up_allowed") === "on"
     };
-    const { error } = await supabase.from("beta_feedback").insert(payload);
-    submit.disabled = false;
+    const chosen = [...(document.querySelector("#feedback-media")?.files || [])];
+    const { data: saved, error } = await supabase
+      .from("beta_feedback").insert(payload).select("id").single();
     if (error) {
+      submit.disabled = false;
       setStatus(feedbackStatus, "Your feedback could not be sent. Check your connection and try again.", "error");
       return;
     }
+    let failures = [];
+    if (chosen.length) {
+      setStatus(feedbackStatus, chosen.length === 1
+        ? "Sent. Uploading your attachment…"
+        : `Sent. Uploading ${chosen.length} attachments…`);
+      failures = await attachToReport(saved.id, chosen, feedbackStatus);
+    }
+    submit.disabled = false;
     feedbackForm.reset();
     document.querySelector("#feedback-app-version").value = CURRENT_VERSION;
     document.querySelector("#feedback-os").value = navigator.userAgentData?.platform || navigator.platform || "Not provided";
-    setStatus(feedbackStatus, "Feedback received. Thank you for helping improve WavRead.", "success");
+    if (failures.length) {
+      // The report is saved. Say which half worked, so nobody retypes it.
+      setStatus(feedbackStatus,
+        `Your feedback was received, but ${failures.join(" ")} The report is saved either way.`,
+        "error");
+    } else {
+      setStatus(feedbackStatus, "Feedback received. Thank you for helping improve WavRead.", "success");
+    }
     loadReports();
   });
 
