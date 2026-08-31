@@ -5,7 +5,7 @@
 <title>Dashboard — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0B0D10">
-<meta name="description" content="Downloads, Early Launch ownership, linked devices, reports, release notes, known issues, and feedback for WavRead accounts.">
+<meta name="description" content="Downloads, ownership, linked devices, reports, release notes, known issues, and feedback for WavRead accounts.">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="stylesheet" href="site.css">
@@ -20,7 +20,7 @@
   <div class="state-panel loading-state" id="loading-state" role="status">Verifying your account…</div>
   <section class="state-panel" id="setup-state" hidden><h2>Account area setup required</h2><p>The secure backend is not connected in this preview. Follow the project setup guide, then refresh this page.</p><a class="btn" href="/">Return to WavRead</a></section>
   <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p id="session-message" role="alert">Sign in to open your dashboard.</p><a class="btn primary" href="signin.html">Go to sign in</a></section>
-  <section class="state-panel" id="unauthorized-state" hidden><h2>No WavRead account found</h2><p>You are signed in, but this email has no active WavRead account. Access is controlled by the account registry, not by this page. If you just bought the Early Launch, the recording step can take a minute — sign in again shortly.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>No WavRead account found</h2><p>You are signed in, but this email has no active WavRead account. Access is controlled by the account registry, not by this page. If you just bought WavRead, the recording step can take a minute — sign in again shortly.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
 
   <div id="dashboard-content" hidden>
     <header class="dashboard-head">
@@ -28,20 +28,20 @@
     </header>
 
     <div class="dashboard-grid" role="group" aria-label="Account overview">
-      <article class="dashboard-card"><span class="card-kicker">Your standing</span><h2 id="ownership-title">Checking…</h2><p id="ownership-detail">Reading your purchases.</p><a id="ownership-action" href="early-build.html" hidden>Get WavRead — $5 →</a></article>
+      <article class="dashboard-card"><span class="card-kicker">Your standing</span><h2 id="ownership-title">Checking…</h2><p id="ownership-detail">Reading your purchases.</p><a id="ownership-action" href="buy.html" hidden>Get WavRead — $50 →</a></article>
       <article class="dashboard-card"><span class="card-kicker">Current build</span><h2>WavRead 1.4.46</h2><p>Published August 30, 2026 · Apple Silicon · macOS 14+. Download it below and check its SHA-256 before installing.</p><a href="#builds-title">Go to your builds →</a></article>
     </div>
 
     <section class="dashboard-section" aria-labelledby="builds-title">
       <span class="card-kicker">Downloads</span><h2 id="builds-title">Your builds</h2>
-      <p>Every Early Launch build is included in what you paid, and downloaded
+      <p>Every build is included in what you paid, and downloaded
       from here rather than by the app: the in-app updater checks public
       release listings and cannot reach owner-only downloads. Each build lists
       the SHA-256 to verify against.</p>
       <p id="builds-status" class="form-status" role="status" aria-live="polite"></p>
       <div id="builds-list"></div>
       <div id="builds-empty" class="empty-state" hidden>No build is published right now. The next one lands here as soon as it ships.</div>
-      <div id="builds-locked" class="note caution" hidden><p><strong>You do not own WavRead yet.</strong> Five dollars covers every build of the Early Launch. <a href="early-build.html">Get WavRead — $5</a></p></div>
+      <div id="builds-locked" class="note caution" hidden><p><strong>You do not own WavRead yet.</strong> One payment covers every build. <a href="buy.html">Get WavRead — $50</a></p></div>
     </section>
 
     <div class="dashboard-columns">

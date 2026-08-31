@@ -1,4 +1,4 @@
-// create-checkout — starts a $5 Early Build purchase.
+// create-checkout — starts a purchase at the catalog price.
 //
 // The browser sends an email address; this function asks Stripe for a hosted
 // Checkout session and returns its URL. No card data ever touches WavRead:
@@ -98,7 +98,7 @@ Deno.serve(async (req: Request) => {
     "success_url",
     `${siteUrl}/purchase-complete?session_id={CHECKOUT_SESSION_ID}`,
   );
-  params.set("cancel_url", `${siteUrl}/early-build`);
+  params.set("cancel_url", `${siteUrl}/buy`);
 
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",

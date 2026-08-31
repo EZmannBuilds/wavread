@@ -2,7 +2,7 @@
 # Account surfaces are not for indexes: they render nothing useful signed out.
 User-agent: *
 Disallow: /signin
-Disallow: /beta-dashboard
+Disallow: /dashboard
 Disallow: /purchase-complete
 Disallow: /api/
 

@@ -164,7 +164,12 @@ site_url = "http://127.0.0.1:4173"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://127.0.0.1:4173/beta-dashboard.html", "https://wavread.vercel.app/beta-dashboard"]
+# Both names are listed on purpose. Sign-in links already in inboxes carry
+# /beta-dashboard, and Supabase honours only exact matches — dropping the
+# old entry would break every unexpired link. Remove it once they have
+# aged out. The same pair must be added in the hosted project; this file
+# is local-only and is deliberately never pushed.
+additional_redirect_urls = ["http://127.0.0.1:4173/dashboard.html", "https://wavread.vercel.app/dashboard", "http://127.0.0.1:4173/beta-dashboard.html", "https://wavread.vercel.app/beta-dashboard"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.

@@ -21,11 +21,11 @@ const CURRENT_VERSION = (await read("docs/js/beta-auth.js"))
 test("the site agrees with itself about which build is current", async () => {
   assert.ok(CURRENT_VERSION, "beta-auth.js must declare CURRENT_VERSION");
   for (const [file, pattern] of [
-    ["docs/index.html", /Early Launch · (\d+\.\d+\.\d+)/],
+    ["docs/index.html", /Current release · (\d+\.\d+\.\d+)/],
     ["docs/index.html", /<span>Current release<\/span> (\d+\.\d+\.\d+) ·/],
     ["docs/index.html", /Buy WavRead (\d+\.\d+\.\d+) <span>/],
-    ["docs/beta-dashboard.html", /<h2>WavRead (\d+\.\d+\.\d+)<\/h2>/],
-    ["docs/beta-dashboard.html", /What changed in (\d+\.\d+\.\d+)</],
+    ["docs/dashboard.html", /<h2>WavRead (\d+\.\d+\.\d+)<\/h2>/],
+    ["docs/dashboard.html", /What changed in (\d+\.\d+\.\d+)</],
     ["docs/install.html", /WavRead-(\d+\.\d+\.\d+)\.dmg/],
     ["docs/install.html", /Written against WavRead (\d+\.\d+\.\d+)/],
     ["docs/privacy.html", /Last checked against WavRead (\d+\.\d+\.\d+)/],
@@ -40,8 +40,8 @@ test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
   assert.match(html, /Your audio stays on your Mac/);
   assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /\$5 once|Five dollars now/, "one payment covers the Early Launch");
-  assert.match(html, /early-build\.html/);
+  assert.match(html, /\$50 once|Fifty dollars, once/, "one payment, and it is named");
+  assert.match(html, /buy\.html/);
   // A paid beta must not still advertise a free download of itself.
   assert.doesNotMatch(html, /free beta|download free/i);
   assert.doesNotMatch(html, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "no ungated DMG link");
@@ -58,33 +58,34 @@ test("public homepage tells the real release story", async () => {
 test("search engines get a truthful, bounded map of the site", async () => {
   const robots = await read("docs/robots.txt");
   assert.ok(robots.includes("Sitemap: https://wavread.com/sitemap.xml"));
-  for (const hidden of ["/signin", "/beta-dashboard", "/purchase-complete", "/api/"]) {
+  for (const hidden of ["/signin", "/dashboard", "/purchase-complete", "/api/"]) {
     assert.ok(robots.includes(`Disallow: ${hidden}`), `${hidden} stays out of indexes`);
   }
   const sitemap = await read("docs/sitemap.xml");
-  for (const pub of ["/", "/how-it-works", "/capture", "/documents", "/requirements", "/early-build", "/faq"]) {
+  for (const pub of ["/", "/how-it-works", "/capture", "/documents", "/requirements", "/buy", "/faq"]) {
     assert.ok(sitemap.includes(`<loc>https://wavread.com${pub}</loc>`), `${pub} is sitemapped`);
   }
-  for (const hidden of ["signin", "beta-dashboard", "purchase-complete"]) {
+  for (const hidden of ["signin", "dashboard", "purchase-complete"]) {
     assert.ok(!sitemap.includes(hidden), "account routes are not sitemapped");
   }
   const home = await read("docs/index.html");
   assert.ok(home.includes("application/ld+json"));
   assert.ok(home.includes('"softwareVersion": "1.4.46"'), "structured data names the real version");
-  assert.ok(home.includes('"price": "5"'));
+  assert.ok(home.includes('"price": "50"'), "structured data names the real price");
 });
 
-test("the purchase page sells $5 honestly and takes no card itself", async () => {
-  const html = await read("docs/early-build.html");
-  assert.match(html, /\$5/);
-  assert.match(html, /Early Launch/i);
-  assert.match(html, /every build/i, "the Early Launch includes later builds");
-  assert.match(html, /\$49/, "the final release price is stated where people buy");
-  // The ownership rule is objective since Web Update 3: every Early Launch
-  // purchase includes the stable build. The old judged-helpful rule must not
-  // resurface, and the refund window matches the EULA's 30 days.
+test("the purchase page sells $50 honestly and takes no card itself", async () => {
+  const html = await read("docs/buy.html");
+  assert.match(html, /\$50/);
+  assert.match(html, /every 1\.x update/i, "later builds are included, and bounded to the major version the licence names");
+  // The buy form is the first thing under the lede: an ad lands here, and the
+  // page used to put three thousand characters of prose ahead of the field.
+  assert.ok(html.indexOf('id="checkout-form"') < html.indexOf("<h2>What fifty dollars buys"),
+    "the checkout form comes before the explanatory sections");
+  // There is no second price and no promised future build to be entitled to:
+  // the build is the product. The old judged-helpful rule must not resurface.
   assert.doesNotMatch(html, /reports (helped|earned)|judged by a person/i, "no subjective entitlement rule");
-  assert.match(html, /stable (commercial )?build is (yours|included)|Early Launch\s+purchase includes it/i);
+  assert.doesNotMatch(html, /stable commercial build/i, "no promise of a second, dearer build");
   assert.match(html, /within 30 days/, "refund window matches the EULA");
   assert.doesNotMatch(html, /within 14 days/);
   assert.match(html, /no subscription|nothing renews/i);
@@ -128,7 +129,7 @@ test("all local links and assets resolve", async () => {
 });
 
 test("public pages share one destination-based primary navigation", async () => {
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "agent.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "agent.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
   // Six buyer destinations. Install, Privacy and FAQ live in the footer of
   // every page instead of competing in the header (Update 1.4.47). Agent skill
   // joined the header rather than the footer because it is a reason to buy —
@@ -139,7 +140,7 @@ test("public pages share one destination-based primary navigation", async () => 
     ["documents.html", "Reports"],
     ["agent.html", "Agent skill"],
     ["requirements.html", "Requirements"],
-    ["early-build.html", "Get WavRead"]
+    ["buy.html", "Get WavRead"]
   ];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
@@ -153,7 +154,7 @@ test("public pages share one destination-based primary navigation", async () => 
 test("tester routes fail closed and never make users testers in the browser", async () => {
   const auth = await read("docs/js/beta-auth.js");
   const signin = await read("docs/signin.html");
-  const dashboard = await read("docs/beta-dashboard.html");
+  const dashboard = await read("docs/dashboard.html");
   assert.match(auth, /shouldCreateUser:\s*false/);
   assert.match(auth, /auth\.getUser\(\)/);
   assert.match(auth, /from\("accounts"\)/);
@@ -161,14 +162,14 @@ test("tester routes fail closed and never make users testers in the browser", as
   assert.match(auth, /tester_id: currentTesterId/);
   assert.match(auth, /status !== "active"/);
   assert.doesNotMatch(auth, /service[_-]?role/i);
-  assert.match(signin, /owners and pre-registered beta testers/i);
+  assert.match(signin, /People who bought WavRead can sign in/i);
   assert.match(dashboard, /id="unauthorized-state"/);
   assert.match(dashboard, /autocomplete|noindex/);
 });
 
 test("ownership and reports reach the browser read-only", async () => {
   const auth = await read("docs/js/beta-auth.js");
-  const dashboard = await read("docs/beta-dashboard.html");
+  const dashboard = await read("docs/dashboard.html");
   assert.match(auth, /from\("entitlements"\)/);
   assert.match(auth, /from\("purchases"\)/);
   assert.match(auth, /from\("builds"\)/);
@@ -177,7 +178,7 @@ test("ownership and reports reach the browser read-only", async () => {
   assert.match(auth, /from\("link_codes"\)[\s\S]{0,80}?\.insert\(\{ tester_id/, "a link code is requested for oneself; the server generates the code");
   assert.match(auth, /functions\/v1\/download-build/);
   assert.match(dashboard, /link-code-button/);
-  assert.match(dashboard, /early-build\.html/);
+  assert.match(dashboard, /buy\.html/);
   assert.doesNotMatch(dashboard, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "the dashboard serves builds through signed URLs, not public links");
 });
 
@@ -264,7 +265,7 @@ test("the install guide prepares people for the dialog they will actually see", 
   assert.match(html, /cannot check it for malicious\s+software/i, "shows the failure case for contrast");
   assert.match(html, /shasum -a 256/, "tells people how to verify what they downloaded");
   assert.match(html, /mailto:support@wavread\.com/);
-  for (const file of ["index.html", "faq.html", "requirements.html", "early-build.html"]) {
+  for (const file of ["index.html", "faq.html", "requirements.html", "buy.html"]) {
     const page = await read(join("docs", file));
     assert.doesNotMatch(page, /no security warning|without a warning|opens with no\s+security/i,
       `${file} still promises a launch with no dialog at all`);
@@ -348,7 +349,7 @@ test("edge functions keep the money and token boundaries", async () => {
 test("shared links carry a canonical URL and a real social card", async () => {
   // www redirects to the bare domain, so a canonical naming www would point
   // every shared link at a redirect.
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html"];
+  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
@@ -365,7 +366,7 @@ test("shared links carry a canonical URL and a real social card", async () => {
 });
 
 test("the archive, the platform, and the name of what comes next", async () => {
-  const early = await read("docs/early-build.html");
+  const early = await read("docs/buy.html");
   const requirements = await read("docs/requirements.html");
   const faq = await read("docs/faq.html");
   const index = await read("docs/index.html");
@@ -375,7 +376,7 @@ test("the archive, the platform, and the name of what comes next", async () => {
 
   // Windows is stated in exactly two places, in exactly these words. A port
   // that has not started gets a sentence that promises nothing but a sentence.
-  assert.equal(flat(early).split(WINDOWS).length - 1, 1, "early-build states Windows once");
+  assert.equal(flat(early).split(WINDOWS).length - 1, 1, "the buy page states Windows once");
   assert.equal(flat(requirements).split(WINDOWS).length - 1, 1, "requirements states Windows once");
   for (const [name, html] of [["index", index], ["faq", faq]]) {
     assert.doesNotMatch(html, /Windows version coming soon/, `${name} must not repeat the Windows line`);
@@ -387,13 +388,16 @@ test("the archive, the platform, and the name of what comes next", async () => {
   // "the 1.0 release" through the rename precisely because this loop only
   // read HTML.
   const auth = await read("docs/js/beta-auth.js");
-  for (const [name, text] of [["early-build", early], ["faq", faq],
+  for (const [name, text] of [["buy", early], ["faq", faq],
                               ["index", index], ["beta-auth.js", auth]]) {
     assert.doesNotMatch(text, /final 1\.0|the 1\.0 release|1\.0 pricing|\$49 1\.0|1\.0 included/i,
       `${name} must not name 1.0 as a future release`);
     }
-  assert.match(early, /stable commercial build/, "the next paid release is named");
-  assert.match(early, /\$49/, "and still priced");
+  // There is no next paid release to name. WavRead is one build at one price,
+  // and a page promising a dearer future version is the framing this release
+  // removed — so the assertion is now that it stays gone.
+  assert.doesNotMatch(early, /stable commercial build/i, "no second, dearer build is promised");
+  assert.doesNotMatch(early, /\$49/, "and no second price appears");
 
   // The old beta downloads are NOT public: every release carrying a DMG was
   // unpublished on 2026-08-28, and the GitHub API reports zero public
@@ -401,9 +405,10 @@ test("the archive, the platform, and the name of what comes next", async () => {
   // public" — copy written ahead of a republication that never happened, on
   // a site whose tests exist to keep the copy true. The pages now say what
   // occurred: the downloads were withdrawn.
-  const WITHDRAWN = /downloads were withdrawn/;
-  assert.match(early, WITHDRAWN, "the purchase page says the old builds went");
-  assert.match(faq, WITHDRAWN, "and so does the FAQ");
+  // The FAQ is where someone asks what happened to the old downloads, so that
+  // is where the answer lives. The buy page no longer tells the product's
+  // history at all — it sells the build that exists.
+  assert.match(faq, /downloads were withdrawn/, "the FAQ says the old builds went");
   assert.doesNotMatch(early, /publicly available on\s+GitHub|as an archive/i,
     "no page claims an archive that is not there");
   assert.doesNotMatch(faq, /not hidden|as an archive/i,
@@ -488,7 +493,7 @@ test("the ownership migration keeps writes server-side and identity durable", as
 });
 
 test("release channels and production staging are explicit", async () => {
-  const dashboard = await read("docs/beta-dashboard.html");
+  const dashboard = await read("docs/dashboard.html");
   const backend = await read("BETA_BACKEND.md");
   const deploy = await read("deploy.sh");
   assert.match(dashboard, /Current build/);
@@ -573,9 +578,48 @@ test("the approved website mark is vector-only and used consistently", async () 
   assert.match(mark, /@keyframes trace-acquire/);
   assert.match(mark, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(mark, /infinite/);
-  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "early-build.html", "privacy.html", "faq.html", "signin.html", "beta-dashboard.html", "purchase-complete.html", "EULA.html"];
+  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html", "signin.html", "dashboard.html", "purchase-complete.html", "EULA.html"];
   for (const file of brandedPages) {
     const html = await read(join("docs", file));
     assert.match(html, /class="brand-mark" src="img\/wavread-mark\.svg"/, `${file} needs the approved vector wordmark`);
+  }
+});
+
+test("the old price and the old framing do not come back", async () => {
+  // Visible text only. Class names, script sources and element ids
+  // legitimately contain "beta" — beta-auth.js, .beta-shell, #beta-title — and
+  // renaming those buys nothing a reader can see. What must not survive is the
+  // words on the page.
+  const visible = (html) => html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&[a-z]+;/gi, " ");
+
+  const publicPages = ["index.html", "how-it-works.html", "capture.html",
+                       "documents.html", "agent.html", "requirements.html",
+                       "install.html", "buy.html", "privacy.html", "faq.html",
+                       "404.html", "EULA.html", "signin.html",
+                       "purchase-complete.html", "dashboard.html"];
+  for (const file of publicPages) {
+    const text = visible(await read(join("docs", file)));
+    // \b after the 5 is what tells $5 from $50: there is no word boundary
+    // between two digits, so the new price cannot trip its own guard.
+    assert.doesNotMatch(text, /\$5\b/, `${file} still shows the old $5 price`);
+    assert.doesNotMatch(text, /\$49\b/, `${file} still promises a $49 build`);
+    assert.doesNotMatch(text, /five dollars/i, `${file} still says five dollars`);
+    assert.doesNotMatch(text, /Early Launch/i, `${file} still says Early Launch`);
+    assert.doesNotMatch(text, /\bbeta\b/i, `${file} still calls this a beta`);
+    assert.doesNotMatch(text, /\bpre-?release\b/i, `${file} still says pre-release`);
+  }
+
+  // The dashboard's live strings are copy too — they render for an owner and
+  // no HTML file contains them.
+  const auth = visible(await read("docs/js/beta-auth.js"));
+  for (const [pattern, why] of [[/\$49\b/, "a $49 build"],
+                                [/Early Launch/i, "Early Launch"],
+                                [/five dollars/i, "five dollars"],
+                                [/stable commercial build/i, "a second build"]]) {
+    assert.doesNotMatch(auth, pattern, `the dashboard still mentions ${why}`);
   }
 });

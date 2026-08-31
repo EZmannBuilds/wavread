@@ -34,6 +34,16 @@
       "source": "/eula",
       "destination": "/EULA",
       "permanent": true
+    },
+    {
+      "source": "/early-build",
+      "destination": "/buy",
+      "permanent": false
+    },
+    {
+      "source": "/beta-dashboard",
+      "destination": "/dashboard",
+      "permanent": false
     }
   ]
 }

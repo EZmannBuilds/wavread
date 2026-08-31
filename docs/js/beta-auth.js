@@ -89,7 +89,7 @@ async function initializeSignIn() {
 
   const { data } = await supabase.auth.getSession();
   if (data.session) {
-    location.replace("beta-dashboard.html");
+    location.replace("dashboard.html");
     return;
   }
 
@@ -100,7 +100,7 @@ async function initializeSignIn() {
     submit.disabled = true;
     const emailField = form.querySelector("#email");
     setStatus(status, "Sending a secure sign-in link…", "", emailField);
-    const redirectPath = LOCAL_HOSTS.has(location.hostname) ? "beta-dashboard.html" : "/beta-dashboard";
+    const redirectPath = LOCAL_HOSTS.has(location.hostname) ? "dashboard.html" : "/dashboard";
     const redirectTo = new URL(redirectPath, location.origin).href;
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -206,11 +206,11 @@ async function loadOwnership() {
   if (account.data?.free_updates) {
     title.textContent = "Owned";
     detail.textContent = account.data.free_updates_note
-      || "Your reports earned it: the $49 stable commercial build stays yours for what you already paid.";
+      || "Every build stays yours, for what you already paid.";
     action.hidden = true;
   } else if (everything) {
     title.textContent = "Owned";
-    detail.textContent = `Every Early Launch build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}. The stable commercial build will be $49 unless your reports earn it.`;
+    detail.textContent = `Every build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}.`;
     action.hidden = true;
   } else if (owned.size) {
     title.textContent = owned.size === 1 ? "1 build owned" : `${owned.size} builds owned`;
@@ -218,7 +218,7 @@ async function loadOwnership() {
     action.hidden = false;
   } else {
     title.textContent = "Not owned yet";
-    detail.textContent = "Five dollars covers every build of the Early Launch.";
+    detail.textContent = "One payment covers every build.";
     action.hidden = false;
   }
   return { owned, everything };
@@ -303,8 +303,16 @@ async function loadBuilds(standing) {
       action.textContent = "Download";
       action.addEventListener("click", () => downloadBuild(build, status));
     } else {
-      action.textContent = `Buy — $${((build.price_cents ?? 500) / 100).toFixed(2)}`;
-      action.addEventListener("click", () => buyBuild(build, status));
+      // No fallback price. A hardcoded default outlived the price it was
+      // copied from once already; if the catalog did not give us a number,
+      // the button says nothing rather than a stale one.
+      if (build.price_cents > 0) {
+        action.textContent = `Buy — $${(build.price_cents / 100).toFixed(2)}`;
+        action.addEventListener("click", () => buyBuild(build, status));
+      } else {
+        action.textContent = "Not for sale";
+        action.disabled = true;
+      }
     }
     const state = document.createElement("span");
     state.className = "table-status";

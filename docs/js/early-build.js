@@ -1,4 +1,4 @@
-// Early Launch checkout: email in, Stripe's hosted payment page out.
+// Checkout: email in, Stripe's hosted payment page out.
 //
 // The browser talks only to WavRead's own configuration endpoint and the
 // create-checkout Edge Function. No Stripe script runs on this page and no
