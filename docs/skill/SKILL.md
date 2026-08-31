@@ -41,6 +41,19 @@ name. They read the same way.
 
 ---
 
+## Two reference files travel with this skill
+
+Everything you are *forbidden* to do, and everything that decides what a document
+means, is in this file. Load a reference when you reach the work it covers.
+
+| File | Read it when |
+| --- | --- |
+| `references/reading-sections.md` | You are about to quote or interpret a specific section of a Track Document closely — the full per-section detail behind §9 |
+| `references/operating-wavread.md` | Someone asks how to *run* WavRead: analysing, stems, DAW capture, versions, or reporting a problem with the app |
+
+If you do not have them, say so once and work from this file. Every rule and every
+prohibition is here; the references add depth, not permission.
+
 ## 1. Read in this order
 
 Do not read top to bottom. The document is written for lookup, not for narrative.
@@ -327,206 +340,38 @@ list of findings that should not have existed is still the wrong reply.
 
 ## 9. Reading each section, and the trap in it
 
-### Overview
+**Full detail: `references/reading-sections.md`.** Read it before quoting any section
+of a Track Document closely. Below is what you must carry without looking anything up.
 
-- **Tempo.** WavRead reports one figure from beat tracking. It has repeatedly
-  reported the double-time reading on tracks felt at half — 191 BPM for a track felt
-  at ~96. **If the reported tempo is above roughly 150 BPM, offer the half-time
-  reading as an equally valid hearing** and let the user say which is right.
-- **Key.** An estimate with a confidence figure. The most common documented error is
-  **naming the relative major instead of the minor** (or the reverse) — the chord
-  detector gets every chord right and only the key *label* is wrong. If the chord
-  list clusters around a minor tonic while the key line says its relative major,
-  say so and trust the chords.
-- **Key confidence.** Low confidence often means genuine harmonic movement, not
-  measurement failure. Confidence near 0.5 with both readings kept means the chroma
-  is ambiguous. Read the chord table by time instead: if the early sections are
-  diatonic to one key and a later stretch to another, **the track modulates**. That
-  is information, and no rule in the app reports it.
+| Section | The trap, in one line |
+| --- | --- |
+| **Tempo** | Above ~150 BPM, offer the half-time reading as equally valid. It has reported 191 for a track felt at 96 |
+| **Key** | The classic error is naming the relative major instead of the minor. **When key and chords disagree, trust the chords** |
+| **Key confidence** | Low confidence often means the track modulates, not that measurement failed |
+| **Spectral balance** | Shares are energy, not loudness, and always total 100%. **Never call a track dark from a low air share** — cross it against the centroid |
+| **Stereo** | Negative correlation is a defect only where mono playback matters. Say which you mean |
+| **Structure** | Boundaries are estimates. Never call section 3 "the chorus" unless the user does |
+| **"Level"** | Means different things in the section, stem and vocal-parts tables. Never mix two in one sentence |
+| **Stems** | The names are the user's filenames and mean nothing. A name that disagrees with the dominant band is a question, not a verdict |
+| **Melody** | The per-note figure is **amplitude, not reliability**. Octave jitter is an artefact. A "vocal" melody may be an instrument |
+| **Document title** | **Not the song title.** Only the HTML export carries identity; take it from the requester or record it as missing |
 
-### Loudness and the delivery contract
+### The lyric rules, which are not in a reference because they are not optional
 
-The delivery contract is WavRead's most reliable output. It carries integrated LUFS
-(ITU-R BS.1770), LRA (EBU Tech 3342), sample peak, true peak (oversampled
-**estimate** — labelled as such in the document), PLR, crest factor, per-channel
-peaks, samples at full scale, DC offset, and the file's real sample rate, channel
-count and encoding.
-
-- **Integrated LUFS is not a score.** Streaming normalisation to roughly −14 LUFS is
-  context the document prints; it is not a target the user is failing to hit.
-- **Crest factor and PLR describe dynamics, not quality.** A high crest factor means
-  peaks stand well above the average — that is "dynamic", not "good" or "unfinished".
-- **True peak is an estimate.** Treat a marginal over as a flag to check, not a fact.
-- **Read per-channel peaks.** A stereo file whose channels differ by several dB is
-  worth mentioning; a mono fold-down can hide a channel peak entirely.
-
-### Spectral balance
-
-Seven bands as **percentage share of total energy** — sub (20–60 Hz), bass (60–150),
-low-mid (150–500), mid (500–2 k), high-mid (2 k–6 k), high (6 k–12 k), air (12 k–20 k)
-— plus a 1/3-octave series and an average spectral centroid. From 1.4.46 the seven
-bands are also drawn over time.
-
-- **These are energy shares, not perceived loudness**, and energy scales with
-  amplitude squared. A large low end pushes every other band's share down. A track
-  can hold the brightest centroid in a group while showing under 1% in the air band,
-  because low frequencies carry most of the energy in almost all music. **Never say a
-  track is dark because its air band reads 0.2%.** Cross the band shares against the
-  centroid before making any brightness claim.
-- **A mid share that falls between two takes usually means the low end grew**, not
-  that the mids emptied. WavRead prints this caveat itself, and its own rule engine
-  still ignores it.
-- Shares always total 100%. A band cannot rise without another falling, so describe
-  *balance between bands*, never an absolute amount.
-
-### Stereo
-
-Width, side/mid ratio, and L/R correlation, plus mono-risk and (in later versions)
-width and mono-compatibility timelines.
-
-- **Low or negative correlation is not automatically a defect.** It is a defect when
-  mono playback matters. Say which you mean. Around zero means merely wide; clearly
-  negative means something is actively cancelling. Different problems, different fixes.
-- Cross a negative correlation against the **structure table and the arrangement**:
-  a correlation dip that lines up with one wide pad entering is a different problem
-  from one that runs the whole track.
-
-### Structure
-
-Sections detected by timbre and harmony change, each with time bounds, RMS level,
-brightness, activity, and a plain-language character.
-
-- **Boundaries are estimates.** They frequently do not correspond to the song's own
-  verse/chorus map, and WavRead does not claim they do. Never call section 3 "the
-  chorus" unless the user says it is.
-- **"Level" means different things in different tables.** The section table's level is
-  RMS averaged over the section. The stem table's level is the average while that part
-  is playing. The vocal-parts table reports a separate figure computed by the lyrics
-  stage — the same stem will show two values. **Compare within one table; never mix
-  them in a sentence**, and say which one you are quoting, every time.
-
-### Stems
-
-WavRead measures each supplied stem individually: level, level relative to the
-loudest stem, peak, true peak, clipping, crest factor, DC offset, waveform asymmetry,
-percentage of the track it is active, first entry time, activity rate, dominant band,
-and a level curve over the take.
-
-- **Stems come from the user.** From version 1.4.45 WavRead no longer separates them
-  itself and ships no separation model. Stems arrive either dropped in by the user or
-  written by an external tool they configured in Settings. If a stem table exists, the
-  user supplied those files, so **stem names are the user's filenames** and carry no
-  guaranteed meaning. The Settings toggle for this stage is still labelled "Stem
-  separation" — that is a stale label, not a returning feature.
-- **The mix measured above a stem table is the summed stems** — see §4.
-- **"absent" in a level column means the stem measured as never active**, and its
-  peak column may still show a value. That combination usually means very quiet or
-  effectively silent content — worth flagging as "check this file", not asserting as
-  a mixing decision.
-- **Do not build a lead-versus-double hierarchy out of filenames.** Two stems with
-  similar names and similar dominant bands may be a lead and its doubler, or two
-  unrelated parts. Ask.
-- **A stem's name and its dominant band often disagree** — a part named for a bass
-  instrument reading as mid, a part named as percussion reading as high-mid. Report
-  the measurement and note the mismatch; do not silently believe the name.
-- **The vocal-name heuristic reads job titles as voices.** Words like *lead*, *hook*
-  and *stack* describe a job an instrument can also have, so a part named for one of
-  them may be flagged "named like a vocal, no words recovered" while being an
-  instrument. WavRead offers this as a claim rather than a fact — do not repeat it as
-  a finding.
-- **Filename hygiene: bounce to a new filename every time.** Filenames get reused —
-  `Dog_V4.wav` twice, with different mixes inside — and a reused name makes the
-  version history unreadable for both the user and you. (WavRead itself is safe here:
-  it digests file *contents*, not names, so a re-analysis cannot return a stale stem
-  table. Older versions could not make that promise.)
-
-### Chords
-
-Estimated progression with per-chord timings, beat counts, and a mean confidence.
-
-- Chord detection has been notably reliable in practice, including where the key
-  label was wrong. When chords and key disagree, weight the chords.
-- A "main chords by time spent" summary is a different claim from the timeline. Quote
-  whichever one supports your point, and name which.
-
-### Melody
-
-Transcribed notes for the lead part, with timings and amplitudes, and from 1.4.46
-intonation in cents for held notes.
-
-- **The transcriber's per-note figure is amplitude, not reliability.** In 1.4.46 the
-  melody "confidence" column was renamed **amplitude**, because that is what it always
-  was. In older exports, do not read that column as reliability.
-- **Intonation figures are medians, and the medians are the reliable part.** The pitch
-  contour is quantized to a third of a semitone and the document says so. A statement
-  like "a median 14 cents flat" is usable; a single note's offset is not.
-- **Octave jitter is common.** A melody line jumping an octave and back within a
-  phrase is usually a transcription artefact, not a performance. Current versions drop
-  notes more than about 16 semitones from the track's median pitch, so the wildest
-  outliers are already gone — jitter *inside* that window is not. A lone outlier
-  inside an otherwise stable run is an artefact; never build an argument on it.
-- **A "vocal / lead" melody section may be reporting a lead instrument, not a voice.**
-  Check the stem table: if the vocal stems read absent or barely active while a synth
-  or string part is prominent, the transcribed notes are that instrument's.
-- **Percussion is transcribed anyway.** The per-part notes state that percussion has
-  no stable pitch and is summarised rather than transcribed, then print note events
-  for drum parts. Ignore pitch on percussion.
-
-### Lyrics — the part you must distrust
-
-Machine lyric transcription is WavRead's **weakest subsystem by a wide margin**, and
-its documented failures are severe and systematic:
-
-- **Fabrication.** It has produced fluent, confident phrases that do not exist in the
-  audio at all, including invented proper nouns.
-- **Inversion.** Single words replaced by their opposite, producing grammatical
-  English that states the reverse of the lyric.
-- **Silent omission.** Whole sections — up to a minute of vocal — producing no output
-  and no warning, on audio where the vocal stem shows clear activity.
-- **The confidence figure does not predict accuracy.** The highest-confidence run on
-  record still inverted a closing image; the lowest-confidence run fabricated rather
-  than abstaining.
-- **Background parts transcribe worse than leads.**
-- **It has contradicted itself on a repeated line** within a single track — the same
-  chorus transcribed two different ways. That is a free reliability signal: **scan
-  for repeated sections transcribed differently and report the disagreement.**
-
-**Rules that follow, and they are not negotiable:**
+Machine lyric transcription is WavRead's **weakest subsystem by a wide margin**. Its
+documented failures are fabrication of phrases that are not in the audio, inversion of
+single words into their opposite, silent omission of whole vocal sections, and
+self-contradiction on a repeated line. **The confidence figure does not predict
+accuracy.**
 
 - Treat every machine transcription as **unverified**.
 - **Never interpret a lyric — emotionally, biographically, or thematically — from a
   machine transcription.** Ask the user for their text first.
-- If the user supplies their own lyrics, those are **user-entered** and authoritative;
-  the transcription becomes a timing aid only.
-- Do not report a lyric gap as silence. Cross it against the vocal stem's activity
-  percentage before saying anything about it.
-- Never repeat a transcribed phrase back to the user as if it were their writing.
-
-### The document's own title, and song identity
-
-**A document title is not a song title.** For a stem set, WavRead titles the document
-with the set name — usually the first stem's filename — followed by every stem name.
-The same string reappears in headings and cross-reference filenames.
-
-Song title and credits (artist, album, version, producer, mix engineer, mastering
-engineer, songwriter) are entered in the app and stored with the song, not with the
-analysis. **Where they appear depends on the export format:**
-
-| Export | Carries song identity? |
-| --- | --- |
-| Markdown (`.md`) | **No** — headed with the track's filename |
-| PDF | **No** — cover carries the filename |
-| JSON | **No** |
-| CSV | **No** |
-| **HTML** | **Yes** — title, artist, version and any filled-in credits |
-
-So unless you were handed the HTML export and can see an identity block:
-
-- Take the song's identity **from the requester**, or record it as missing.
-- **Never invent a title, artist, engineer name, reference identity or credit**, and
-  never present a filename as a title without saying that is what it is.
-
-Missing metadata is missing, and a report that says so is correct.
+- User-supplied lyrics are authoritative; the transcription becomes a timing aid only.
+- Never report a lyric gap as silence without checking the vocal stem's activity.
+- Never repeat a transcribed phrase back as if it were their writing.
+- Repeated sections transcribed differently are a free reliability signal. Report the
+  disagreement.
 
 ## 10. Findings the rule engine cannot produce
 
@@ -559,67 +404,21 @@ table against another, and none of them can appear in that report.
 
 ## 11. Helping someone operate WavRead
 
-WavRead is a local macOS desktop application. **Audio never leaves the user's
-machine** — no account, no upload, no cloud analysis. That claim is part of the
-product, so never suggest a workflow that breaks it, and never ask a user to send you
-their audio. Ask for the **export**, which is text.
+**Full detail: `references/operating-wavread.md`** — the basic run, bring-your-own
+stems, DAW capture through WavRead Bridge and its three known failure modes, versions
+and comparison, and how to report a problem with the app. Read it when someone asks
+how to *do* something rather than what their document means.
 
-### The basic run
+Three things you must know without opening it:
 
-1. Open WavRead and go to the Analyze view, which has two sides: **File** and
-   **Bridge**.
-2. On the File side, drag in an audio file or use the file picker.
-3. Wait through the named stages. Analysis runs after the file is read, not in real
-   time, and a long track takes a while.
-4. Read the Track Document and the Feedback Report, and use the export or copy action
-   to hand them to an agent.
-
-### Bring your own stems
-
-WavRead analyses a set of files together as one track: the mix it reports is the
-**summed stems**, and each stem is measured individually. Current versions do not
-separate stems for the user — separation was removed in 1.4.45 — so the two routes
-are dropping stem files (or a folder) in directly, or configuring an external
-separation tool the user already owns and has the rights to use. Point users at
-exporting stems from their DAW first; it is the route with nothing to install.
-
-### Capturing from a DAW
-
-WavRead Bridge is an AU/VST3 plugin that captures takes from the DAW, multiple
-instances at once (master bus plus individual parts), with roles assigned per
-instance. The **Bridge** side of the Analyze page shows what the plugins are doing
-and carries the arming controls. Analysis still runs **after** the take, not during it.
-
-Common things that go wrong, and what to say:
-
-- **An instance joined the take but recorded nothing.** A plugin on a channel the
-  host never runs cannot see the transport edge. Check the channel is actually
-  playing audio through that plugin.
-- **A part that idles mid-take can lose that span.** If a part's captured file is
-  shorter than the take, that is the known gap, not a mixing observation.
-- **The Bridge reports signal present or absent, not a level.** "Signal" on that page
-  is not a dB reading; do not quote it as one.
-- **Capture the master too, when you can.** It is what makes the master-bus
-  comparison in §4 possible at all.
-
-### Versions and comparison
-
-- WavRead keeps a **Mix History** with notes, and song identity and credits are
-  entered per project.
-- **Comparison between two takes is currently the reader's job.** WavRead does not
-  yet emit a "since last take" diff. To compare, you need **both exports** — see §12.
-- **Bounce to a new filename for every version.** It keeps the history readable.
-
-### When something looks wrong with the app itself
-
-Distinguish clearly between **the analysis says something surprising** and **the app
-is misbehaving**. For the second: report the version, the exact stage, what was on
-screen, and what the user expected. Do not speculate about internals you cannot see,
-and do not tell a user to edit files inside the application bundle.
-
-**Version differences matter.** Screen names, panel layout and available measurements
-have all changed across the 1.4.x line. If a user's build does not match what you
-described, believe their screen, not your description.
+- **WavRead is a local macOS app and audio never leaves the user's machine.** No
+  account, no upload, no cloud analysis. That claim is part of the product. **Never
+  suggest a workflow that breaks it, and never ask a user to send you their audio.**
+  Ask for the export, which is text.
+- **Stems come from the user.** WavRead has not separated audio since 1.4.45.
+- **Version differences matter.** Screen names and available measurements changed
+  across the 1.4.x line. If a user's build does not match your description, believe
+  their screen.
 
 ## 12. Comparison mode
 

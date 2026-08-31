@@ -151,8 +151,13 @@ audio. The skill holds an agent to the same line.</p>
 <code>npx skills update</code>.</p>
 <p>Works with any assistant that reads a skill or instruction file. If yours does
 not, <a href="skill/SKILL.md" download>download SKILL.md</a> and paste it at the top
-of the conversation with your analysis underneath — it is written to work either
-way.</p>
+of the conversation with your analysis underneath. Every rule is in that one file, so
+it works on its own.</p>
+<p>Two reference files go deeper, and an agent loads them only when it needs them:
+<a href="skill/references/reading-sections.md" download>reading-sections.md</a>, the
+trap hiding in each section of a document, and
+<a href="skill/references/operating-wavread.md" download>operating-wavread.md</a>, how
+to run WavRead itself. The install command brings all three.</p>
 <p class="filemeta">Source:
 <a href="https://github.com/EZmannBuilds/wavread-skill">github.com/EZmannBuilds/wavread-skill</a>
 · version 1.4.47 rev 2 · updated August 31, 2026</p>
