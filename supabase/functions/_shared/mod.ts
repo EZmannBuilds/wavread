@@ -271,11 +271,11 @@ export async function resolveDevice(
   const hash = await sha256Hex(token);
   const { data, error } = await db
     .from("devices")
-    .select("id, tester_id, install_id, revoked_at, beta_testers ( status )")
+    .select("id, tester_id, install_id, revoked_at, accounts ( status )")
     .eq("token_hash", hash)
     .maybeSingle();
   if (error || !data || data.revoked_at) return null;
-  const account = data.beta_testers as unknown as { status?: string } | null;
+  const account = data.accounts as unknown as { status?: string } | null;
   if (!account || account.status !== "active") return null;
   await db
     .from("devices")
