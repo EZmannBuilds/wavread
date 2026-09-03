@@ -152,8 +152,9 @@ Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
   domain; this file said `www` until 2026-09-01, when the hosted project was
   read and it did not. Redirect URLs allow-listed for the apex, the `www`
   host, the vercel.app hostname and the local preview, for both
-  `/beta-dashboard` and `/dashboard` while links already sent are still live;
-  public signup disabled.
+  `/dashboard` only — the `/beta-dashboard` entries were carried alongside
+  from 2026-09-01 and removed on 2026-09-03, once every link sent under the
+  old path had passed `jwt_expiry`; public signup disabled.
 - Vercel project `wavread`: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`
   set for Production and Preview. They take effect on the next deployment;
   running `./deploy.sh` remains its own approval.
