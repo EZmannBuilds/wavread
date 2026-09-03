@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const amountCents = build.price_cents;
-  const productName = "WavRead Early Launch";
+  const productName = "WavRead";
 
   const params = new URLSearchParams();
   params.set("mode", "payment");
@@ -81,10 +81,13 @@ Deno.serve(async (req: Request) => {
   params.set("line_items[0][price_data][product_data][name]", productName);
   params.set(
     "line_items[0][price_data][product_data][description]",
-    "Every build of the Early Launch, downloadable from your dashboard, with your reports tracked against your account.",
+    "WavRead for macOS, and every build that follows it in 1.x, downloadable from your account.",
   );
+  // The value is historical: it is on every purchase row already, and
+  // changing it would make the rows before today disagree with the rows
+  // after for no gain. It names the product, not the programme.
   params.set("metadata[product]", "early_build");
-  // No build_version: one payment covers every build of the Early Launch, so
+  // No build_version: one payment covers every build, so
   // the entitlement the webhook grants must stay unscoped. Naming a build here
   // would quietly sell access to that build alone.
   params.set("metadata[bought_at_version]", build.version);
