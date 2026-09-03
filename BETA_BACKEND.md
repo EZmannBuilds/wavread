@@ -148,8 +148,11 @@ Provisioned against the dedicated Supabase project **`aodccnadwomafotizssk`**
   test-mode purchase remains in the database as a real, owned entitlement —
   its `stripe_checkout_session_id` starts `cs_test_`, which is the honest
   record of how it was made.*
-- Auth: site URL `https://www.wavread.com`, dashboard redirect URLs
-  allow-listed for the custom domain, its apex, and the vercel.app hostname;
+- Auth: site URL `https://wavread.com` — the apex, matching the canonical
+  domain; this file said `www` until 2026-09-01, when the hosted project was
+  read and it did not. Redirect URLs allow-listed for the apex, the `www`
+  host, the vercel.app hostname and the local preview, for both
+  `/beta-dashboard` and `/dashboard` while links already sent are still live;
   public signup disabled.
 - Vercel project `wavread`: `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`
   set for Production and Preview. They take effect on the next deployment;
