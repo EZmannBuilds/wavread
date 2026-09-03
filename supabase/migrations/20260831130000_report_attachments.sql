@@ -30,7 +30,10 @@ on conflict (id) do update
 
 create table if not exists public.feedback_attachments (
   id uuid primary key default gen_random_uuid(),
-  feedback_id uuid not null
+  -- bigint, not uuid: beta_feedback.id is a bigint identity column. Assuming
+  -- uuid here is what a first attempt at this migration did, and Postgres
+  -- refused it rather than letting the mismatch through.
+  feedback_id bigint not null
     references public.beta_feedback(id) on delete cascade,
   -- No tester_id column. It is reachable through feedback_id, and two columns
   -- that must agree are two columns that can disagree.
