@@ -629,8 +629,14 @@ test("attachments are disclosed, bounded, and never written by the browser", asy
   // promise on the front of the site and the page that documents it have to
   // agree with the code that does the accepting.
   const privacy = await read("docs/privacy.html");
-  assert.match(privacy, /Attachments on website feedback/i, "attachments are disclosed");
+  assert.match(privacy, /Attachments on feedback/i, "attachments are disclosed");
   assert.match(privacy, /Audio cannot be attached/i, "and the audio exclusion is explicit");
+  // The app can attach now. The disclosure must say so rather than still
+  // promising it never sends a file — that promise was true and is not.
+  assert.doesNotMatch(privacy, /desktop app never\s+sends a file/i,
+    "the disclosure is not still making the old promise");
+  assert.match(privacy, /dashboard or in WavRead itself/i,
+    "and names both places a file can come from");
   assert.match(await read("docs/index.html"), /Your audio stays on your Mac/,
     "the claim the exclusion protects still stands");
 
@@ -642,8 +648,25 @@ test("attachments are disclosed, bounded, and never written by the browser", asy
   assert.doesNotMatch(fn, /audio\//, "no audio type is accepted");
   assert.match(fn, /crypto\.randomUUID\(\)/,
     "the object path is generated, never taken from the request");
-  assert.match(fn, /source !== "web"/,
-    "reports from the desktop app cannot take attachments");
+  // The app can attach now, so the old "web reports only" rule is gone on
+  // purpose. What replaces it is ownership, and it must be the same test for
+  // both callers — a rule that is stricter for one of them is a rule someone
+  // will route around using the other.
+  assert.doesNotMatch(fn, /source !== "web"/,
+    "the app is no longer refused by source");
+  assert.match(fn, /report\.data\.tester_id !== who\.testerId/,
+    "a caller may only attach to a report it owns");
+  assert.match(fn, /holder\?\.tester_id !== who\.testerId/,
+    "and may only confirm an attachment it owns");
+  // beta_feedback.id is a bigint. Reading it with isUuid refused every real
+  // report id, which is why nothing was ever attached; the guard against that
+  // returning is that the id is parsed as a number.
+  assert.doesNotMatch(fn, /isUuid\(\s*(body\.)?feedback[iI]d/,
+    "the report id is not read as a uuid — it is a bigint");
+  assert.match(fn, /function reportId/, "it is parsed as a positive integer");
+  // verify_jwt is off, so every path must authenticate in the function itself.
+  assert.match(fn, /if \(!who\)/, "an unauthenticated caller is refused first");
+  assert.match(fn, /resolveDevice/, "the app authenticates with its device token");
 
   const migration = await read("supabase/migrations/20260831130000_report_attachments.sql");
   assert.match(migration, /file_size_limit/, "the bucket sets its own size limit");
@@ -654,6 +677,9 @@ test("attachments are disclosed, bounded, and never written by the browser", asy
     "the browser cannot write attachment rows — the caps would not be caps");
 
   const cfg = await read("supabase/config.toml");
-  assert.match(cfg, /\[functions\.report-media\]\n(#[^\n]*\n)*verify_jwt = true/,
-    "report-media requires a signed-in session");
+  // Deliberately off: the desktop app has no Supabase session, so the platform
+  // gate would reject it before the function ran. The function authenticates
+  // both callers itself — the same shape as submit-report and crash-report.
+  assert.match(cfg, /\[functions\.report-media\]\nverify_jwt = false/,
+    "report-media authenticates its own callers");
 });

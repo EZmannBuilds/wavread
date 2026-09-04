@@ -398,7 +398,12 @@ verify_jwt = true
 # The only caller is a signed-in dashboard session; there is no app-side
 # path into it, so the JWT is the whole authentication.
 [functions.report-media]
-verify_jwt = true
+verify_jwt = false
+# Two callers now: a signed-in dashboard session, and the desktop app holding a
+# device token from link-device. The app has no Supabase session and never
+# will, so the platform gate would reject it before the function ran. The
+# function authenticates both itself, and refusing to authenticate is the first
+# thing it does — the same shape as submit-report and crash-report above.
 
 [edge_runtime]
 enabled = true
