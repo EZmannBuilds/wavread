@@ -397,6 +397,11 @@ verify_jwt = false
 verify_jwt = true
 # The only caller is a signed-in dashboard session; there is no app-side
 # path into it, so the JWT is the whole authentication.
+[functions.latest-build]
+verify_jwt = false
+# The desktop updater is the caller, and it holds no credential of any kind.
+# What it can learn is one version number, which the website prints anyway.
+
 [functions.report-media]
 verify_jwt = false
 # Two callers now: a signed-in dashboard session, and the desktop app holding a

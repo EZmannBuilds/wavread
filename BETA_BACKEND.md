@@ -233,18 +233,35 @@ or eligibility, add it as an explicit, disclosed server-side event linked to
 
 ## Release channels
 
-- Every GitHub beta release must be marked as a **prerelease**. The desktop
-  updater queries GitHub's `/releases/latest` endpoint, so publishing a beta
-  as a normal release would offer it to stable users.
-- Every installable release needs a `.dmg` asset and a matching
-  64-character SHA-256 checksum in the release body. The app verifies that
-  checksum before installing.
-- A gated early-channel DMG cannot be installed by the in-app updater, which
-  performs an unauthenticated HTTPS download. Early builds are downloaded
-  manually from the dashboard, which labels public and gated builds clearly
-  and shows the SHA-256 to verify.
-- Promoting an early build to public means publishing the same DMG and
-  checksum as a GitHub release; the updater takes over from there.
+**The catalog is what says a build exists.** Publishing a `builds` row with
+`published = true` does two jobs: it makes the build downloadable by an entitled
+account, and it makes the `latest-build` function report that version. The
+desktop app reads it through `https://wavread.com/api/latest-build`, which
+forwards to the function and caches the answer for five minutes. There is no
+second place to remember, which is the point: 1.4.47 and 1.4.48 were both
+published and downloadable while every installation was still being told 1.4.46
+was current, because the updater read a GitHub release nobody had cut.
+
+- The function returns a version, a release date, a checksum and a size, and
+  nothing else. No storage path, no signed URL. Learning that a build exists is
+  public; getting the file needs an account with an entitlement.
+- **A build that must not be offered to everyone must not be `published`.**
+  That flag now gates the announcement as well as the download — it is what
+  keeps the three Demucs-era builds both unreachable and unmentioned.
+- **Installations from before 1.4.49 ask GitHub instead**, because that is what
+  their copy of `update.py` was built with, and an installed app cannot be
+  changed from here. Until those are replaced, each release also needs an
+  **announce-only GitHub release**: the tag, notes carrying the
+  64-character SHA-256, and **no `.dmg` asset**. The app says a newer version
+  exists and sends the user to their account, which is right for a paid build.
+  Attaching the DMG there would publish the paid build to anyone with the link.
+- Every GitHub release for an actual beta must still be marked a **prerelease**,
+  for the same reason as before: `/releases/latest` skips prereleases, so a beta
+  published as a normal release would be announced to everyone.
+- If a build is ever given away openly, attach its DMG and checksum to the
+  GitHub release: the app's verified-install path — download, checksum, confirm
+  the version inside the image, swap with the old app kept aside — is written
+  and tested and takes over from there.
 
 No account emails belong in source control. Known issues are inserted by an
 admin and become visible only when `published = true`. Report triage (status

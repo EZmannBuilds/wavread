@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check docs/js/site.js && node --check docs/js/beta-auth.js && node --check docs/js/early-build.js && node --check docs/api/beta-config.js",
+    "check": "node --check docs/js/site.js && node --check docs/js/beta-auth.js && node --check docs/js/early-build.js && node --check docs/api/beta-config.js && node --check docs/api/latest-build.js",
     "test": "node --test tests/site.test.mjs"
   }
 }

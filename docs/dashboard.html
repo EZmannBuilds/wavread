@@ -35,9 +35,10 @@
     <section class="dashboard-section" aria-labelledby="builds-title">
       <span class="card-kicker">Downloads</span><h2 id="builds-title">Your builds</h2>
       <p>Every build is included in what you paid, and downloaded
-      from here rather than by the app: the in-app updater checks public
-      release listings and cannot reach owner-only downloads. Each build lists
-      the SHA-256 to verify against.</p>
+      from here rather than by the app: the in-app updater is told which version
+      is newest, never handed the file, because a download that needs an account
+      cannot be fetched by an app that holds no account. Each build lists the
+      SHA-256 to verify against.</p>
       <p id="builds-status" class="form-status" role="status" aria-live="polite"></p>
       <div id="builds-list"></div>
       <div id="builds-empty" class="empty-state" hidden>No build is published right now. The next one lands here as soon as it ships.</div>

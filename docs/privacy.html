@@ -64,14 +64,17 @@ when you turn reports on. The four carry no identifier, no filenames and no
 measurements; the reports carry exactly what the section below lists.</p>
 <table class="spec">
   <tr><th>Update check</th>
-      <td>Once a day, one request to WavRead's public release page, asking only
-      what the newest published version is. It has no body and no identifier,
-      fails silently when you are offline, and is switched off for good in
-      Settings if you would rather it never ran.</td></tr>
+      <td>Once a day, one request to <span class="mono">wavread.com</span>,
+      asking only what the newest published version is. It has no body and no
+      identifier — every copy of WavRead sends the same request and gets the
+      same answer — fails silently when you are offline, and is switched off for
+      good in Settings if you would rather it never ran.</td></tr>
   <tr><th>Installing an update</th>
-      <td>Only when you press <em>Update now</em>. It downloads that release's
-      disk image from the public release page and checks it against the checksum
-      published in the release notes. Nothing installs on its own.</td></tr>
+      <td>Only when you press <em>Update now</em>, and only for a build that is
+      published openly: the download itself is checked against the checksum the
+      catalog carries. The current build is behind your account, so WavRead
+      tells you a newer version exists and sends you to your account to fetch
+      it. Nothing installs on its own.</td></tr>
   <tr><th>Lyric transcription model</th>
       <td>About 460 MB, fetched once from its publisher the first time you
       transcribe lyrics, then cached. Skip lyrics and it is never

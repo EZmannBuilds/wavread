@@ -498,8 +498,14 @@ test("release channels and production staging are explicit", async () => {
   const deploy = await read("deploy.sh");
   assert.match(dashboard, /Current build/);
   assert.match(dashboard, /SHA-256/);
-  assert.match(dashboard, /updater checks public\s+release listings/);
-  assert.match(backend, /must be marked as a \*\*prerelease\*\*/);
+  assert.match(dashboard, /updater is told which version\s+is newest, never handed the file/);
+  // The catalog is the single source of the version, and publishing a row is
+  // what announces it. Both halves are pinned: a build that must not be offered
+  // must not be published, and a paid DMG must never become a release asset.
+  assert.match(backend, /latest-build/);
+  assert.match(backend, /must not be `published`/);
+  assert.match(backend, /no `\.dmg` asset/);
+  assert.match(backend, /marked a \*\*prerelease\*\*/);
   assert.match(backend, /64-character SHA-256/);
   assert.match(deploy, /npm run check/);
   assert.match(deploy, /npm test/);
