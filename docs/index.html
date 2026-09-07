@@ -26,7 +26,7 @@
   "name": "WavRead",
   "operatingSystem": "macOS 14 or later (Apple Silicon)",
   "applicationCategory": "MultimediaApplication",
-  "softwareVersion": "1.4.46",
+  "softwareVersion": "1.4.49",
   "url": "https://wavread.com/",
   "description": "WavRead measures your music locally and translates the results into clear language, evidence, and documents. Audio never leaves your Mac.",
   "offers": {
@@ -60,7 +60,7 @@
 <main id="main">
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="eyebrow"><span>Local audio analysis</span> Current release · 1.4.46</p>
+      <p class="eyebrow"><span>Local audio analysis</span> Current release · 1.4.49</p>
       <h1 id="hero-title">Reveal what the <br><em>music is doing.</em></h1>
       <p class="hero-lede">Stop guessing what changed between bounces. WavRead maps your mix
       track by track and section by section, then translates the evidence into clear
@@ -146,23 +146,24 @@
     </figure>
   </section>
 
-  <section class="feature-story" id="new-in-1-4-46" aria-labelledby="new-title">
+  <section class="feature-story" id="spectral-timeline" aria-labelledby="new-title">
     <div class="story-copy reveal">
-      <p class="section-kicker">New in 1.4.46</p>
+      <p class="section-kicker">Across the whole song</p>
       <h2 id="new-title">The song's balance, <br>drawn across the song.</h2>
       <p>The spectral timeline shows where the energy sits — sub to air — from the
       first bar to the last, so a verse that turns muddy or a chorus that loses its
       top end is visible before you go looking for it. Every analysis already in
       your library gains this view without being reanalyzed.</p>
       <ul class="inline-facts"><li>Seven bands over time</li><li>Reads stored data</li><li>On the Timeline tab</li></ul>
-      <div class="finding-stack" role="group" aria-label="Also new in 1.4.46">
+      <div class="finding-stack" role="group" aria-label="Other things WavRead reads">
         <div><span class="finding-label measured-label">For engineers</span><p><strong>Hear what your master bus adds.</strong> WavRead plays the measured
         difference between your captured master and your parts — the bus chain and
         nothing else — and draws the bus's gain movement over time.</p></div>
         <div><span class="finding-label possible-label">Vocal tuning</span><p>Held notes carry their offset in cents, with phrase medians.
         Analysis only — WavRead never tunes, repairs, or modifies the vocal.</p></div>
-        <div><span class="finding-label listen-label">Accuracy</span><p>A melody figure previously labeled “confidence” was the note's
-        loudness; it is now named amplitude everywhere it appears.</p></div>
+        <div><span class="finding-label listen-label">What the file claims</span><p><strong>A DAW writes its tempo into the file it exports.</strong> WavRead
+        prints that beside the tempo it measured, named as the file's own claim —
+        never as a measurement, and never fed to the beat tracker.</p></div>
       </div>
     </div>
     <figure class="feature-visual reveal">
@@ -194,14 +195,14 @@
   </section>
 
   <section class="download-section" id="download" aria-labelledby="download-title">
-    <p class="eyebrow"><span>Current release</span> 1.4.46 · August 30, 2026</p>
+    <p class="eyebrow"><span>Current release</span> 1.4.49 · September 6, 2026</p>
     <h2 id="download-title">Your music is ready to be read.</h2>
     <p>$50 once, every 1.x update included — no subscription. Apple Silicon Macs running macOS 14 or later.
     Signed with an Apple Developer ID and notarised by Apple: macOS asks once
     whether to open a program downloaded from the Internet, confirms Apple found
     nothing malicious in it, and never asks again.</p>
-    <a class="btn primary download-button" href="buy.html">Buy WavRead 1.4.46 <span>$50 · one payment · DMG</span></a>
-    <div class="release-summary"><strong>Latest update — 1.4.46</strong><p>A spectral timeline drawing the song's frequency balance across its whole length; a playable master-bus residual so you can hear exactly what your bus chain adds; the bus's gain movement traced over time; vocal intonation measured in cents (analysis only — nothing is tuned or repaired); and a melody figure renamed from “confidence” to what it always was, amplitude.</p><a href="buy.html">What $50 buys →</a></div>
+    <a class="btn primary download-button" href="buy.html">Buy WavRead 1.4.49 <span>$50 · one payment · DMG</span></a>
+    <div class="release-summary"><strong>Latest update — 1.4.49</strong><p>WavRead reads what a file says about itself — a DAW's exported tempo, an ID3 BPM frame — and prints it as the file's claim, never as a measurement. Stem sets are measured several at a time: ten stems that took 18.2 seconds take 6.7. A folder dropped by mistake stops in one press. Near-silent audio is refused rather than measured, and every chart label is escaped, including in the HTML you send to someone else. And when a new build is published, your copy is told: the update check reads the build catalog now, so a release cannot ship unannounced.</p><a href="buy.html">What $50 buys →</a></div>
   </section>
 </main>
 

@@ -49,9 +49,15 @@ test("public homepage tells the real release story", async () => {
   // The release summary must describe the release it names, not an older one
   // (1.4.46's features went unmentioned for a day while the summary still
   // advertised the interface rebuild).
-  assert.match(html, /Latest update — 1\.4\.46/);
-  assert.match(html, /spectral timeline/i, "the release's own features are named");
-  assert.match(html, /master-bus residual|what your (master )?bus chain adds/i);
+  assert.match(html, new RegExp(`Latest update — ${CURRENT_VERSION.replace(/\./g, "\\.")}`),
+    "the summary names the build the rest of the page sells");
+  // Named features rather than a version number, because a summary can carry
+  // the right number and still describe the release before it — which is what
+  // happened when 1.4.46 shipped and the page still advertised the interface
+  // rebuild. These are 1.4.47-49's, and they change when the summary does.
+  assert.match(html, /the file's claim|reads what a file says/i, "the release's own features are named");
+  assert.match(html, /build catalog/i, "and the one a person would notice: updates that arrive");
+  assert.match(html, /spectral timeline/i, "the timeline view is still described");
   assert.match(html, /never tunes, repairs, or modifies/i, "vocal tuning is analysis only");
 });
 
@@ -70,7 +76,11 @@ test("search engines get a truthful, bounded map of the site", async () => {
   }
   const home = await read("docs/index.html");
   assert.ok(home.includes("application/ld+json"));
-  assert.ok(home.includes('"softwareVersion": "1.4.46"'), "structured data names the real version");
+  assert.ok(home.includes(`"softwareVersion": "${CURRENT_VERSION}"`),
+    "structured data names the real version");
+  const buy = await read("docs/buy.html");
+  assert.ok(buy.includes(`"softwareVersion": "${CURRENT_VERSION}"`),
+    "and the purchase page's structured data agrees with it");
   assert.ok(home.includes('"price": "50"'), "structured data names the real price");
 });
 
