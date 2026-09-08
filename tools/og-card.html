@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- The link share card, rendered rather than drawn: it must show the build
+     that is actually for sale, at the price it actually costs, so it is built
+     from the same screenshot and the same tokens as the page it advertises.
+     Rendered at 1200x630 into docs/img/og-card.png:
+
+       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         --headless=new --window-size=1200,630 --hide-scrollbars \
+         --screenshot=docs/img/og-card.png tools/og-card.html
+
+     It lives outside docs/ on purpose: it is a generator, not a page, and
+     every page in docs/ is held to the site's navigation and footer rules. -->
+<html lang="en"><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: "Space Grotesk"; src: url("../docs/fonts/space-grotesk-latin.woff2") format("woff2"); font-weight: 500 600; }
+  @font-face { font-family: "Inter"; src: url("../docs/fonts/inter-latin.woff2") format("woff2"); font-weight: 400 600; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1200px; height: 630px; background: #0b0d10; color: #f3f6f8;
+         font-family: "Inter", sans-serif; overflow: hidden; position: relative; }
+  .copy { position: absolute; left: 72px; top: 150px; width: 470px; }
+  h1 { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 76px;
+       letter-spacing: -0.02em; line-height: 1; }
+  .tagline { font-size: 25px; color: #c3cad1; margin-top: 22px; letter-spacing: -0.01em; }
+  .rule { width: 96px; height: 1px; background: #37424d; margin: 34px 0; }
+  .metrics { display: flex; gap: 34px; align-items: flex-start; }
+  .metric .value { font-family: "SFMono-Regular", monospace; font-size: 30px; letter-spacing: -0.01em; }
+  .metric:first-child .value { color: #53e0d4; }
+  .metric .label { font-size: 11px; letter-spacing: 0.14em; color: #929ca7; margin-top: 8px; }
+  .metric.key .value { font-size: 22px; padding-top: 8px; }
+  .foot { margin-top: 40px; font-size: 21px; color: #c3cad1; }
+  .foot b { color: #4da8ff; font-weight: 500; }
+  .shot { position: absolute; left: 624px; top: 68px; width: 700px; height: 562px;
+          background: #12161b; border: 1px solid #252c34; border-radius: 12px 0 0 12px;
+          overflow: hidden; }
+  .bar { height: 34px; background: #0d1116; border-bottom: 1px solid #252c34;
+         display: flex; align-items: center; gap: 7px; padding-left: 16px; }
+  .bar span { width: 9px; height: 9px; border-radius: 50%; background: #37424d; }
+  .shot img { display: block; width: 700px; margin-top: -2px; }
+</style></head>
+<body>
+  <div class="copy">
+    <h1>WavRead</h1>
+    <p class="tagline">Your music, translated into words.</p>
+    <div class="rule"></div>
+    <div class="metrics">
+      <div class="metric"><div class="value">&minus;17.2</div><div class="label">LUFS · MEASURED</div></div>
+      <div class="metric"><div class="value">129.2</div><div class="label">BPM · DETECTED</div></div>
+      <div class="metric key"><div class="value">G major</div><div class="label">KEY · ESTIMATED</div></div>
+    </div>
+    <p class="foot">Local audio analysis for macOS · <b>$50 once</b></p>
+  </div>
+  <div class="shot">
+    <div class="bar"><span></span><span></span><span></span></div>
+    <img src="../docs/img/workspace-overview.png" alt="">
+  </div>
+</body></html>
