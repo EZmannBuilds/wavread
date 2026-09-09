@@ -54,9 +54,16 @@ test("public homepage tells the real release story", async () => {
   // Named features rather than a version number, because a summary can carry
   // the right number and still describe the release before it — which is what
   // happened when 1.4.46 shipped and the page still advertised the interface
-  // rebuild. These are 1.4.47-49's, and they change when the summary does.
-  assert.match(html, /the file's claim|reads what a file says/i, "the release's own features are named");
-  assert.match(html, /build catalog/i, "and the one a person would notice: updates that arrive");
+  // rebuild. Two of this release's, not one exact sentence: the summary is
+  // marketing copy and will be rewritten, but it must never drift back to
+  // describing an older build.
+  const thisRelease = [
+    /the file's claim|reads what a file says/i,
+    /update notices|build catalog/i,
+    /stems? in \d|stem analysis|18\.2/i,
+  ].filter((rx) => rx.test(html)).length;
+  assert.ok(thisRelease >= 2,
+    "the summary names at least two things this release actually changed");
   assert.match(html, /spectral timeline/i, "the timeline view is still described");
   assert.match(html, /never tunes, repairs, or modifies/i, "vocal tuning is analysis only");
 });
@@ -521,6 +528,40 @@ test("release channels and production staging are explicit", async () => {
   assert.match(deploy, /npm test/);
   assert.match(deploy, /npm run build/);
   assert.match(deploy, /cp -r dist-site\/\*/);
+});
+
+test("the shop never reads as shut to anything that cannot run CSS", async () => {
+  // A reviewer reported the buy page as broken. It was not: the failure notice
+  // was hidden markup, invisible to a person and perfectly visible to every
+  // text reader — a search engine, an assistant asked "can I buy WavRead".
+  // The rule that came out of it: a page must not carry the text of a state it
+  // is not in.
+  const buy = await read("docs/buy.html");
+  assert.doesNotMatch(buy, /not configured|unavailable|temporarily/i,
+    "no failure text ships inside the page; the script writes it when it is true");
+  assert.match(buy, /id="checkout-unconfigured"[^>]*hidden/,
+    "the empty container is still there for the script to fill");
+  const js = await read("docs/js/early-build.js");
+  assert.match(js, /sayUnconfigured/, "and the script is what says it");
+  assert.match(js, /Nothing has been charged/,
+    "which says the thing a person needs to hear, not the thing an operator does");
+});
+
+test("the pages agree about what WavRead downloads", async () => {
+  // faq.html promised "model downloads if you use separation or lyrics" for ten
+  // days after separation was removed, while requirements.html said the
+  // opposite two clicks away. One product, one answer.
+  const faq = await read("docs/faq.html");
+  const requirements = await read("docs/requirements.html");
+  const how = await read("docs/how-it-works.html");
+  // A denial contains the words too, so the check has to forbid the promise
+  // rather than the subject: "ships no separation model" must pass.
+  for (const [name, page] of [["faq", faq], ["requirements", requirements], ["how it works", how]]) {
+    assert.doesNotMatch(page, /if you use separation|built-in separation|fetches a separation|downloads? a separation|separates your audio/i,
+      `${name} does not promise a separation model`);
+  }
+  assert.match(faq, /ships no separation model/i, "the FAQ says so plainly");
+  assert.match(faq, /transcribe lyrics/i, "and names the one model that is fetched");
 });
 
 test("the privacy page discloses reports and purchases in full", async () => {

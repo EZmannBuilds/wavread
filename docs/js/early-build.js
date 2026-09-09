@@ -50,9 +50,20 @@ async function initializeCheckout() {
   const unconfigured = document.querySelector("#checkout-unconfigured");
   const submit = form.querySelector("button[type=submit]");
 
+  // Written here rather than in the page, so the sentence exists only when it
+  // is true. Hidden markup is invisible to a person and perfectly visible to
+  // everything that reads text without running CSS — a search engine, an
+  // assistant answering "can I buy WavRead" — and a buy page that says
+  // purchases are not configured reads as a broken shop to all of them.
+  const sayUnconfigured = () => {
+    unconfigured.textContent = "Payments are temporarily unavailable. "
+      + "Nothing has been charged — try again shortly, or email support@wavread.com.";
+    unconfigured.hidden = false;
+  };
+
   const config = await loadConfiguration();
   if (!config?.url) {
-    unconfigured.hidden = false;
+    sayUnconfigured();
     submit.disabled = true;
     return;
   }
@@ -74,7 +85,7 @@ async function initializeCheckout() {
       });
       const result = await response.json().catch(() => ({}));
       if (response.status === 503) {
-        unconfigured.hidden = false;
+        sayUnconfigured();
         setStatus(status, "", "", emailField);
         return;
       }
