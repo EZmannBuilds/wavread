@@ -64,7 +64,7 @@ revocable report token, and only after its user typed a link code.
 | `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign label) |
 | `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase, entitlement, auth user |
 | `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
-| `crash-report` | no (optional token) | validated, deduplicated, rate-limited crash intake |
+| `crash-report` | no (optional token) | validated, deduplicated crash intake, rate-limited per install, per address and overall |
 | `submit-report` | no (token required) | the app's Report a Problem submissions |
 | `download-build` | yes | `has_build_access` → 60-second signed URL + SHA-256 |
 
@@ -72,6 +72,20 @@ Secrets the functions need, set with `supabase secrets set` (never in source,
 never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
 `SITE_URL`, `ALLOWED_ORIGINS`. `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`
 are injected by the platform.
+
+Two optional settings widen CORS, and both are off unless set
+(`supabase/functions/_shared/callers.mjs` holds the rules):
+
+- `VERCEL_TEAM` (`lorehouse-team`) lets this project's Vercel previews call
+  the functions, in Vercel's own two hostname shapes only. Leave it unset in
+  production unless a preview has to reach the live backend; checkout from a
+  preview takes real money.
+- `ALLOW_LOCAL_ORIGINS=true` admits the local preview on port 4173. It is for
+  the local Supabase stack, never the hosted project.
+
+`crash-report` is limited per install (20 an hour), per network address (30)
+and across everyone (200), through `take_crash_report_slot`; the address is
+counted only as a keyed digest that expires with its hour.
 
 ## Email
 

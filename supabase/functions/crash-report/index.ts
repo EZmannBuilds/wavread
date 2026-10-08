@@ -6,6 +6,13 @@
 // enforces, deduplicates repeats of one failure, and rate-limits per install
 // so a crash loop cannot flood anything.
 //
+// The install id is the sender's own claim, so on its own that limit stopped
+// only an honest crash loop: a script writing a fresh id into every request
+// could store reports without end. Two limits a sender cannot rewrite sit in
+// front of the insert now, one per network address and one for the whole
+// service (take_crash_report_slot). Only a keyed digest of the address is
+// counted, in a bucket that expires with its hour.
+//
 // A report token (from link-device) is optional. With one, the report is
 // attributed to the account so it appears on the owner's dashboard; without
 // one it is recorded against the anonymous install id only.
@@ -14,7 +21,9 @@
 // and a crash report must be sendable before any account exists.
 
 import {
+  clientAddress,
   json,
+  keyedDigest,
   preflight,
   readJson,
   resolveDevice,
@@ -71,6 +80,20 @@ Deno.serve(async (req: Request) => {
     .maybeSingle();
   if (!duplicate.error && duplicate.data) {
     return json(req, 200, { ok: true, id: duplicate.data.id, deduplicated: true });
+  }
+
+  // Spent only on a report that would be stored: repeats were answered above
+  // without writing anything. The app keeps a refused report and tries again
+  // later, so a full bucket delays honest reports rather than losing them.
+  const slot = await db.rpc("take_crash_report_slot", {
+    address_digest: await keyedDigest(`crash-report:${clientAddress(req)}`),
+  });
+  if (slot.error) {
+    console.error("rate limit check failed", slot.error);
+    return json(req, 500, { error: "report service problem" });
+  }
+  if (slot.data !== true) {
+    return json(req, 429, { error: "too many reports right now" });
   }
 
   const inserted = await db
