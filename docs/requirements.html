@@ -42,8 +42,13 @@ estimated — how, and on what, is at the bottom of the page.</p>
   <tr><th>macOS</th><td><strong>macOS 14 Sonoma</strong> or later. That floor
   comes from the Python runtime and the audio libraries built into the app; on
   macOS 13 or earlier it will not launch.</td></tr>
-  <tr><th>Windows</th><td><strong>Windows version coming soon. No release date
-  announced.</strong> WavRead is macOS-only today. <a href="/#windows">Get notified when Windows is ready</a>.</td></tr>
+  <tr><th>Windows</th><td><strong>Windows 10 or 11, 64-bit</strong> (x64; Windows
+  10 version 1809 or later). WavRead draws its window with the <strong>Microsoft
+  Edge WebView2 Runtime</strong>, which Windows 11 and an up-to-date Windows 10
+  already include; the installer checks for it and says so if it is missing. No
+  administrator password: it installs for your account only. The Windows build
+  is 536 MB installed, from a 137 MB installer, and is not yet code-signed —
+  <a href="/install.html#install-windows">what Windows shows the first time</a>.</td></tr>
   <tr><th>Memory</th><td><strong>8 GB</strong>. Enough for songs of ordinary
   length — see the ceiling below, because memory is what actually limits
   WavRead, and it grows with the length of the track.</td></tr>
@@ -147,7 +152,9 @@ minute</strong> of audio, on top of a 1.3 GB base.</p>
 <ul>
   <li><strong>Intel Macs</strong> — the build is arm64 only.</li>
   <li><strong>macOS 13 Ventura and earlier</strong>.</li>
-  <li><strong>Windows and Linux</strong> — there is no build for either today.</li>
+  <li><strong>32-bit Windows</strong>, and <strong>Windows 10 before version
+  1809</strong>.</li>
+  <li><strong>Linux</strong> — there is no build for it today.</li>
   <li><strong>iPad and iPhone</strong>.</li>
 </ul>
 
@@ -157,7 +164,9 @@ running macOS 26.5, using WavRead 1.4.47. Time and peak memory come from
 actually written. The macOS floor was read from the load commands of all 380
 binaries inside the app bundle, taking the highest. Your own times will differ
 with your chip and what else is running — the shape of the numbers is what
-matters, not the last digit.</p>
+matters, not the last digit. The Windows sizes are the bytes of the 1.5.6
+installer and of its installed folder on Windows 11 x64; the Windows floor is the
+installer's own minimum version.</p>
 
 </section></div></div></main>
 <footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>

@@ -58,7 +58,7 @@ test('sign-in handles a rejected request and re-enables the form without claimin
   assert.match(f.status.textContent, /Could not reach sign-in/);
 });
 test('public email forms are disabled before scripts initialize and never default to GET', async () => {
-  for (const [file,id] of [['index','notify-form'],['buy','checkout-form'],['signin','signin-form']]) {
+  for (const [file,id] of [['buy','checkout-form'],['signin','signin-form']]) {
     const html = await readFile(`docs/${file}.html`, 'utf8');
     const form = html.match(new RegExp(`<form[^>]+id="${id}"[\\s\\S]*?</form>`))?.[0];
     assert.ok(form); assert.match(form, /method="post"/); assert.match(form, /type="submit" disabled/);

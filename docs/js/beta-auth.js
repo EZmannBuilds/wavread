@@ -277,6 +277,8 @@ async function downloadBuild(build, statusEl) {
   }
 }
 
+const PLATFORM_NAMES = { macos: "macOS", windows: "Windows" };
+
 async function loadBuilds(standing) {
   const list = document.querySelector("#builds-list");
   const empty = document.querySelector("#builds-empty");
@@ -284,7 +286,7 @@ async function loadBuilds(standing) {
   const status = document.querySelector("#builds-status");
   const { data, error } = await supabase
     .from("builds")
-    .select("id, version, channel, file_name, sha256, size_bytes, notes, released_at, price_cents")
+    .select("id, version, platform, channel, file_name, sha256, size_bytes, notes, released_at, price_cents")
     .order("released_at", { ascending: false });
   if (error) {
     setStatus(status, "The build list could not be loaded. Try refreshing this page.", "error");
@@ -324,9 +326,11 @@ async function loadBuilds(standing) {
     const state = document.createElement("span");
     state.className = "table-status";
     state.textContent = standing.everything || standing.owned.has(build.version) ? "included" : "not owned";
-    return [build.version, fmtDate(build.released_at), size, sha, state, action];
+    // One version can be published once per platform, so the row says which.
+    const platform = PLATFORM_NAMES[build.platform] || "macOS";
+    return [build.version, platform, fmtDate(build.released_at), size, sha, state, action];
   });
-  list.append(buildTable(["Version", "Published", "Size", "SHA-256", "", ""], rows));
+  list.append(buildTable(["Version", "Platform", "Published", "Size", "SHA-256", "", ""], rows));
 }
 
 async function loadDevices() {

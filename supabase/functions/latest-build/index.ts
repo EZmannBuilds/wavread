@@ -43,13 +43,21 @@ Deno.serve(async (req: Request) => {
     return reply(405, { error: "GET only" }, false);
   }
 
+  // Mac and Windows share one catalog. Every Mac build ever shipped asks with
+  // no platform, so no platform means macos; only an explicit Windows question
+  // gets Windows builds. Anything else is answered as the Mac, never refused,
+  // because an installed updater cannot be corrected after the fact.
+  const platform = new URL(req.url).searchParams.get("platform") === "windows"
+    ? "windows"
+    : "macos";
+
   const db = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
 
-  // The newest published row, whichever channel it sits on. `published` is the
+  // The newest published row for this platform, whichever channel it sits on. `published` is the
   // whole gate, and it already carries this meaning: the three Demucs-era
   // builds are unpublished precisely so that nothing can offer them. A build
   // that should not be offered to everyone must not be published — that rule is
@@ -58,6 +66,7 @@ Deno.serve(async (req: Request) => {
     .from("builds")
     .select("version, released_at, sha256, size_bytes")
     .eq("published", true)
+    .eq("platform", platform)
     .order("released_at", { ascending: false })
     .limit(1)
     .maybeSingle();

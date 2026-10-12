@@ -32,3 +32,14 @@ test("the update proxy passes only a Windows platform question on", async () => 
   assert.equal(await forwarded("/api/latest-build?platform=macos"), base);
   assert.equal(await forwarded("/api/latest-build?platform=evil%26x%3D1"), base);
 });
+
+test("the catalog answers each platform with its own builds, the Mac by default", async () => {
+  const fn = await readFile(new URL("../supabase/functions/latest-build/index.ts", import.meta.url), "utf8");
+  // Every Mac build ever shipped asks with no platform, so anything but an
+  // explicit Windows question must be answered for the Mac.
+  assert.match(fn, /searchParams\.get\("platform"\) === "windows"\s*\?\s*"windows"\s*:\s*"macos"/);
+  assert.match(fn, /\.eq\("published", true\)\s*\.eq\("platform", platform\)/);
+  const migration = await readFile(new URL("../supabase/migrations/20261012190000_builds_have_a_platform.sql", import.meta.url), "utf8");
+  assert.match(migration, /platform text not null default 'macos'/);
+  assert.match(migration, /unique \(version, channel, platform\)/);
+});

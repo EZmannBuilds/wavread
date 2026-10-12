@@ -35,16 +35,16 @@ test("the site agrees with itself about which build is current", async () => {
 
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
-  assert.match(html, /Your audio stays on your Mac/);
+  assert.match(html, /Your audio stays on your computer/);
   assert.match(html, /What the Light Remembers/);
   assert.match(html, /<audio[^>]*preload="none"/);
   assert.match(html, /what-the-light-remembers\.mp3/);
   assert.match(html, /16 supplied parts/);
   assert.match(html, /\$50 once/);
   assert.match(html, /buy\.html/);
-  assert.match(html, /Windows soon/);
+  assert.match(html, /For Mac and Windows/);
   assert.doesNotMatch(html, /DAW capture|capture directly/i);
-  assert.match(html, /id="notify-form"/);
+  assert.doesNotMatch(html, /id="notify-form"|js\/notify\.js/, "Windows shipped; there is nothing left to be notified about");
   assert.doesNotMatch(html, /id="marketing-opt-in"[^>]*checked/);
   assert.doesNotMatch(html, /noindex|Preview form:|saved locally|style="/);
   assert.doesNotMatch(html, /releases\/download\/|free beta|download free|trusted by|testimonials/i);
@@ -361,17 +361,24 @@ test("the archive, the platform, and the name of what comes next", async () => {
   const requirements = await read("docs/requirements.html");
   const faq = await read("docs/faq.html");
   const index = await read("docs/index.html");
-  const WINDOWS = "Windows version coming soon. No release date announced.";
+  const install = await read("docs/install.html");
   // The sentence is one sentence wherever it wraps in the source.
   const flat = (html) => html.replace(/\s+/g, " ");
 
-  // Windows is stated in exactly two places, in exactly these words. A port
-  // that has not started gets a sentence that promises nothing but a sentence.
-  assert.equal(flat(early).split(WINDOWS).length - 1, 1, "the buy page states Windows once");
-  assert.equal(flat(requirements).split(WINDOWS).length - 1, 1, "requirements states Windows once");
-  for (const [name, html] of [["index", index], ["faq", faq]]) {
-    assert.doesNotMatch(html, /Windows version coming soon/, `${name} must not repeat the Windows line`);
+  // Windows shipped in 1.5.6. No page may still call it coming, and the pages
+  // that sell and specify it say what it needs and that it is unsigned, so the
+  // SmartScreen warning is never a surprise after paying.
+  for (const [name, html] of [["buy", early], ["requirements", requirements], ["index", index], ["faq", faq], ["install", install]]) {
+    assert.doesNotMatch(flat(html), /Windows (version )?(is )?coming soon|Soon on Windows|launch notification/i,
+      `${name} still says Windows is coming`);
   }
+  assert.match(flat(requirements), /Windows 10 or 11, 64-bit/, "requirements names the Windows floor");
+  assert.match(flat(requirements), /WebView2 Runtime/, "and the runtime it draws with");
+  assert.match(flat(early), /not yet code-signed/, "the buy page says the Windows build is unsigned");
+  assert.match(flat(install), /id="install-windows"/, "install has a Windows section");
+  assert.match(flat(install), /Windows protected your PC/, "which quotes the SmartScreen dialog");
+  assert.match(flat(install), /Run anyway/, "and names the button");
+  assert.match(flat(index), /Now on Windows/, "the home page says Windows is here");
 
   // 1.0 is behind this application, not ahead of it. The next paid release has
   // a name and a price, and the name is not a version number. Every page —
@@ -646,7 +653,7 @@ test("attachments are disclosed, bounded, and never written by the browser", asy
     "the disclosure is not still making the old promise");
   assert.match(privacy, /dashboard or in WavRead itself/i,
     "and names both places a file can come from");
-  assert.match(await read("docs/index.html"), /Your audio stays on your Mac/,
+  assert.match(await read("docs/index.html"), /Your audio stays on your computer/,
     "the claim the exclusion protects still stands");
 
   const fn = await read("supabase/functions/report-media/index.ts");

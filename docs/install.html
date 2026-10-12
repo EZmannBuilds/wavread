@@ -7,10 +7,10 @@
 <meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Every step of installing WavRead on a Mac, including the exact dialog macOS shows on first launch and what it means.">
+<meta name="description" content="Every step of installing WavRead on a Mac or a Windows PC, including the exact dialog each system shows on first launch and what it means.">
 <link rel="canonical" href="https://wavread.com/install">
 <meta property="og:title" content="Installing WavRead">
-<meta property="og:description" content="Every step of installing WavRead on a Mac, including the exact dialog macOS shows on first launch and what it means.">
+<meta property="og:description" content="Every step of installing WavRead on a Mac or a Windows PC, including the exact dialog each system shows on first launch and what it means.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WavRead">
 <meta property="og:url" content="https://wavread.com/install">
@@ -31,9 +31,11 @@
 
 <h1>Installing WavRead</h1>
 <p class="lede">Four steps, about two minutes. The third one shows a dialog that
-looks alarming and is not — it is on this page so you know before you see it.</p>
+looks alarming and is not — it is on this page so you know before you see it.
+On Windows, the steps are the same and the dialog is different:
+<a href="#install-windows">installing on Windows</a>.</p>
 
-</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#install-section-1">1. Download it from your dashboard</a><a href="#install-section-2">2. Check the checksum (optional, but it is there for a reason)</a><a href="#install-section-3">3. Open it, and answer the one question macOS asks</a><a href="#install-section-4">4. Analyze something you know well</a><a href="#install-section-5">Where your files go</a><a href="#install-section-6">Updating later</a><a href="#install-section-7">If something goes wrong</a></nav></aside><div class="reading-body"><section class="content-section" id="install-section-1"><h2>1. Download it from your dashboard</h2>
+</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#install-section-1">1. Download it from your dashboard</a><a href="#install-section-2">2. Check the checksum (optional, but it is there for a reason)</a><a href="#install-section-3">3. Open it, and answer the one question macOS asks</a><a href="#install-section-4">4. Analyze something you know well</a><a href="#install-windows">Installing on Windows</a><a href="#install-section-5">Where your files go</a><a href="#install-section-6">Updating later</a><a href="#install-section-7">If something goes wrong</a></nav></aside><div class="reading-body"><section class="content-section" id="install-section-1"><h2>1. Download it from your dashboard</h2>
 <p>Sign in at <a href="signin.html">wavread.com/signin</a> with the email you
 bought with. A one-time link arrives; there is no password. Your dashboard lists
 the current build with a <strong>Download</strong> button beside it.</p>
@@ -94,6 +96,49 @@ longer than later ones — it is measuring, not downloading. Nothing is uploaded
 your audio stays on your Mac, and the
 <a href="privacy.html">privacy page</a> lists every request the app can make.</p>
 
+</section><section class="content-section" id="install-windows"><h2>Installing on Windows</h2>
+<p>Windows 10 or 11, 64-bit. Your dashboard lists the Windows build beside the
+Mac one; the same purchase covers both. It is an installer,
+<code>WavRead-1.5.6-Setup.exe</code>, and it needs no administrator password:
+WavRead installs for your Windows account only.</p>
+
+<p><strong>Check the checksum</strong> (optional, as on a Mac). In PowerShell:</p>
+<pre class="install">Get-FileHash "$env:USERPROFILE\Downloads\WavRead-1.5.6-Setup.exe"</pre>
+<p>The <code>Hash</code> it prints should match the dashboard, letter for
+letter (Windows prints it in capitals; that is the same value).</p>
+
+<p><strong>Run the installer.</strong> The Windows build is not yet signed with a
+code-signing certificate, so Windows does not know who made it, and says so:</p>
+
+<div class="note">
+  <p><strong>What you will see the first time:</strong></p>
+  <p>A blue window titled <em>Windows protected your PC</em>: <em>Microsoft
+  Defender SmartScreen prevented an unrecognized app from starting.</em></p>
+  <p>Click <strong>More info</strong>. It shows <em>App:
+  WavRead-1.5.6-Setup.exe</em> and <em>Publisher: Unknown publisher</em>, and a
+  <strong>Run anyway</strong> button. Check the file name, then click
+  <strong>Run anyway</strong>. Your browser may also warn that the file is not
+  commonly downloaded; keep it.</p>
+</div>
+
+<p>That warning is about the missing signature, not about anything found in the
+file, which is why the checksum above is worth the ten seconds. If the
+publisher line ever names someone other than <em>Unknown publisher</em> or
+EZmannBuilds, or the checksum does not match, do not run it —
+<a href="mailto:support@wavread.com">email support@wavread.com</a>.</p>
+
+<p>The installer asks you to accept the licence and then puts WavRead in your
+Start menu. It also needs the Microsoft Edge WebView2 Runtime, which Windows 11
+and an up-to-date Windows 10 already have; if yours does not, the installer says
+so, offers to open Microsoft's WebView2 download page, and installs nothing until
+the runtime is there.</p>
+
+<p>Your library lives in <code>%LOCALAPPDATA%\WavRead</code>, the app in
+<code>%LOCALAPPDATA%\Programs\WavRead</code>. To update, run the new installer:
+it replaces the app in place. To remove WavRead, use
+<strong>Settings › Apps › Installed apps</strong>; uninstalling removes the app
+and never your library.</p>
+
 </section><section class="content-section" id="install-section-5"><h2>Where your files go</h2>
 <p>WavRead keeps everything in one folder you control — analyses, documents,
 stems, and copies of the audio you analysed. Settings shows the exact
@@ -115,7 +160,7 @@ or your track names; the <a href="privacy.html">privacy page</a> lists every
 field.</p>
 
 <p class="measured">Written against WavRead 1.5.6 on macOS 14 and later, Apple
-Silicon. Intel Macs are not supported — see
+Silicon, and on Windows 11 x64. Intel Macs are not supported — see
 <a href="requirements.html">requirements</a>.</p>
 
 </section></div></div></main>
