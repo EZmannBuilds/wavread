@@ -2,7 +2,7 @@
 name: wavread
 description: Assist musicians with WavRead analysis, stem selection, app settings, renaming, reference comparisons and DAW-specific next steps. Use when operating WavRead or interpreting its reports and exports.
 metadata:
-  version: 1.5.3.1
+  version: 1.5.6
 ---
 
 # WavRead — assistance for the music you mean to make
@@ -38,7 +38,15 @@ select stems, analyze files, manage references/history/markers and export result
 Use the actual app actions and verify persisted state; a skill alone does not
 create executable access or override user authorization. Honor unavailable features.
 
-Start at `GET http://127.0.0.1:8765/api/v1/capabilities` (use the running app's port).
+When the WavRead MCP is installed, prefer its tools: `capabilities`, `settings`,
+`list_tracks`, `read_track`, `analyze_files`, `rename_track`, `select_stems`, `jobs`,
+`inspect_page`, `app_request` and `save_app_file`. `start_wavread` opens the updated
+local app if needed. Use `app_request` for every implemented action not covered by
+a dedicated tool; inspect forms and verify the resulting state. This includes
+storage/deletion and all exposed settings, within the user's requested scope.
+The MCP does not itself control DAWs or VSTs.
+
+For direct HTTP access start at `GET http://127.0.0.1:8765/api/v1/capabilities` (use the running app's port).
 Read `/api/v1/settings` and `/api/v1/tracks`. Use partial JSON PATCH for settings.
 For other actions, inspect `/api/v1/forms?path=<encoded page>` for current forms,
 then submit the exposed route with its actual fields. Check the resulting page

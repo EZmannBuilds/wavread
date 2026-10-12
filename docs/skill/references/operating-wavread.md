@@ -1,4 +1,4 @@
-# Operating WavRead 1.5.3.1
+# Operating WavRead 1.5.6
 
 The app is a loopback Flask service, normally port 8765. Start with
 `GET /api/v1/capabilities`: it reports version, routes, methods, settings and capture
@@ -19,7 +19,7 @@ page rather than guessing fields or overwriting the settings file.
 
 ## Tracks and versions
 
-`GET /api/v1/tracks` lists saved readings. `GET /json/<name>` provides data.
+`GET /api/v1/tracks` lists saved readings. `GET /api/v1/tracks/<name>` provides raw JSON data (`/json/<name>` is an HTML page).
 `POST /rename/<name>` with form field `new` renames the track and related records.
 Read the redirect destination and re-list the library to confirm the new name.
 Inspect `/track/<name>` for history, identity, markers, references, stage, material
@@ -49,6 +49,11 @@ Each enabled part has `/track/<name>/stem/<stem>` and a `/data` JSON endpoint.
 DAW capture is disabled in public builds and remains Coming soon. Export aligned stems from the
 DAW and import them. Do not bypass this with environment variables. WavRead can
 compare references/versions; use the available reference workspace and both readings.
-A local MCP adapter can wrap these routes with the official MCP SDK. It requires
-an installed adapter runtime and client registration; the Markdown skill is not
-itself an MCP server. See `docs/MCP.md` in the source repository.
+From 1.5.6 the app ships its own MCP helper, `wavread-mcp`. Settings › AI
+assistants shows its path on that machine and the line to add it to Claude
+Desktop, Claude Code or Codex. It provides common typed tools plus `app_request`
+for all implemented routes and `inspect_page` for current forms. Prefer these
+tools when installed; the Markdown skill is guidance, not the executable server.
+Earlier builds have no helper, and a source checkout runs
+`integrations/wavread_mcp/server.py` instead (see `docs/MCP.md` there).
+Audio stays local; returned measurements and text enter the assistant conversation.
