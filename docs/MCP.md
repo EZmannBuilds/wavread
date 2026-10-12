@@ -18,12 +18,20 @@ the app:
 | Windows | `%LOCALAPPDATA%\Programs\WavRead\mcp\wavread-mcp.exe` |
 | macOS | `WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp` |
 
-**Settings › AI assistants** shows the exact path on that machine, with the
-lines to paste into Claude Desktop (`claude_desktop_config.json`), Claude Code
-(`claude mcp add --scope user wavread -- "<path>"`) and Codex
-(`codex mcp add wavread -- "<path>"`). Any other client takes it as a local
-stdio server with that command and no arguments. Access is on by default and
-covers every WavRead action, deletes included.
+The app itself never mentions the helper: most musicians want no AI in their
+mixing tool, so there is no settings page, menu item or link for it. Whoever
+wants it adds it to their client by path:
+
+```sh
+claude mcp add --scope user wavread -- "/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp"
+codex mcp add wavread -- "/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp"
+```
+
+For Claude Desktop, add it to `claude_desktop_config.json` under `mcpServers`
+as `{"wavread": {"command": "<that path>", "args": []}}`. On Windows the path is
+`%LOCALAPPDATA%\Programs\WavRead\mcp\wavread-mcp.exe`. Any other client takes
+it as a local stdio server with that command and no arguments. Access is on by
+default and covers every WavRead action, deletes included.
 
 Its `start_wavread` tool opens the WavRead it was installed with (`WavRead.exe`
 beside its `mcp` folder, or the `WavRead.app` that contains it) and waits up to
@@ -58,8 +66,7 @@ codex mcp add wavread -- "$PWD/integrations/wavread_mcp/.venv/bin/python" "$PWD/
 claude mcp add --scope user wavread -- "$PWD/integrations/wavread_mcp/.venv/bin/python" "$PWD/integrations/wavread_mcp/server.py"
 ```
 
-Running the app from source, Settings › AI assistants prints these lines with
-the checkout's paths filled in.
+Use absolute paths to your checkout.
 
 The adapter has its own Python 3.12 environment. The audio engine keeps its existing
 Python environment and DSP dependencies. Keep the checkout and both environments
@@ -123,8 +130,8 @@ settings and automatic redirects are disabled. Alternate local instances can use
 
 `WAVREAD_MCP_BINARY=<path to wavread-mcp>` makes `test_mcp.py` run the same checks
 against a frozen helper instead of `server.py`; CI does this for the Windows build.
-`test_assistants.py` checks that the packaged app finds its helper, that the
-helper finds its app, and what Settings › AI assistants prints.
+`test_assistants.py` checks that the helper finds its app, and that the app
+itself shows no AI assistants page, link or wording.
 
 The MCP test launches the real stdio server and client against a temporary Flask
 library with real DSP fixtures. It checks discovery, form inspection, invalid

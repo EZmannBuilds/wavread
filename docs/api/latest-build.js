@@ -25,7 +25,12 @@ module.exports = async function handler(request, response) {
   }
 
   try {
-    const upstream = await fetch(`${url}/functions/v1/latest-build`, {
+    // Mac and Windows share one catalog. A Windows installation asks with
+    // ?platform=windows; anything else, including no question at all (every
+    // Mac build), is passed on as nothing, so the catalog answers for the Mac.
+    const platform = new URL(request.url, "https://wavread.com").searchParams.get("platform");
+    const query = platform === "windows" ? "?platform=windows" : "";
+    const upstream = await fetch(`${url}/functions/v1/latest-build${query}`, {
       headers: { Accept: "application/json" },
     });
     const body = await upstream.text();

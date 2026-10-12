@@ -44,6 +44,11 @@
       "source": "/beta-dashboard",
       "destination": "/dashboard",
       "permanent": false
+    },
+    {
+      "source": "/capture",
+      "destination": "/how-it-works",
+      "permanent": true
     }
   ]
 }

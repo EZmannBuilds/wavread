@@ -20,7 +20,7 @@ if (menu) {
 (() => {
   const source = new URLSearchParams(location.search).get('from')?.trim().toLowerCase();
   if (!source || !/^(reels|tiktok|shorts|yt|direct)(-[a-z0-9]{1,12})?$/.test(source)) return;
-  const pages = new Set(['/', '/index', '/buy', '/early-build', '/how-it-works', '/documents', '/agent', '/capture', '/requirements', '/install', '/faq', '/privacy', '/EULA']);
+  const pages = new Set(['/', '/index', '/buy', '/early-build', '/how-it-works', '/documents', '/agent', '/requirements', '/install', '/faq', '/privacy', '/EULA']);
   document.querySelectorAll('a[href]').forEach(link => {
     if (link.hasAttribute('download')) return;
     const url = new URL(link.getAttribute('href'), location.href);

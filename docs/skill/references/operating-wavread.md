@@ -46,14 +46,17 @@ Each enabled part has `/track/<name>/stem/<stem>` and a `/data` JSON endpoint.
 
 ## Availability
 
-DAW capture is disabled in public builds and remains Coming soon. Export aligned stems from the
+DAW capture is not available in public builds, and the app has no page for it. Export aligned stems from the
 DAW and import them. Do not bypass this with environment variables. WavRead can
 compare references/versions; use the available reference workspace and both readings.
-From 1.5.6 the app ships its own MCP helper, `wavread-mcp`. Settings › AI
-assistants shows its path on that machine and the line to add it to Claude
-Desktop, Claude Code or Codex. It provides common typed tools plus `app_request`
-for all implemented routes and `inspect_page` for current forms. Prefer these
-tools when installed; the Markdown skill is guidance, not the executable server.
-Earlier builds have no helper, and a source checkout runs
-`integrations/wavread_mcp/server.py` instead (see `docs/MCP.md` there).
+From 1.5.6 the app ships its own MCP helper, `wavread-mcp`, at
+`/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp`
+on a Mac (`%LOCALAPPDATA%\Programs\WavRead\mcp\wavread-mcp.exe` on Windows).
+The app does not mention it anywhere, so do not send the user looking for an
+AI setting: add the helper to the client by that path. It provides common typed
+tools plus `app_request` for all implemented routes and `inspect_page` for
+current forms. Prefer these tools when installed; the Markdown skill is
+guidance, not the executable server. Earlier builds have no helper, and a
+source checkout runs `integrations/wavread_mcp/server.py` instead (see
+`docs/MCP.md` there).
 Audio stays local; returned measurements and text enter the assistant conversation.

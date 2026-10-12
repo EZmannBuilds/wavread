@@ -43,7 +43,7 @@ test("public homepage tells the real release story", async () => {
   assert.match(html, /\$50 once/);
   assert.match(html, /buy\.html/);
   assert.match(html, /Windows soon/);
-  assert.match(html, /disabled in public builds/);
+  assert.doesNotMatch(html, /DAW capture|capture directly/i);
   assert.match(html, /id="notify-form"/);
   assert.doesNotMatch(html, /id="marketing-opt-in"[^>]*checked/);
   assert.doesNotMatch(html, /noindex|Preview form:|saved locally|style="/);
@@ -59,7 +59,7 @@ test("search engines get a truthful, bounded map of the site", async () => {
     assert.ok(robots.includes(`Disallow: ${hidden}`), `${hidden} stays out of indexes`);
   }
   const sitemap = await read("docs/sitemap.xml");
-  for (const pub of ["/", "/how-it-works", "/capture", "/documents", "/requirements", "/buy", "/faq"]) {
+  for (const pub of ["/", "/how-it-works", "/documents", "/requirements", "/buy", "/faq"]) {
     assert.ok(sitemap.includes(`<loc>https://wavread.com${pub}</loc>`), `${pub} is sitemapped`);
   }
   for (const hidden of ["signin", "dashboard", "purchase-complete"]) {
@@ -133,7 +133,7 @@ test("every page exposes product, support and account navigation", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs",file));
     const menu = html.match(/<details class="site-menu">([\s\S]*?)<\/details>/)?.[1] || "";
-    for (const name of ["how-it-works","documents","agent","capture","requirements","install","faq","privacy","EULA"]) {
+    for (const name of ["how-it-works","documents","agent","requirements","install","faq","privacy","EULA"]) {
       assert.ok(menu.includes(`href="/${name}.html"`), `${file}: missing ${name}`);
     }
     assert.doesNotMatch(html, />Owner sign in<\/a>/);
@@ -340,7 +340,7 @@ test("edge functions keep the money and token boundaries", async () => {
 test("shared links carry a canonical URL and a real social card", async () => {
   // www redirects to the bare domain, so a canonical naming www would point
   // every shared link at a redirect.
-  const publicPages = ["how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
+  const publicPages = ["how-it-works.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
@@ -605,7 +605,7 @@ test("the old price and the old framing do not come back", async () => {
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z]+;/gi, " ");
 
-  const publicPages = ["index.html", "how-it-works.html", "capture.html",
+  const publicPages = ["index.html", "how-it-works.html",
                        "documents.html", "agent.html", "requirements.html",
                        "install.html", "buy.html", "privacy.html", "faq.html",
                        "404.html", "EULA.html", "signin.html",
@@ -719,8 +719,14 @@ test("return pages and supporting guidance do not invent success or promote disa
   const complete = await read('docs/purchase-complete.html');
   assert.doesNotMatch(complete, /Stripe has confirmed|Payment received|purchase is confirmed|You're in early/);
   assert.match(complete, /Opening this page alone does not confirm a payment/);
-  assert.match(await read('docs/agent.html'), /Direct DAW capture is coming soon/);
-  assert.match(await read('docs/skill/references/operating-wavread.md'), /disabled in public builds/);
+  assert.match(await read('docs/skill/references/operating-wavread.md'), /not available in public builds/);
+  // DAW capture is not offered, so no page promises it.
+  for (const file of htmlFiles) {
+    const html = await read(join("docs", file));
+    assert.doesNotMatch(html, /capture is coming soon|href="\/?capture(\.html)?"/i, `${file} still promotes DAW capture`);
+  }
+  const vercel = JSON.parse(await read("vercel.json"));
+  assert.ok(vercel.redirects.some(r => r.source === "/capture"), "/capture redirects rather than 404s");
   const licence = await read('docs/EULA.html');
   assert.doesNotMatch(licence, /<p>\*\*|<p>produces\.\*\*/);
   assert.match(licence, /<strong>We claim no rights[\s\S]*?produces\.<\/strong>/);
