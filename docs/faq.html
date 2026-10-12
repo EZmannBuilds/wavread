@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Questions — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Straight answers about what WavRead measures, what it refuses to guess, what leaves your machine, and what it costs.">
@@ -17,41 +17,36 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
-</head>
-<body class="content-page">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-faq">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><nav aria-label="Main">
-  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="agent.html">Agent skill</a><a href="requirements.html">Requirements</a><a href="buy.html">Get WavRead</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="buy.html">Buy — $50</a>
-</nav></header>
-<main id="main">
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>Questions</h1>
 <p class="lede">Including the ones with awkward answers.</p>
 
-<h2>Common questions</h2>
-<div class="qa">
-  <h3>How do I reach a human?</h3>
+</div><div class="reading-layout"><div class="reading-body"><section class="content-section" id="faq-section-1"><h2>Common questions</h2>
+<details class="question"><summary>How do I reach a human?</summary><div>
   <p><a href="mailto:support@wavread.com">support@wavread.com</a> — that address reaches a real
   inbox and a real person. Sign-in links and receipts arrive from
   <code>noreply@wavread.com</code>, which is a sending address only; replies to
   it go nowhere. If you own a build, the dashboard's feedback form works too and
   has the advantage of showing you the status of what you sent.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Does it change my audio?</h3>
+<details class="question"><summary>Does it change my audio?</summary><div>
   <p>No. WavRead never writes to your files and never processes your mix. It
-  measures and explains; your DAW does the editing. The capture plugin passes
-  audio through untouched — the buffer that arrives is the buffer that leaves.</p>
-</div>
+  measures and explains; your DAW does the editing. Direct DAW capture is coming soon and disabled in public builds.</p>
+</div></details>
 
-<div class="qa">
-  <h3>Does anything get uploaded?</h3>
+<details class="question"><summary>Does anything get uploaded?</summary><div>
   <p>No audio, no analysis, no measurements, ever. The app's own requests are a
   once-a-day version check you can switch off, the update you press the button
   for, and one one-time model download <em>if</em> you transcribe lyrics.
@@ -60,37 +55,33 @@
   which send a scrubbed crash record only after you turn them on.
   <a href="privacy.html">Privacy</a> lists every request and every field.
   Everything else runs offline, and the app works with the network cable out.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Is there an account or a subscription?</h3>
+<details class="question"><summary>Is there an account or a subscription?</summary><div>
   <p>There is a price but no subscription: WavRead costs $50, once, and
   nothing renews. Nothing is free. The desktop app itself still has no account,
   sign-in, or licence server — the account lives on this website, where you
   download builds and see your reports.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>What does $50 buy, and do I pay again?</h3>
+<details class="question"><summary>What does $50 buy, and do I pay again?</summary><div>
   <p>Fifty dollars buys WavRead and every 1.x update after it — each on
   your dashboard, verified by SHA-256. You do not pay again: nothing renews and
   nothing charges you a second time. Refunds: ask within
   30 days from your account email.
   <a href="buy.html">Details and checkout.</a></p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Do crash reports mean WavRead is watching what I do?</h3>
-  <p>No. With reports off — the default — the app sends nothing. With reports
+<details class="question"><summary>Do crash reports mean WavRead is watching what I do?</summary><div>
+  <p>Audio analysis stays local. The app can check for updates and download the lyric model; optional problem reports are off by default. With reports
   on, it sends a record only when something actually fails, and the record is
   scrubbed before it exists: no audio, no track names, no username, no
   measurements. Every record is kept on your machine where you can read it,
   including after it was sent. <a href="privacy.html">Privacy</a> lists the
   exact fields.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Will macOS warn me when I open it?</h3>
+<details class="question"><summary>Will macOS warn me when I open it?</summary><div>
   <p>Once, benignly. WavRead is signed with an Apple Developer ID and notarised
   by Apple, with the ticket stapled to both the app and the disk image, so it
   works even on a Mac that is offline. The first launch still shows the ordinary
@@ -103,107 +94,80 @@
   button. That is what builds before 1.4.37 did, and it needed a trip through
   System Settings → Privacy &amp; Security. That part is over.
   <a href="install.html">The install guide</a> shows both, side by side.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Will it run on my Intel Mac?</h3>
+<details class="question"><summary>Will it run on my Intel Mac?</summary><div>
   <p>No. The build is Apple Silicon only. See
   <a href="requirements.html">requirements</a> for the full picture.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>I remember the free downloads. Can I still get one?</h3>
+<details class="question"><summary>I remember the free downloads. Can I still get one?</summary><div>
   <p>No. Those downloads were withdrawn when WavRead became a paid product —
   they were unsigned, they used a runtime that no longer gets fixes, and
   offering them beside a paid build would have sold the past as the present.
   The current build is the only one available, and the only one that is
   signed, notarised and supported.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>How accurate are the loudness and peak numbers?</h3>
+<details class="question"><summary>How accurate are the loudness and peak numbers?</summary><div>
   <p>Integrated loudness follows ITU-R BS.1770, loudness range follows EBU Tech
   3342, and true peak is estimated by 4× oversampling as BS.1770 Annex 2
   describes. Peak and clipping are measured across the real channels — a mono
   fold-down understates a peak living in one channel by up to 6 dB, which is a
   bug WavRead shipped once and now has a regression test against.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Are the chords, key, melody and lyrics reliable?</h3>
+<details class="question"><summary>Are the chords, key, melody and lyrics reliable?</summary><div>
   <p>They are estimates and the documents label them as such. Chords and key come
   from pitch-class analysis, melody from a note-detection model, lyrics from
   speech recognition on the vocal part. Treat them as a good first draft, not a
   transcription you would print.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Can it tell me what reverb or compressor was used?</h3>
-  <p>No, and it will not pretend to. What it can do — when you capture your
-  master alongside the individual parts — is measure the <em>difference</em>
-  between them: delay times in milliseconds, how long the added tail takes to
-  decay, and the tone change through the bus. That is measurement, not
-  identification. It reports "a repeat at 375 ms", never "this is a Space
-  Designer".</p>
-</div>
+<details class="question"><summary>Can it tell me what reverb or compressor was used?</summary><div><p>No. WavRead measures the audio you provide; it does not identify the exact plugins or settings used. Capture-based bus comparison is coming soon. Export your mix or aligned stems to analyze today.</p>
+</div></details>
 
-<div class="qa">
-  <h3>Do I need the plugin on every track?</h3>
-  <p>Only if you want every track measured separately. One instance on your
-  master gives you the finished mix. Busses are the sensible middle ground —
-  five instances instead of forty. And if you would rather not use the plugin at
-  all, export your tracks as audio files and drop the folder in: WavRead takes a
-  folder of stems directly.</p>
-</div>
+<details class="question"><summary>Do I need the plugin on every track?</summary><div><p>No plugin is needed for the current export workflow. Direct DAW capture is coming soon and disabled in public builds. Export aligned audio files for the parts you want measured separately, then open their folder in WavRead.</p>
+</div></details>
 
-<div class="qa">
-  <h3>Where do my files live?</h3>
+<details class="question"><summary>Where do my files live?</summary><div>
   <p>In one folder you choose, with everything in it: analyses, documents,
   captures and copies of your audio. Settings shows you where it is, how big it
   is, and moves it to another drive if you want — copying everything first and
   removing the original only once the copy is complete.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>What happens to my old analyses when WavRead updates?</h3>
+<details class="question"><summary>What happens to my old analyses when WavRead updates?</summary><div>
   <p>They stay readable. Documents carry the version and measurement schema that
   produced them, and when a measurement changes in a way that makes old and new
   numbers incomparable, WavRead says so instead of mixing them silently. You can
   reanalyze anything whose original audio is still where it was.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Why does a number sometimes say "unavailable"?</h3>
+<details class="question"><summary>Why does a number sometimes say "unavailable"?</summary><div>
   <p>Because it could not be measured — the analysis predates the measurement,
   the file is too short for that window, or the take has no quiet gap to measure
   a decay in. A dash never means zero. A number that isn't there is more useful
   than one that's wrong.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Can I give the documents to ChatGPT or Claude?</h3>
+<details class="question"><summary>Can I give the documents to ChatGPT or Claude?</summary><div>
   <p>That is what they are written for. The Track Document is plain Markdown
   containing measurements and no audio. Sharing it is your decision — WavRead
   never sends it anywhere itself.</p>
-</div>
+</div></details>
 
-<div class="qa">
-  <h3>Does it update itself?</h3>
+<details class="question"><summary>Does it update itself?</summary><div>
   <p>Only when you press the button. Update now downloads the release, checks it
   against the checksum published in the release notes, confirms the app inside is
   the version it claims to be, and swaps it in — moving your current app aside
   first and putting it back if anything fails. The updater checks public GitHub
   releases; sign-in-protected tester builds must be downloaded manually from the
   tester dashboard.</p>
-</div>
+</div></details>
 
-</main>
-<footer>
-  <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> · <a href="requirements.html">Requirements</a> · <a href="install.html">Install</a> ·
-  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
-  Audio → readable language, on your own machine.
-</footer>
+</section></div></div></main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 
 </body>
 </html>

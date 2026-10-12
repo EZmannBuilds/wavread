@@ -1,5 +1,5 @@
 const SUPABASE_MODULE = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm";
-const CURRENT_VERSION = "1.4.49";
+const CURRENT_VERSION = "1.5.4";
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 
 let supabase = null;
@@ -45,7 +45,7 @@ function friendlyAuthError(error) {
 async function loadConfiguration() {
   if (LOCAL_HOSTS.has(location.hostname)) return window.WAVREAD_BETA_CONFIG;
   try {
-    const response = await fetch("/api/beta-config", { headers: { Accept: "application/json" } });
+    const response = await fetch("/api/beta-config", { signal: AbortSignal.timeout(10000), headers: { Accept: "application/json" } });
     if (!response.ok) return null;
     const config = await response.json();
     return config.configured ? config : null;
@@ -72,6 +72,7 @@ async function createBetaClient() {
 async function initializeSignIn() {
   const form = document.querySelector("#signin-form");
   if (!form) return;
+  form.addEventListener("submit", event => event.preventDefault());
   const setupNotice = document.querySelector("#setup-notice");
   const status = document.querySelector("#signin-status");
   const submit = form.querySelector("button[type=submit]");
@@ -96,24 +97,30 @@ async function initializeSignIn() {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const email = new FormData(form).get("email").trim();
-    if (!form.reportValidity()) return;
+    if (submit.disabled || !form.reportValidity()) return;
     submit.disabled = true;
     const emailField = form.querySelector("#email");
     setStatus(status, "Sending a secure sign-in link…", "", emailField);
     const redirectPath = LOCAL_HOSTS.has(location.hostname) ? "dashboard.html" : "/dashboard";
     const redirectTo = new URL(redirectPath, location.origin).href;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false, emailRedirectTo: redirectTo }
-    });
-    submit.disabled = false;
-    if (error) {
-      setStatus(status, friendlyAuthError(error), "error", emailField);
-      return;
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false, emailRedirectTo: redirectTo }
+      });
+      if (error) {
+        setStatus(status, friendlyAuthError(error), "error", emailField);
+        return;
+      }
+      form.reset();
+      setStatus(status, "Check your email for a one-time sign-in link. It expires shortly.", "success", emailField);
+    } catch {
+      setStatus(status, "Could not reach sign-in. Check your connection and try again.", "error", emailField);
+    } finally {
+      submit.disabled = false;
     }
-    form.reset();
-    setStatus(status, "Check your email for a one-time sign-in link. It expires shortly.", "success", emailField);
   });
+  submit.disabled = false;
 }
 
 function showDashboardState(id) {
@@ -446,6 +453,61 @@ async function loadReports() {
   }
 }
 
+async function initializeLicenceAdmin() {
+  const panel=document.querySelector('#licence-admin');
+  const form=document.querySelector('#licence-grant-form');
+  if(!panel || !form) return;
+  form.addEventListener('submit',event=>event.preventDefault());
+  const permission=await supabase.rpc('owner_licence_status');
+  if(permission.error || permission.data!==true) return;
+  panel.hidden=false;
+  const manage = document.querySelector('#licence-manage-form');
+  manage?.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!manage.reportValidity()) return;
+    const submit = manage.querySelector('button');
+    if (submit.disabled) return;
+    submit.disabled = true;
+    const status = document.querySelector('#licence-manage-status');
+    const results = document.querySelector('#licence-results');
+    results.replaceChildren();
+    setStatus(status, 'Checking licence access…');
+    try {
+      const {data, error} = await supabase.rpc('owner_manage_licence', {
+        recipient_email: document.querySelector('#licence-lookup-email').value.trim().toLowerCase(),
+        operation: document.querySelector('#licence-operation').value
+      });
+      if (error || !data) throw new Error('Licence action failed');
+      setStatus(status, `${data.email}: ${data.account_status}. Contributor access: ${data.free_updates ? 'yes' : 'no'}.`, 'success');
+      for (const licence of data.licences || []) {
+        const row = document.createElement('p');
+        row.textContent = `${licence.owner_grant ? 'Complimentary grant' : licence.source} · ${licence.build_version || 'All eligible builds'} · ${licence.revoked_at ? 'Revoked' : 'Active'}`;
+        results.append(row);
+      }
+    } catch { setStatus(status, 'Could not update licence access. Check your sign-in and retry.', 'error'); }
+    finally { submit.disabled = false; }
+  });
+  const button=form.querySelector('button[type=submit]');
+  const field=document.querySelector('#licence-recipient');
+  const status=document.querySelector('#licence-grant-status');
+  button.disabled=false;
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(button.disabled || !form.reportValidity()) return;
+    button.disabled=true;
+    setStatus(status,'Granting licence…');
+    try {
+      const email=field.value.trim().toLowerCase();
+      const {data,error}=await supabase.functions.invoke('grant-licence',{body:{email}});
+      if(error || !data || data.error) throw new Error('Grant failed');
+      setStatus(status,`${data.already_owned?'Already owned':'Free licence granted'}: ${data.email}. They can sign in at wavread.com/signin. No email was sent.`,'success');
+      form.reset();
+    } catch {
+      setStatus(status,'Could not grant the licence. Check the address and your sign-in, then retry.','error',field);
+    } finally { button.disabled=false; }
+  });
+}
+
 async function initializeDashboard() {
   if (!document.querySelector("#dashboard-content")) return;
   const sessionMessage = document.querySelector("#session-message");
@@ -491,6 +553,7 @@ async function initializeDashboard() {
   document.querySelector("#feedback-os").value = navigator.userAgentData?.platform || navigator.platform || "Not provided";
   showDashboardState("dashboard-content");
 
+  initializeLicenceAdmin().catch(()=>{});
   initializeLinkCode();
   const standing = await loadOwnership();
   loadBuilds(standing);

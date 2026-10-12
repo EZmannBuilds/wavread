@@ -14,33 +14,27 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
-</head>
-<body class="content-page">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-agent">
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="site-header">
-  <nav aria-label="Main">
-    <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="34" height="34"><span>WavRead</span></a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-    <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="agent.html" aria-current="page">Agent skill</a><a href="requirements.html">Requirements</a><a href="buy.html">Get WavRead</a></div>
-    <span class="spacer"></span>
-    <a class="nav-signin" href="signin.html">Sign in</a>
-    <a class="btn compact" href="buy.html">Buy — $50</a>
-  </nav>
-</header>
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
 
-<main id="main">
+<main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>Your agent cannot hear your mix. This is how it reads it.</h1>
 <p class="lede">WavRead measures your track on your own machine and writes what it
 measured as text. The WavRead skill is the instruction file that teaches any AI
-agent how to read that text — what was measured, what was only estimated, and what
-it is not allowed to conclude.</p>
+agent how to read that text — what was measured, what was only estimated, and how to connect the evidence to your DAW, setup and creative intent.</p>
 
 <div class="cmd">
   <code id="cmd-hero">npx skills add EZmannBuilds/wavread-skill</code>
@@ -49,7 +43,7 @@ it is not allowed to conclude.</p>
 <p class="install-alt">No CLI? <a href="#get">Download the file</a>, or read it on
 <a href="https://github.com/EZmannBuilds/wavread-skill">the skill repo</a>.</p>
 
-<h2>What a reading looks like</h2>
+</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#agent-section-1">What a reading looks like</a><a href="#agent-section-2">Why a skill at all</a><a href="#agent-section-3">Four things the skill provides</a><a href="#agent-section-4">Three steps</a><a href="#agent-section-5">What it will not do</a><a href="#agent-section-6">Your audio still never leaves your machine</a><a href="#agent-section-7">Get the skill</a><a href="#agent-section-8">Questions</a></nav></aside><div class="reading-body"><section class="content-section" id="agent-section-1"><h2>What a reading looks like</h2>
 <p>The skill holds an agent to the same three layers WavRead uses itself. The
 measurement is stated flatly. What it might mean is offered as a possibility. What
 to listen for is handed back to you, because you are the one who can hear it.</p>
@@ -59,7 +53,7 @@ to listen for is handed back to you, because you are the one who can hear it.</p
   <div><span class="finding-label listen-label">Listen for</span><p>The vocal losing definition in the loudest section, 0:39–0:59.</p></div>
 </div>
 
-<h2>Why a skill at all</h2>
+</section><section class="content-section" id="agent-section-2"><h2>Why a skill at all</h2>
 <p>An agent handed a WavRead analysis with no instructions will do predictable
 things wrong. It will treat an estimated key as a fact. It will read a section that
 was never analysed as a section where nothing was found. It will compare your track
@@ -68,7 +62,7 @@ back to you as though you wrote it.</p>
 <p>The skill fixes each of those with a rule, and each rule came from something the
 tool actually did.</p>
 
-<h2>Four things the skill provides</h2>
+</section><section class="content-section" id="agent-section-3"><h2>Four things the skill provides</h2>
 <div class="cols">
   <div class="card">
     <h3>Read your analysis correctly</h3>
@@ -79,26 +73,23 @@ tool actually did.</p>
   </div>
   <div class="card">
     <h3>Tell you what to fix first</h3>
-    <p>A fixed priority: anything that breaks delivery, then mono behaviour, then a
-    part that is inaudible or mis-levelled, then masking, and only then preferences.
+    <p>Priorities adapt to your intended sound, experience, production stage and delivery needs.
     Each item names the measurement, where in the track it is, and the listening
     check that confirms it.</p>
   </div>
   <div class="card">
     <h3>Help you run WavRead</h3>
-    <p>Analysing a bounce, bringing your own stems, capturing a take from your DAW
-    through WavRead Bridge, keeping versions comparable, and working out whether a
-    surprising result is your mix or the app.</p>
+    <p>Analysing a bounce, bringing your own stems, keeping versions comparable, and working out whether a
+    surprising result is your mix or the app. Version 1.5.3.1 adds an API map for renaming, changing options and selecting stems.</p>
   </div>
   <div class="card">
-    <h3>Compare two versions</h3>
-    <p>Give it both analyses and it diffs them in a fixed order — delivery contract,
-    spectrum, stereo, structure, stems — and asks the question that matters after any
-    revision: did fixing one thing break another?</p>
+    <h3>Understand your intent</h3>
+    <p>It asks which DAW and setup you use, what the lyrics mean to you, which imagery or feeling you want, and what should stay intact. It compares versions against those goals.</p>
   </div>
 </div>
 
-<h2>Three steps</h2>
+<p class="note">Direct DAW capture is coming soon and disabled in public builds. Use exported mixes and aligned stems today. Older skill copies may describe the previous capture workflow; <a href="skill/references/operating-wavread.md" download>read the current availability note</a>.</p>
+</section><section class="content-section" id="agent-section-4"><h2>Three steps</h2>
 <table class="spec">
   <tr><th>Analyse</th>
       <td>Drop your bounce or your stems into WavRead. Everything runs on your
@@ -110,9 +101,9 @@ tool actually did.</p>
       <td>Give the export to your agent. Ask your actual question.</td></tr>
 </table>
 
-<h2>What it will not do</h2>
+</section><section class="content-section" id="agent-section-5"><h2>What it will not do</h2>
 <p>WavRead observes, measures, explains, compares and documents. Your DAW edits the
-audio. The skill holds an agent to the same line.</p>
+audio. Your assistant adapts its guidance to the tools and experience you bring.</p>
 <table class="spec">
   <tr><th>No score or grade</th>
       <td>There is no number at the end that says how good your mix is, because
@@ -120,9 +111,8 @@ audio. The skill holds an agent to the same line.</p>
   <tr><th>No universal targets</th>
       <td>There is no correct loudness, no correct spectral tilt, no correct width.
       A reference track is a comparison, never a destination.</td></tr>
-  <tr><th>No plugin prescriptions</th>
-      <td>It names the outcome to aim for and the thing to listen for, not a
-      frequency to boost.</td></tr>
+  <tr><th>Useful starting points</th>
+      <td>Your assistant can suggest DAW steps and processor experiments grounded in your setup, intent and listening checks.</td></tr>
   <tr><th>No invented numbers</th>
       <td>If a measurement isn't in the analysis, the answer is that it isn't
       there.</td></tr>
@@ -134,15 +124,15 @@ audio. The skill holds an agent to the same line.</p>
       made it.</td></tr>
 </table>
 
-<h2>Your audio still never leaves your machine</h2>
+</section><section class="content-section" id="agent-section-6"><h2>Your audio still never leaves your machine</h2>
 <p>WavRead analyses locally. No account, no upload, no cloud processing.</p>
 <div class="note">
   <p>The agent handoff does not change that. <strong>You send text, not audio</strong>
   — the analysis WavRead wrote, and only if you choose to. The skill tells the agent
-  to ask for the export and never for your files.</p>
+  to keep analysis local and share only the context you choose.</p>
 </div>
 
-<h2 id="get">Get the skill</h2>
+</section><section class="content-section" id="agent-section-7"><h2 id="get">Get the skill</h2>
 <div class="cmd">
   <code id="cmd-get">npx skills add EZmannBuilds/wavread-skill</code>
   <button type="button" class="copy" data-copy="cmd-get">Copy</button>
@@ -151,8 +141,7 @@ audio. The skill holds an agent to the same line.</p>
 <code>npx skills update</code>.</p>
 <p>Works with any assistant that reads a skill or instruction file. If yours does
 not, <a href="skill/SKILL.md" download>download SKILL.md</a> and paste it at the top
-of the conversation with your analysis underneath. Every rule is in that one file, so
-it works on its own.</p>
+of the conversation with your analysis underneath. The main workflow is in that file; keep the linked references alongside it for app operation and field details.</p>
 <p>Two reference files go deeper, and an agent loads them only when it needs them:
 <a href="skill/references/reading-sections.md" download>reading-sections.md</a>, the
 trap hiding in each section of a document, and
@@ -160,9 +149,9 @@ trap hiding in each section of a document, and
 to run WavRead itself. The install command brings all three.</p>
 <p class="filemeta">Source:
 <a href="https://github.com/EZmannBuilds/wavread-skill">github.com/EZmannBuilds/wavread-skill</a>
-· version 1.4.47 rev 2 · updated August 31, 2026</p>
+· assistance workflow and app controls updated for 1.5.3.1</p>
 
-<h2>Questions</h2>
+</section><section class="content-section" id="agent-section-8"><h2>Questions</h2>
 
 <div class="qa">
   <h3>Do I need an AI subscription to use WavRead?</h3>
@@ -177,9 +166,7 @@ to run WavRead itself. The install command brings all three.</p>
 
 <div class="qa">
   <h3>Will the agent be able to hear my song?</h3>
-  <p>No, and that is the point. It reasons about what WavRead measured. Anything
-  that requires listening, the skill tells it to hand back to you as a listening
-  check.</p>
+  <p>A text export supplies measurements, not listening access. If your assistant has audio tools and you choose to use them, it can add listening observations while keeping them distinct from measured facts.</p>
 </div>
 
 <div class="qa">
@@ -188,17 +175,8 @@ to run WavRead itself. The install command brings all three.</p>
   yours.</p>
 </div>
 
-</main>
+</section></div></div></main>
 
-<footer>
-  <a href="/">WavRead</a> &middot; <a href="privacy.html">Privacy</a> &middot;
-  <a href="capture.html">DAW capture</a> &middot;
-  <a href="documents.html">The documents</a> &middot;
-  <a href="agent.html">Agent skill</a> &middot;
-  <a href="requirements.html">Requirements</a> &middot;
-  <a href="install.html">Install</a> &middot; <a href="faq.html">FAQ</a> &middot;
-  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
-  Audio &rarr; readable language, on your own machine.
-</footer>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 </body>
 </html>

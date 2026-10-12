@@ -1,0 +1,230 @@
+{
+  "public_url": "https://wavread.com/",
+  "deployment_id": "dpl_EXAnCpZTtspF8J17tx3QA3AnWz4r",
+  "deployment_url": "https://wavread-ezrm0mqv6-lorehouse-team.vercel.app",
+  "date": "2026-09-10",
+  "website_checks": 43,
+  "public_http": {
+    "/": 200,
+    "/capture": 200,
+    "/buy": 200,
+    "/signin": 200,
+    "/requirements": 200,
+    "/privacy": 200,
+    "/how-it-works": 200,
+    "/documents": 200,
+    "/faq": 200,
+    "/api/beta-config": 200,
+    "/api/latest-build": 200,
+    "/product.css": 200,
+    "/js/product.js": 200,
+    "/js/notify.js": 200,
+    "/assets/sample.json": 200,
+    "signup_without_jwt": 401,
+    "invalid_email": 400,
+    "foreign_origin": 403,
+    "anonymous_table_access": 401
+  },
+  "browser": {
+    "audio_playback": true,
+    "seek_68_seconds": true,
+    "frequency_chart": true,
+    "cssom_bars": true,
+    "signup_default_marketing_false": true,
+    "signup_explicit_marketing_true": true,
+    "signup_database_persistence": true,
+    "new_page_console_errors": []
+  },
+  "supabase": {
+    "project": "aodccnadwomafotizssk",
+    "migration": "20260910200741",
+    "function": "notification-signup",
+    "jwt_verification": true,
+    "tables_server_only": true,
+    "fixture_signups_deleted": 4,
+    "emails_sent": 0
+  },
+  "desktop_published": false,
+  "initial_publication": {
+    "deployment_id": "dpl_64HLrKAz7QQzXHVFfVyvxeqKBzwP",
+    "deployment_url": "https://wavread-qodfj0vd7-lorehouse-team.vercel.app",
+    "website_checks": 37
+  },
+  "full_site_audit": {
+    "report": "PUBLIC_WEBSITE_AUDIT_2026-09-10.md",
+    "html_files": 15,
+    "same_origin_urls": 57,
+    "http_200": 55,
+    "expected_404": 2,
+    "broken_local_references": [],
+    "responsive_combinations": 57,
+    "widths": [
+      375,
+      768,
+      1280,
+      1920
+    ],
+    "final_live_source_matches": 8,
+    "external_links_ok": 2,
+    "checkout_handoff_usd": 50,
+    "payment_submitted": false,
+    "auth_email_sent": false,
+    "authenticated_owner_journey_tested": false,
+    "windows_signup_database_verified": true,
+    "audit_signup_fixture_deleted": true,
+    "remaining_content_issue": null
+  },
+  "licence_correction": {
+    "version": "1.1",
+    "effective": "2026-09-10",
+    "website_source_and_html_updated": true,
+    "desktop_source_updated": true,
+    "other_sections_preserved": true,
+    "tests_passed": 43,
+    "public_http": 200,
+    "public_matches_source": true,
+    "browser_verified": true,
+    "sha256": "760d534b6f12b2c160277a24ebe6ce03c031dae76f9bb8aa22176badf6e1054b",
+    "deployment_id": "dpl_6fnbjdAfghE3Tvkd4Pu4XvBipH57"
+  },
+  "licence_ui": {
+    "matches_homepage": true,
+    "legal_text_preserved": true,
+    "tests_passed": 43,
+    "viewport_widths": [
+      375,
+      1280
+    ],
+    "public_files_sha256": {
+      "/EULA": "9c17c7bd2a1e982e95e8f0fee083714f74c9321994248f4466431de66d63334b",
+      "/legal.css": "733f2ec06a16d3283efd3f88ece6949bf6da9a5501624afaca0b39df65b4830e"
+    },
+    "email_inventory": [
+      {
+        "route": "/404",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/EULA",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/agent",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/buy",
+        "emails": [
+          "support@wavread.com",
+          "you@example.com"
+        ]
+      },
+      {
+        "route": "/capture",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/dashboard",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/documents",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/faq",
+        "emails": [
+          "noreply@wavread.com",
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/how-it-works",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/",
+        "emails": [
+          "support@wavread.com",
+          "you@example.com"
+        ]
+      },
+      {
+        "route": "/install",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/privacy",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/purchase-complete",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/requirements",
+        "emails": [
+          "support@wavread.com"
+        ]
+      },
+      {
+        "route": "/signin",
+        "emails": [
+          "support@wavread.com",
+          "you@example.com"
+        ]
+      }
+    ],
+    "strategy_source_sha256": "98ad5eba4aa2351acde0b7bb51f6d8c89e4d997874774dd791d227b931c9c0b2",
+    "strategy_source_edited": false
+  },
+  "personal_contact_removal": {
+    "live_pages_checked": 15,
+    "remaining_occurrences": 0,
+    "replacement": "support@wavread.com",
+    "tests_passed": 43
+  },
+  "sitewide_ui": {
+    "pages": 15,
+    "responsive_checks": 45,
+    "widths": [
+      375,
+      768,
+      1280
+    ],
+    "tests_passed": 43,
+    "live_files_match": 19,
+    "crawl_urls": 57,
+    "expected_404": 2,
+    "broken_local_references": [],
+    "forms_and_transaction_scripts_preserved": true,
+    "authenticated_layout_offline_fixture_only": true,
+    "fixture_excluded_from_release": true,
+    "purchase_ready": true,
+    "signin_ready": true,
+    "signed_out_gate_verified": true,
+    "payment_submitted": false,
+    "emails_sent": 0,
+    "report": "SITEWIDE_PRODUCT_UI_2026-09-10.md"
+  }
+}

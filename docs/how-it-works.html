@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>How it works — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="What WavRead measures, what it only estimates, and how it tells you which is which — the whole path from an audio file to a document you can read.">
@@ -17,25 +17,24 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
-</head>
-<body class="content-page">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-how-it-works">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><nav aria-label="Main">
-  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html" aria-current="page">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="agent.html">Agent skill</a><a href="requirements.html">Requirements</a><a href="buy.html">Get WavRead</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="buy.html">Buy — $50</a>
-</nav></header>
-<main id="main">
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>How WavRead works</h1>
 <p class="lede">Audio goes in. Measurements come out, in language rather than
 meters. Nothing about your music leaves the machine, and nothing is presented as
 more certain than the analysis allows.</p>
 
-<h2>The path a track takes</h2>
+</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#how-it-works-section-1">The path a track takes</a><a href="#how-it-works-section-2">Bring your music in</a><a href="#how-it-works-section-3">Measured, detected, estimated</a><a href="#how-it-works-section-4">Measurement standards</a><a href="#how-it-works-section-5">Over time, not just averages</a><a href="#how-it-works-section-6">It never edits your audio</a><a href="#how-it-works-section-7">Give it to an AI, or don&#x27;t</a><a href="#how-it-works-section-8">What produced a measurement</a></nav></aside><div class="reading-body"><section class="content-section" id="how-it-works-section-1"><h2>The path a track takes</h2>
 <div class="flow">
   <div class="stage">Your file</div>
   <div class="wave">▁▂▄▆█▇▅▃▂▁▂▄▆█▇▅▃▂▁▂▄▆█▇▅▃▂▁</div>
@@ -47,7 +46,7 @@ more certain than the analysis allows.</p>
   chorus is 1.4 LU louder than the verse before it."</div>
 </div>
 
-<h2>Four ways in</h2>
+</section><section class="content-section" id="how-it-works-section-2"><h2>Bring your music in</h2>
 <table class="spec">
   <tr><th>A finished track</th>
       <td>Drop a file. You get whole-track measurements, structure, chords,
@@ -56,8 +55,7 @@ more certain than the analysis allows.</p>
       <td>Drop a folder from your DAW. Every part is measured separately — the
       most detailed read WavRead can produce.</td></tr>
   <tr><th>Straight from your DAW</th>
-      <td>The <a href="capture.html">Bridge plugin</a> records what passes
-      through it. No exporting at all.</td></tr>
+      <td><a href="capture.html">Coming soon.</a> Direct DAW capture is disabled in public builds. Export a mix or aligned stems to analyze today.</td></tr>
   <tr><th>A mix, split by your own tool</th>
       <td>WavRead does not separate audio. Point it at a separation tool you
       already have and it will read what that tool writes — the document says
@@ -65,7 +63,7 @@ more certain than the analysis allows.</p>
       ones.</td></tr>
 </table>
 
-<h2>Measured, detected, estimated</h2>
+</section><section class="content-section" id="how-it-works-section-3"><h2>Measured, detected, estimated</h2>
 <p>These are three different kinds of claim and WavRead labels every number with
 which one it is. That labelling is the product, as much as the numbers are.</p>
 <div class="cols">
@@ -92,7 +90,7 @@ which one it is. That labelling is the product, as much as the numbers are.</p>
   isn't there beats one that's wrong.</p>
 </div>
 
-<h2>Measurement standards</h2>
+</section><section class="content-section" id="how-it-works-section-4"><h2>Measurement standards</h2>
 <table class="spec">
   <tr><th>Integrated loudness</th><td>ITU-R BS.1770, in LUFS.</td></tr>
   <tr><th>Loudness range</th><td>EBU Tech 3342, in LU.</td></tr>
@@ -106,43 +104,35 @@ which one it is. That labelling is the product, as much as the numbers are.</p>
   reported as a share of measured energy.</td></tr>
 </table>
 
-<h2>Over time, not just averages</h2>
+</section><section class="content-section" id="how-it-works-section-5"><h2>Over time, not just averages</h2>
 <p>One number for a whole song hides the song. WavRead measures loudness, stereo
 width and mono compatibility <em>across</em> the track, so it can tell you the
 second chorus is quieter than the first, or that the intro collapses in mono
 while the rest survives it. Section comparison answers the smaller question:
 how this part differs from that one, in numbers.</p>
 
-<h2>It never edits your audio</h2>
+</section><section class="content-section" id="how-it-works-section-6"><h2>It never edits your audio</h2>
 <p>WavRead has no processors, and that is a deliberate boundary rather than a
 missing feature. It will show you a suggested EQ curve and let you hear it
 level-matched against the original — so the louder one doesn't simply sound
 better — but the file it writes is a document, never a new mix. Your DAW does
 the editing.</p>
 
-<h2>Give it to an AI, or don't</h2>
+</section><section class="content-section" id="how-it-works-section-7"><h2>Give it to an AI, or don't</h2>
 <p>Assistants can't hear audio, but they read Markdown well. The Track Document
 holds everything one would need to talk about your mix specifically rather than
 generically. That is optional — the built-in Feedback Report is written by
 rules, not by a model, and works with the network cable out.</p>
 
-<h2>What produced a measurement</h2>
+</section><section class="content-section" id="how-it-works-section-8"><h2>What produced a measurement</h2>
 <p>Every analysis records the engine that produced it, and at which
 version, in the document's provenance line. A measurement is only
 reproducible if you know what made it. The components WavRead is built
 on keep their own licences, reproduced in full in the
 <code>THIRD_PARTY_LICENSES</code> file that ships inside the app.</p>
 
-</main>
-<footer>
-  <a href="/">WavRead</a> · <a href="privacy.html">Privacy</a> ·
-  <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> ·
-  <a href="requirements.html">Requirements</a> ·
-  <a href="install.html">Install</a> · <a href="faq.html">FAQ</a> ·
-  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
-  Audio → readable language, on your own machine.
-</footer>
+</section></div></div></main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 
 </body>
 </html>

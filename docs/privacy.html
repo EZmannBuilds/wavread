@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Privacy — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, the desktop app needs no account, and there is no telemetry — here is the full accounting.">
@@ -17,25 +17,24 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
-</head>
-<body class="content-page">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-privacy">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><nav aria-label="Main">
-  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="agent.html">Agent skill</a><a href="requirements.html">Requirements</a><a href="buy.html">Get WavRead</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="buy.html">Buy — $50</a>
-</nav></header>
-<main id="main">
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>Everything stays on your computer</h1>
 <p class="lede">Your music is never uploaded. There are no WavRead servers to
 upload it to, no account to create, and no telemetry. This page lists every
 request the app can make, so the claim can be checked rather than trusted.</p>
 
-<h2>What WavRead never does</h2>
+</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#privacy-section-1">What WavRead never does</a><a href="#privacy-section-2">Every request the app can make</a><a href="#privacy-section-3">The capture plugin</a><a href="#privacy-section-4">Where your files are</a><a href="#privacy-section-5">What is in a document</a><a href="#privacy-section-6">Problem reports, in full</a><a href="#privacy-section-7">Windows notifications and optional news</a><a href="#privacy-section-8">Optional accounts on this website</a></nav></aside><div class="reading-body"><section class="content-section" id="privacy-section-1"><h2>What WavRead never does</h2>
 <div class="cols">
   <div class="card">
     <h3>No uploads</h3>
@@ -58,10 +57,8 @@ request the app can make, so the claim can be checked rather than trusted.</p>
   </div>
 </div>
 
-<h2>Every request the app can make</h2>
-<p>Four in every installation, plus the problem-report requests that exist only
-when you turn reports on. The four carry no identifier, no filenames and no
-measurements; the reports carry exactly what the section below lists.</p>
+</section><section class="content-section" id="privacy-section-2"><h2>Every request the app can make</h2>
+<p>The app can make the requests listed below. Analysis stays local. Update checks and model downloads carry no filenames or measurements; optional linking and reports carry the data described here.</p>
 <table class="spec">
   <tr><th>Update check</th>
       <td>Once a day, one request to <span class="mono">wavread.com</span>,
@@ -90,8 +87,7 @@ measurements; the reports carry exactly what the section below lists.</p>
       on your own dashboard. The app never holds your email or a sign-in —
       only that token, revocable from either side.</td></tr>
 </table>
-<p>Both models are downloads <em>of</em> software, not uploads of your audio: the
-model comes to your machine and runs there. Everything else — measurement,
+<p>The lyric model is a download <em>of</em> software, not an upload of your audio: the model comes to your machine and runs there. Everything else — measurement,
 structure, chords, melody, the whole Feedback Report — needs no connection at
 all, and the app runs normally with the network off.</p>
 
@@ -99,14 +95,9 @@ all, and the app runs normally with the network off.</p>
   <p>Melody transcription needs no download: that model ships inside the app.</p>
 </div>
 
-<h2>The capture plugin</h2>
-<p>WavRead Bridge talks to exactly one address — <code>127.0.0.1</code>, your own
-machine — and the app refuses any capture request that did not originate locally.
-The audio it records is written straight into WavRead's library folder on the
-drive you chose. Nothing about a session, its track names, or its audio goes
-anywhere else.</p>
+</section><section class="content-section" id="privacy-section-3"><h2>The capture plugin</h2><p>Direct DAW capture is coming soon and disabled in public builds. Today, analyze a mix or aligned stems exported from your DAW. Analysis runs on your computer.</p>
 
-<h2>Where your files are</h2>
+</section><section class="content-section" id="privacy-section-4"><h2>Where your files are</h2>
 <p>One folder holds everything: analyses, documents, stems, captures
 and copies of the audio you analysed. Settings shows you the exact path, how
 large it is, and how much room is left on that drive — and moves the whole
@@ -115,13 +106,13 @@ once the copy is complete.</p>
 <p>You can delete any part of it from inside the app, or in Finder. WavRead keeps
 no second copy anywhere, and nothing is retained after you delete it.</p>
 
-<h2>What is in a document</h2>
+</section><section class="content-section" id="privacy-section-5"><h2>What is in a document</h2>
 <p>Track Documents contain measurements, structure, estimated chords and lyrics,
 and your own notes — no audio. If you paste one into an AI assistant, that is
 your decision and your assistant's privacy policy; WavRead never sends a document
 anywhere itself. Nothing in the app requires an AI at all.</p>
 
-<h2>Problem reports, in full</h2>
+</section><section class="content-section" id="privacy-section-6"><h2>Problem reports, in full</h2>
 <p>From 1.4.37, WavRead can report its own failures — a crash, an analysis that
 died, an update that would not install. Reporting is off until you turn it on
 in Settings, and three things stay true whichever way the switch points:</p>
@@ -142,8 +133,13 @@ in Settings, and three things stay true whichever way the switch points:</p>
 <p>A report you write yourself on the Report a Problem page additionally
 contains what you typed, and — only if you tick the box — a scrubbed excerpt
 of WavRead's own error log, shown to you in full before sending.</p>
+<p>To stop one sender flooding the report service, it counts crash reports per network address using a keyed hash of the request IP address. Each count expires within the hour and is removed on a later request. Raw IP addresses are not stored, and nothing in the report itself changes.</p>
 
-<h2>Optional accounts on this website</h2>
+</section><section class="content-section" id="privacy-section-7"><h2 id="notifications">Windows notifications and optional news</h2>
+<p>When you use the Windows notification form, WavRead stores your email address, your Windows notification request, whether you separately asked for news and offers, the wording version of that choice, and the signup date in a private Supabase database. Signing up does not create an owner account or change purchase access. Buying WavRead does not add you to this list.</p>
+<p>News and offers are optional and unchecked by default. Repeat submissions do not overwrite existing preferences or reactivate an opt-out. Contact <a href="mailto:support@wavread.com">support@wavread.com</a> to change your choice, opt out, or request deletion. We retain your request until you ask us to remove it or the list is retired. No campaigns are sent just by submitting this form.</p>
+<p>To limit automated submissions, the signup service uses keyed hashes of the request IP address and email in rate-limit counters. These counters expire within a day and are removed on subsequent requests. Raw IP addresses are not stored in the signup database; hosting providers may process request metadata to operate their services.</p>
+</section><section class="content-section" id="privacy-section-8"><h2>Optional accounts on this website</h2>
 <p>Owners may sign in to a separate area on
 this website. That account is not used by the desktop app and never receives
 audio, filenames, analyses, documents, or app activity. The account service
@@ -175,7 +171,8 @@ Stripe's own processing is governed by
 <p>If you reached the purchase page from an advertisement, its link carries a
 short campaign label — <code>reels-a</code> and the like. The label says which
 advertisement was clicked, not who clicked it: it is read from the address you
-arrived on, sent once with the purchase, and kept alongside the purchase record
+arrived on, carried in links between public pages and checkout, sent once with
+the purchase, and kept alongside the purchase record
 so WavRead can tell which advertisements are worth paying for. It is not an
 identifier, it is never combined with anything else, nothing is stored in your
 browser to carry it, and arriving without one changes nothing about the
@@ -187,20 +184,13 @@ because that history is what future eligibility is honored from. A deletion
 request can still be handled by WavRead directly. The public product website
 uses no analytics or advertising trackers.</p>
 
-<p class="measured">Last checked against WavRead 1.4.49. The model download size
+<p class="measured">Last checked against WavRead 1.5.4. The model download size
 is the actual size on disk after a first run: 464 MB for lyric transcription.
 WavRead no longer ships or fetches a separation model at all — stems come from
 you, from your DAW, or from a tool you configure yourself.</p>
 
-</main>
-<footer>
-  <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> ·
-  <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> ·
-  <a href="requirements.html">Requirements</a> · <a href="install.html">Install</a> · <a href="faq.html">FAQ</a> ·
-  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
-  Audio → readable language, on your own machine.
-</footer>
+</section></div></div></main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 
 </body>
 </html>

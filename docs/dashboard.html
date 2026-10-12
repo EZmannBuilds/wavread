@@ -4,23 +4,27 @@
 <meta charset="utf-8">
 <title>Dashboard — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <meta name="description" content="Downloads, ownership, linked devices, reports, release notes, known issues, and feedback for WavRead accounts.">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="favicon.png">
-<link rel="stylesheet" href="site.css">
 <script src="js/beta-config.js" defer></script>
 <script src="js/beta-auth.js" type="module"></script>
-</head>
-<body class="beta-app">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-dashboard">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><nav aria-label="Main"><a class="wordmark" href="/"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="30" height="30"><span>WavRead</span></a><span class="spacer"></span><a href="/">Public website</a><button class="small-button" id="signout-button" type="button" hidden>Sign out</button></nav></header>
-<main id="main" class="beta-shell">
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><button class="small-button" id="signout-button" type="button" hidden>Sign out</button><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap beta-shell">
   <h1 class="sr-only">WavRead account dashboard</h1>
   <div class="state-panel loading-state" id="loading-state" role="status">Verifying your account…</div>
-  <section class="state-panel" id="setup-state" hidden><h2>Account area setup required</h2><p>The secure backend is not connected in this preview. Follow the project setup guide, then refresh this page.</p><a class="btn" href="/">Return to WavRead</a></section>
+  <section class="state-panel" id="setup-state" hidden><h2>Your account is temporarily unavailable</h2><p>Please try again shortly. If this continues, contact support@wavread.com.</p><a class="btn" href="/">Return to WavRead</a></section>
   <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p id="session-message" role="alert">Sign in to open your dashboard.</p><a class="btn primary" href="signin.html">Go to sign in</a></section>
-  <section class="state-panel" id="unauthorized-state" hidden><h2>No WavRead account found</h2><p>You are signed in, but this email has no active WavRead account. Access is controlled by the account registry, not by this page. If you just bought WavRead, the recording step can take a minute — sign in again shortly.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>No WavRead account found</h2><p>You are signed in, but this email has no active WavRead account. If you just bought WavRead, the recording step can take a minute — sign in again shortly.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
 
   <div id="dashboard-content" hidden>
     <header class="dashboard-head">
@@ -29,12 +33,28 @@
 
     <div class="dashboard-grid" role="group" aria-label="Account overview">
       <article class="dashboard-card"><span class="card-kicker">Your standing</span><h2 id="ownership-title">Checking…</h2><p id="ownership-detail">Reading your purchases.</p><a id="ownership-action" href="buy.html" hidden>Get WavRead — $50 →</a></article>
-      <article class="dashboard-card"><span class="card-kicker">Current build</span><h2>WavRead 1.4.49</h2><p>Published September 6, 2026 · Apple Silicon · macOS 14+. Download it below and check its SHA-256 before installing.</p><a href="#builds-title">Go to your builds →</a></article>
+      <article class="dashboard-card"><span class="card-kicker">Current build</span><h2>WavRead 1.5.4</h2><p>Published September 10, 2026 · Apple Silicon · macOS 14+. Download it below and check its SHA-256 before installing.</p><a href="#builds-title">Go to your builds →</a></article>
     </div>
+
+    <section class="dashboard-section" id="licence-admin" aria-labelledby="licence-admin-title" hidden>
+      <span class="card-kicker">Owner controls</span><h2 id="licence-admin-title">Licence controls</h2>
+      <p>Grant a complimentary licence by email. They can sign in with that address and download WavRead without paying. This does not give them permission to grant licences.</p>
+      <form id="licence-manage-form">
+<div class="form-field"><label for="licence-lookup-email">Account email</label><input id="licence-lookup-email" type="email" required maxlength="254"></div>
+<div class="form-field"><label for="licence-operation">Action</label><select id="licence-operation"><option value="lookup">Look up licences</option><option value="revoke">Revoke complimentary grant</option><option value="restore">Restore complimentary grant</option></select></div>
+<button class="btn" type="submit">Apply</button><p id="licence-manage-status" role="status"></p><div id="licence-results"></div>
+<p class="field-help">Revoke and restore affect owner-issued free grants only. Paid purchases and contributor access are shown separately. Revocation stops future authorized downloads; it does not remotely disable an installed app.</p></form>
+<form id="licence-grant-form">
+        <div class="form-field"><label for="licence-recipient">Creator email</label><input id="licence-recipient" name="email" type="email" maxlength="254" required autocomplete="off" aria-describedby="licence-grant-status"></div>
+        <button class="btn primary" type="submit" disabled>Grant free licence</button>
+        <p id="licence-grant-status" class="form-status" role="status" aria-live="polite"></p>
+      </form>
+      <p class="field-help">No email is sent and no marketing signup is added. After granting, share <a href="/signin">wavread.com/signin</a> with the creator. Granting the same address again will not duplicate their licence.</p>
+    </section>
 
     <section class="dashboard-section" aria-labelledby="builds-title">
       <span class="card-kicker">Downloads</span><h2 id="builds-title">Your builds</h2>
-      <p>Every build is included in what you paid, and downloaded
+      <p>Your eligible builds are downloaded
       from here rather than by the app: the in-app updater is told which version
       is newest, never handed the file, because a download that needs an account
       cannot be fetched by an app that holds no account. Each build lists the
@@ -86,8 +106,8 @@
     </section>
 
     <section class="dashboard-section" aria-labelledby="release-title">
-      <span class="card-kicker">Release notes</span><h2 id="release-title">What changed in 1.4.49</h2>
-      <ul><li>WavRead reads what a file says about itself — a DAW's exported tempo, an ID3 BPM frame, the title an exporter stamped in. It is printed beside the measured value as the file's claim, never as a measurement, and it never reaches the beat tracker.</li><li>Cancel all. A folder dropped by mistake stops in one press instead of one row at a time, and a queued analysis now stops where it stands rather than running on after you cancel it.</li><li>Stems are measured several at a time: ten stems that took 18.2&nbsp;seconds take 6.7. Settings&nbsp;→&nbsp;Analysis offers one at a time, a balanced level computed for your machine, or every core.</li><li>Near-silent audio is refused in words rather than measured — it used to write <code>-Infinity</code> for loudness — and mono risk is no longer judged across a fade-in.</li><li>Crash reports remove the whole track name, not just its last word. Chart labels are escaped everywhere, including in the shareable HTML you send to someone else, and nineteen parts of one song no longer render as nineteen identical rows.</li><li>A PDF export in the app's own palette, onboarding asked in steps, and Settings in six named sections. Both documents now state what the reading was given and what that input cannot support.</li><li>Update notices come from this catalog now instead of a public release page, so a build cannot be published here and go unannounced in the app — which is exactly what happened to 1.4.47 and 1.4.48.</li></ul>
+      <span class="card-kicker">Release notes</span><h2 id="release-title">What changed in 1.5.4</h2>
+      <ul><li>A new listening workspace across the app, with a shared player and clearer navigation between your tracks, versions, references and stems.</li><li>Read the evidence, inspect the charts and listen to the relevant moment in one place. File and supplied-stem analysis remain available.</li><li>DAW capture is marked Coming soon and disabled in public builds. Export audio from your DAW and import it into WavRead.</li><li>The bundled licence matches the public site. This update is included for eligible owners.</li></ul>
     </section>
 
     <section class="dashboard-section" aria-labelledby="issues-title">
@@ -108,5 +128,6 @@
     </section>
   </div>
 </main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 </body>
 </html>

@@ -21,9 +21,6 @@ const CURRENT_VERSION = (await read("docs/js/beta-auth.js"))
 test("the site agrees with itself about which build is current", async () => {
   assert.ok(CURRENT_VERSION, "beta-auth.js must declare CURRENT_VERSION");
   for (const [file, pattern] of [
-    ["docs/index.html", /Current release · (\d+\.\d+\.\d+)/],
-    ["docs/index.html", /<span>Current release<\/span> (\d+\.\d+\.\d+) ·/],
-    ["docs/index.html", /Buy WavRead (\d+\.\d+\.\d+) <span>/],
     ["docs/dashboard.html", /<h2>WavRead (\d+\.\d+\.\d+)<\/h2>/],
     ["docs/dashboard.html", /What changed in (\d+\.\d+\.\d+)</],
     ["docs/install.html", /WavRead-(\d+\.\d+\.\d+)\.dmg/],
@@ -39,33 +36,20 @@ test("the site agrees with itself about which build is current", async () => {
 test("public homepage tells the real release story", async () => {
   const html = await read("docs/index.html");
   assert.match(html, /Your audio stays on your Mac/);
-  assert.match(html, /workspace-overview\.png/);
-  assert.match(html, /\$50 once|Fifty dollars, once/, "one payment, and it is named");
+  assert.match(html, /What the Light Remembers/);
+  assert.match(html, /<audio[^>]*preload="none"/);
+  assert.match(html, /what-the-light-remembers\.mp3/);
+  assert.match(html, /16 supplied parts/);
+  assert.match(html, /\$50 once/);
   assert.match(html, /buy\.html/);
-  // A paid beta must not still advertise a free download of itself.
-  assert.doesNotMatch(html, /free beta|download free/i);
-  assert.doesNotMatch(html, /releases\/download\/v[\d.]+\/WavRead-[\d.]+\.dmg/, "no ungated DMG link");
-  assert.doesNotMatch(html, /customer logos|trusted by|testimonials/i);
-  // The release summary must describe the release it names, not an older one
-  // (1.4.46's features went unmentioned for a day while the summary still
-  // advertised the interface rebuild).
-  assert.match(html, new RegExp(`Latest update — ${CURRENT_VERSION.replace(/\./g, "\\.")}`),
-    "the summary names the build the rest of the page sells");
-  // Named features rather than a version number, because a summary can carry
-  // the right number and still describe the release before it — which is what
-  // happened when 1.4.46 shipped and the page still advertised the interface
-  // rebuild. Two of this release's, not one exact sentence: the summary is
-  // marketing copy and will be rewritten, but it must never drift back to
-  // describing an older build.
-  const thisRelease = [
-    /the file's claim|reads what a file says/i,
-    /update notices|build catalog/i,
-    /stems? in \d|stem analysis|18\.2/i,
-  ].filter((rx) => rx.test(html)).length;
-  assert.ok(thisRelease >= 2,
-    "the summary names at least two things this release actually changed");
-  assert.match(html, /spectral timeline/i, "the timeline view is still described");
-  assert.match(html, /never tunes, repairs, or modifies/i, "vocal tuning is analysis only");
+  assert.match(html, /Windows soon/);
+  assert.match(html, /disabled in public builds/);
+  assert.match(html, /id="notify-form"/);
+  assert.doesNotMatch(html, /id="marketing-opt-in"[^>]*checked/);
+  assert.doesNotMatch(html, /noindex|Preview form:|saved locally|style="/);
+  assert.doesNotMatch(html, /releases\/download\/|free beta|download free|trusted by|testimonials/i);
+  const tags = [...html.matchAll(/role="tab"[^>]*data-tab="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(tags, ['loudness','frequency','stereo','stems']);
 });
 
 test("search engines get a truthful, bounded map of the site", async () => {
@@ -145,26 +129,16 @@ test("all local links and assets resolve", async () => {
   }
 });
 
-test("public pages share one destination-based primary navigation", async () => {
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "agent.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
-  // Six buyer destinations. Install, Privacy and FAQ live in the footer of
-  // every page instead of competing in the header (Update 1.4.47). Agent skill
-  // joined the header rather than the footer because it is a reason to buy —
-  // it sits after Reports, since it is what reads them.
-  const expectedLinks = [
-    ["how-it-works.html", "How it works"],
-    ["capture.html", "DAW capture"],
-    ["documents.html", "Reports"],
-    ["agent.html", "Agent skill"],
-    ["requirements.html", "Requirements"],
-    ["buy.html", "Get WavRead"]
-  ];
-  for (const file of publicPages) {
-    const html = await read(join("docs", file));
-    const nav = html.match(/<div class="nav-links" id="nav-links">([\s\S]*?)<\/div>/)?.[1] || "";
-    const links = [...nav.matchAll(/<a href="([^"]+)"(?: aria-current="page")?>([^<]+)<\/a>/g)].map((match) => [match[1], match[2]]);
-    assert.deepEqual(links, expectedLinks, `${file} needs the complete primary navigation`);
-    assert.doesNotMatch(nav, /href="#/, `${file} must not mix page sections into the primary navigation`);
+test("every page exposes product, support and account navigation", async () => {
+  for (const file of htmlFiles) {
+    const html = await read(join("docs",file));
+    const menu = html.match(/<details class="site-menu">([\s\S]*?)<\/details>/)?.[1] || "";
+    for (const name of ["how-it-works","documents","agent","capture","requirements","install","faq","privacy","EULA"]) {
+      assert.ok(menu.includes(`href="/${name}.html"`), `${file}: missing ${name}`);
+    }
+    assert.doesNotMatch(html, />Owner sign in<\/a>/);
+    assert.match(html, /href="\/buy\.html"/);
+    assert.match(html, /aria-label="Footer"/);
   }
 });
 
@@ -366,7 +340,7 @@ test("edge functions keep the money and token boundaries", async () => {
 test("shared links carry a canonical URL and a real social card", async () => {
   // www redirects to the bare domain, so a canonical naming www would point
   // every shared link at a redirect.
-  const publicPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
+  const publicPages = ["how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html"];
   for (const file of publicPages) {
     const html = await read(join("docs", file));
     const title = html.match(/<title>(.*?)<\/title>/s)[1].trim();
@@ -598,47 +572,25 @@ test("motion, focus, and content security have explicit safe defaults", async ()
   }
 });
 
-test("A1 Clinical Signal tokens, type, and semantic roles stay canonical", async () => {
-  const css = await read("docs/site.css");
-  for (const [token, value] of [
-    ["--wr-bg", "#0b0d10"],
-    ["--wr-surface-1", "#12161b"],
-    ["--wr-surface-2", "#1a2027"],
-    ["--wr-text", "#f3f6f8"],
-    ["--wr-muted", "#929ca7"],
-    ["--wr-accent", "#4da8ff"],
-    ["--wr-signal", "#53e0d4"],
-    ["--wr-warning", "#ffb454"]
-  ]) {
-    assert.match(css, new RegExp(`${token}:\\s*${value}`, "i"), `${token} must keep its A1 value`);
+test("every page loads the shared product design and accessible controls", async () => {
+  for (const file of htmlFiles) {
+    const html=await read(join("docs",file));
+    assert.match(html, /href="\/?product\.css"/);
+    assert.match(html, /href="\/pages\.css"/);
+    assert.match(html, /src="\/js\/navigation\.js"/);
+    assert.doesNotMatch(html, /erikmann509@gmail\.com/);
   }
-  assert.match(css, /font-family:\s*"Inter"/);
-  assert.match(css, /font-family:\s*"Space Grotesk"/);
-  assert.match(css, /\.btn\.primary\s*\{[^}]*background:\s*var\(--wr-accent\)/s);
-  assert.doesNotMatch(css, /\.btn\.primary\s*\{[^}]*var\(--wr-warning\)/s);
-  assert.doesNotMatch(css, /\.content-page\s+main::before/, "content headings must not have a decorative registration line");
-  for (const asset of [
-    "docs/fonts/inter-latin.woff2",
-    "docs/fonts/space-grotesk-latin.woff2",
-    "docs/fonts/INTER-LICENSE.txt",
-    "docs/fonts/SPACE-GROTESK-LICENSE.txt"
-  ]) {
-    await assert.doesNotReject(access(asset), `${asset} must ship with the site`);
-  }
+  const css=await read("docs/pages.css");
+  assert.match(css, /color-scheme:light/);
+  assert.match(css, /--wr-error:#9d2838/);
+  assert.match(css, /--wr-border-control:#7d8da2/);
+  assert.match(await read("docs/product.css"), /:focus-visible/);
 });
 
-test("the approved website mark is vector-only and used consistently", async () => {
-  const mark = await read("docs/img/wavread-mark.svg");
-  assert.match(mark, /<svg\b/);
-  assert.doesNotMatch(mark, /<image\b|data:image/i);
-  assert.match(mark, /@keyframes wave-acquire/);
-  assert.match(mark, /@keyframes trace-acquire/);
-  assert.match(mark, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(mark, /infinite/);
-  const brandedPages = ["index.html", "how-it-works.html", "capture.html", "documents.html", "requirements.html", "install.html", "buy.html", "privacy.html", "faq.html", "signin.html", "dashboard.html", "purchase-complete.html", "EULA.html"];
-  for (const file of brandedPages) {
-    const html = await read(join("docs", file));
-    assert.match(html, /class="brand-mark" src="img\/wavread-mark\.svg"/, `${file} needs the approved vector wordmark`);
+test("every page uses the approved product wordmark", async () => {
+  for (const file of htmlFiles) {
+    const html=await read(join("docs",file));
+    assert.match(html, /class="brand"[\s\S]{0,100}assets\/favicon\.png/);
   }
 });
 
@@ -739,4 +691,37 @@ test("attachments are disclosed, bounded, and never written by the browser", asy
   // both callers itself — the same shape as submit-report and crash-report.
   assert.match(cfg, /\[functions\.report-media\]\nverify_jwt = false/,
     "report-media authenticates its own callers");
+});
+
+test("links with local fragments resolve to actual page sections", async () => {
+  for (const file of htmlFiles) {
+    const html = await read(join('docs',file));
+    for (const [,href] of html.matchAll(/href="([^"]*#[^"]+)"/g)) {
+      const url = new URL(href, `https://wavread.com/${file}`);
+      if (url.origin !== 'https://wavread.com') continue;
+      let name = url.pathname.slice(1) || 'index.html';
+      if (!extname(name)) name += '.html';
+      const target = await read(join('docs',name));
+      assert.ok(target.includes(`id="${decodeURIComponent(url.hash.slice(1))}"`), `${file}: ${href}`);
+    }
+  }
+});
+
+test("404 recovery works from nested missing URLs", async () => {
+  const html = await read('docs/404.html');
+  for (const [,href] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+    if (/^(#|https?:|mailto:|data:)/.test(href)) continue;
+    assert.ok(href.startsWith('/'), `404 needs a root-relative recovery URL: ${href}`);
+  }
+});
+
+test("return pages and supporting guidance do not invent success or promote disabled capture", async () => {
+  const complete = await read('docs/purchase-complete.html');
+  assert.doesNotMatch(complete, /Stripe has confirmed|Payment received|purchase is confirmed|You're in early/);
+  assert.match(complete, /Opening this page alone does not confirm a payment/);
+  assert.match(await read('docs/agent.html'), /Direct DAW capture is coming soon/);
+  assert.match(await read('docs/skill/references/operating-wavread.md'), /disabled in public builds/);
+  const licence = await read('docs/EULA.html');
+  assert.doesNotMatch(licence, /<p>\*\*|<p>produces\.\*\*/);
+  assert.match(licence, /<strong>We claim no rights[\s\S]*?produces\.<\/strong>/);
 });

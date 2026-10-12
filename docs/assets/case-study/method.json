@@ -1,0 +1,38 @@
+{
+  "title": "What the Light Remembers \u2014 constructed mix study",
+  "analysis_version": "1.5.4",
+  "excerpt_start_seconds": 56,
+  "excerpt_end_seconds": 88,
+  "playback_target_lufs": -23,
+  "method": "First was deliberately made from the existing v03 master and aligned stems by changing six part gains. This is a constructed demonstration, not a historical before-and-after. Whole-track measurements use original WAVs; playback excerpts use constant gain to match integrated loudness. WavRead did not process or fix the audio.",
+  "whole_track": {
+    "first": {
+      "sub_20_60_hz_percent": 73.0,
+      "integrated_lufs": -20.1,
+      "crest_factor_db": 16.5
+    },
+    "v03": {
+      "sub_20_60_hz_percent": 26.8,
+      "integrated_lufs": -21.9,
+      "crest_factor_db": 18.5
+    }
+  },
+  "excerpts": {
+    "first": {
+      "file": "first-matched.mp3",
+      "source_sha256": "77544bcd1471b834c1c4491d4af0439f679faa55b208707df77462b96240e361",
+      "gain_db": -3.8733,
+      "decoded_lufs": -23.266,
+      "duration_seconds": 32.0,
+      "sha256": "22916383c4ebec7a356f51ad0d36d6184e5cdf0373e78a21f3c343b665d44194"
+    },
+    "v03": {
+      "file": "v03-matched.mp3",
+      "source_sha256": "24aee96c8d6260a7e491db74aee7ae5c9d791976b4bdd9b864383d99b13506f3",
+      "gain_db": -2.4582,
+      "decoded_lufs": -23.268,
+      "duration_seconds": 32.0,
+      "sha256": "09f25908b58ed3774c2f72ecb97c3450041bf275115ca56903a069c601b3bc6f"
+    }
+  }
+}

@@ -1,0 +1,407 @@
+{
+  "references": 57,
+  "local_findings": [],
+  "external_links": [
+    "https://github.com/EZmannBuilds/wavread-skill",
+    "https://stripe.com/privacy"
+  ],
+  "responses": [
+    {
+      "url": "https://wavread.com/",
+      "status": 200,
+      "final": "https://wavread.com/",
+      "type": "text/html; charset=utf-8",
+      "bytes": 18492
+    },
+    {
+      "url": "https://wavread.com/404",
+      "status": 200,
+      "final": "https://wavread.com/404",
+      "type": "text/html; charset=utf-8",
+      "bytes": 3151
+    },
+    {
+      "url": "https://wavread.com/404.html",
+      "status": 200,
+      "final": "https://wavread.com/404",
+      "type": "text/html; charset=utf-8",
+      "bytes": 3151
+    },
+    {
+      "url": "https://wavread.com/EULA",
+      "status": 200,
+      "final": "https://wavread.com/EULA",
+      "type": "text/html; charset=utf-8",
+      "bytes": 5849
+    },
+    {
+      "url": "https://wavread.com/EULA.html",
+      "status": 200,
+      "final": "https://wavread.com/EULA",
+      "type": "text/html; charset=utf-8",
+      "bytes": 5849
+    },
+    {
+      "url": "https://wavread.com/agent",
+      "status": 200,
+      "final": "https://wavread.com/agent",
+      "type": "text/html; charset=utf-8",
+      "bytes": 10396
+    },
+    {
+      "url": "https://wavread.com/agent.html",
+      "status": 200,
+      "final": "https://wavread.com/agent",
+      "type": "text/html; charset=utf-8",
+      "bytes": 10396
+    },
+    {
+      "url": "https://wavread.com/api/beta-config",
+      "status": 200,
+      "final": "https://wavread.com/api/beta-config",
+      "type": "application/json; charset=utf-8",
+      "bytes": 134
+    },
+    {
+      "url": "https://wavread.com/api/latest-build",
+      "status": 200,
+      "final": "https://wavread.com/api/latest-build",
+      "type": "application/json; charset=utf-8",
+      "bytes": 206
+    },
+    {
+      "url": "https://wavread.com/apple-touch-icon.png",
+      "status": 200,
+      "final": "https://wavread.com/apple-touch-icon.png",
+      "type": "image/png",
+      "bytes": 34367
+    },
+    {
+      "url": "https://wavread.com/assets/favicon.png",
+      "status": 200,
+      "final": "https://wavread.com/assets/favicon.png",
+      "type": "image/png",
+      "bytes": 2407
+    },
+    {
+      "url": "https://wavread.com/assets/inter-latin.woff2",
+      "status": 200,
+      "final": "https://wavread.com/assets/inter-latin.woff2",
+      "type": "font/woff2",
+      "bytes": 48432
+    },
+    {
+      "url": "https://wavread.com/assets/sample-reading.md",
+      "status": 200,
+      "final": "https://wavread.com/assets/sample-reading.md",
+      "type": "text/markdown; charset=utf-8",
+      "bytes": 2171
+    },
+    {
+      "url": "https://wavread.com/assets/space-grotesk-latin.woff2",
+      "status": 200,
+      "final": "https://wavread.com/assets/space-grotesk-latin.woff2",
+      "type": "font/woff2",
+      "bytes": 22320
+    },
+    {
+      "url": "https://wavread.com/assets/what-the-light-remembers.mp3",
+      "status": 200,
+      "final": "https://wavread.com/assets/what-the-light-remembers.mp3",
+      "type": "audio/mpeg",
+      "bytes": 6402092
+    },
+    {
+      "url": "https://wavread.com/audit-missing-page",
+      "status": 404,
+      "final": "https://wavread.com/audit-missing-page",
+      "bytes": 3151
+    },
+    {
+      "url": "https://wavread.com/audit-missing/deep/page",
+      "status": 404,
+      "final": "https://wavread.com/audit-missing/deep/page",
+      "bytes": 3151
+    },
+    {
+      "url": "https://wavread.com/beta-dashboard",
+      "status": 200,
+      "final": "https://wavread.com/dashboard",
+      "type": "text/html; charset=utf-8",
+      "bytes": 11799
+    },
+    {
+      "url": "https://wavread.com/buy",
+      "status": 200,
+      "final": "https://wavread.com/buy",
+      "type": "text/html; charset=utf-8",
+      "bytes": 8572
+    },
+    {
+      "url": "https://wavread.com/buy.html",
+      "status": 200,
+      "final": "https://wavread.com/buy",
+      "type": "text/html; charset=utf-8",
+      "bytes": 8572
+    },
+    {
+      "url": "https://wavread.com/capture",
+      "status": 200,
+      "final": "https://wavread.com/capture",
+      "type": "text/html; charset=utf-8",
+      "bytes": 3649
+    },
+    {
+      "url": "https://wavread.com/capture.html",
+      "status": 200,
+      "final": "https://wavread.com/capture",
+      "type": "text/html; charset=utf-8",
+      "bytes": 3649
+    },
+    {
+      "url": "https://wavread.com/dashboard.html",
+      "status": 200,
+      "final": "https://wavread.com/dashboard",
+      "type": "text/html; charset=utf-8",
+      "bytes": 11799
+    },
+    {
+      "url": "https://wavread.com/documents",
+      "status": 200,
+      "final": "https://wavread.com/documents",
+      "type": "text/html; charset=utf-8",
+      "bytes": 7006
+    },
+    {
+      "url": "https://wavread.com/documents.html",
+      "status": 200,
+      "final": "https://wavread.com/documents",
+      "type": "text/html; charset=utf-8",
+      "bytes": 7006
+    },
+    {
+      "url": "https://wavread.com/early-build",
+      "status": 200,
+      "final": "https://wavread.com/buy",
+      "type": "text/html; charset=utf-8",
+      "bytes": 8572
+    },
+    {
+      "url": "https://wavread.com/eula",
+      "status": 200,
+      "final": "https://wavread.com/EULA",
+      "type": "text/html; charset=utf-8",
+      "bytes": 5849
+    },
+    {
+      "url": "https://wavread.com/faq",
+      "status": 200,
+      "final": "https://wavread.com/faq",
+      "type": "text/html; charset=utf-8",
+      "bytes": 10152
+    },
+    {
+      "url": "https://wavread.com/faq.html",
+      "status": 200,
+      "final": "https://wavread.com/faq",
+      "type": "text/html; charset=utf-8",
+      "bytes": 10152
+    },
+    {
+      "url": "https://wavread.com/favicon.png",
+      "status": 200,
+      "final": "https://wavread.com/favicon.png",
+      "type": "image/png",
+      "bytes": 2407
+    },
+    {
+      "url": "https://wavread.com/fonts/inter-latin.woff2",
+      "status": 200,
+      "final": "https://wavread.com/fonts/inter-latin.woff2",
+      "type": "font/woff2",
+      "bytes": 48432
+    },
+    {
+      "url": "https://wavread.com/fonts/space-grotesk-latin.woff2",
+      "status": 200,
+      "final": "https://wavread.com/fonts/space-grotesk-latin.woff2",
+      "type": "font/woff2",
+      "bytes": 22320
+    },
+    {
+      "url": "https://wavread.com/how-it-works",
+      "status": 200,
+      "final": "https://wavread.com/how-it-works",
+      "type": "text/html; charset=utf-8",
+      "bytes": 7740
+    },
+    {
+      "url": "https://wavread.com/how-it-works.html",
+      "status": 200,
+      "final": "https://wavread.com/how-it-works",
+      "type": "text/html; charset=utf-8",
+      "bytes": 7740
+    },
+    {
+      "url": "https://wavread.com/img/wavread-mark.svg",
+      "status": 200,
+      "final": "https://wavread.com/img/wavread-mark.svg",
+      "type": "image/svg+xml",
+      "bytes": 7994
+    },
+    {
+      "url": "https://wavread.com/index.html",
+      "status": 200,
+      "final": "https://wavread.com/",
+      "type": "text/html; charset=utf-8",
+      "bytes": 18492
+    },
+    {
+      "url": "https://wavread.com/install",
+      "status": 200,
+      "final": "https://wavread.com/install",
+      "type": "text/html; charset=utf-8",
+      "bytes": 6989
+    },
+    {
+      "url": "https://wavread.com/install.html",
+      "status": 200,
+      "final": "https://wavread.com/install",
+      "type": "text/html; charset=utf-8",
+      "bytes": 6989
+    },
+    {
+      "url": "https://wavread.com/js/beta-auth.js",
+      "status": 200,
+      "final": "https://wavread.com/js/beta-auth.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 24484
+    },
+    {
+      "url": "https://wavread.com/js/beta-config.js",
+      "status": 200,
+      "final": "https://wavread.com/js/beta-config.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 196
+    },
+    {
+      "url": "https://wavread.com/js/early-build.js",
+      "status": 200,
+      "final": "https://wavread.com/js/early-build.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 4780
+    },
+    {
+      "url": "https://wavread.com/js/notify.js",
+      "status": 200,
+      "final": "https://wavread.com/js/notify.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 2128
+    },
+    {
+      "url": "https://wavread.com/js/product.js",
+      "status": 200,
+      "final": "https://wavread.com/js/product.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 9766
+    },
+    {
+      "url": "https://wavread.com/js/site.js",
+      "status": 200,
+      "final": "https://wavread.com/js/site.js",
+      "type": "application/javascript; charset=utf-8",
+      "bytes": 2842
+    },
+    {
+      "url": "https://wavread.com/privacy",
+      "status": 200,
+      "final": "https://wavread.com/privacy",
+      "type": "text/html; charset=utf-8",
+      "bytes": 13145
+    },
+    {
+      "url": "https://wavread.com/privacy.html",
+      "status": 200,
+      "final": "https://wavread.com/privacy",
+      "type": "text/html; charset=utf-8",
+      "bytes": 13145
+    },
+    {
+      "url": "https://wavread.com/product.css",
+      "status": 200,
+      "final": "https://wavread.com/product.css",
+      "type": "text/css; charset=utf-8",
+      "bytes": 24413
+    },
+    {
+      "url": "https://wavread.com/purchase-complete.html",
+      "status": 200,
+      "final": "https://wavread.com/purchase-complete",
+      "type": "text/html; charset=utf-8",
+      "bytes": 1872
+    },
+    {
+      "url": "https://wavread.com/requirements",
+      "status": 200,
+      "final": "https://wavread.com/requirements",
+      "type": "text/html; charset=utf-8",
+      "bytes": 9721
+    },
+    {
+      "url": "https://wavread.com/requirements.html",
+      "status": 200,
+      "final": "https://wavread.com/requirements",
+      "type": "text/html; charset=utf-8",
+      "bytes": 9721
+    },
+    {
+      "url": "https://wavread.com/robots.txt",
+      "status": 200,
+      "final": "https://wavread.com/robots.txt",
+      "type": "text/plain; charset=utf-8",
+      "bytes": 293
+    },
+    {
+      "url": "https://wavread.com/signin.html",
+      "status": 200,
+      "final": "https://wavread.com/signin",
+      "type": "text/html; charset=utf-8",
+      "bytes": 2568
+    },
+    {
+      "url": "https://wavread.com/site.css",
+      "status": 200,
+      "final": "https://wavread.com/site.css",
+      "type": "text/css; charset=utf-8",
+      "bytes": 34279
+    },
+    {
+      "url": "https://wavread.com/sitemap.xml",
+      "status": 200,
+      "final": "https://wavread.com/sitemap.xml",
+      "type": "application/xml",
+      "bytes": 674
+    },
+    {
+      "url": "https://wavread.com/skill/SKILL.md",
+      "status": 200,
+      "final": "https://wavread.com/skill/SKILL.md",
+      "type": "text/markdown; charset=utf-8",
+      "bytes": 34846
+    },
+    {
+      "url": "https://wavread.com/skill/references/operating-wavread.md",
+      "status": 200,
+      "final": "https://wavread.com/skill/references/operating-wavread.md",
+      "type": "text/markdown; charset=utf-8",
+      "bytes": 2862
+    },
+    {
+      "url": "https://wavread.com/skill/references/reading-sections.md",
+      "status": 200,
+      "final": "https://wavread.com/skill/references/reading-sections.md",
+      "type": "text/markdown; charset=utf-8",
+      "bytes": 11876
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # WavRead — End User Licence Agreement
 
-**Version 1.0 · Effective 2026-08-14**
+**Version 1.1 · Effective 2026-09-10**
 
 This agreement is between you and Erik Mann (EZmannBuilds) ("we", "us"), the
 owner of WavRead. By installing or using WavRead, you agree to it. If you do
@@ -38,13 +38,20 @@ agreement gives us any interest in your work.
 
 ## 4. Your files stay on your computer
 
-WavRead analyses audio locally on your machine. It does not upload your audio,
-create an account, or collect analytics or telemetry.
+WavRead analyses audio locally on your computer. It does not upload your source
+audio for analysis, and you do not need an app account to analyse audio.
 
-The one exception is a one-time download of the speech model used for lyric
-transcription, fetched from its publisher's public repository when you first
-use that feature. That request contains nothing about you or your music, and
-every other feature works without a network connection.
+The app can check for updates; you can switch these checks off in Settings.
+Downloading an update requires your action. Lyric transcription downloads its
+model from its publisher when first used, then caches it and runs locally.
+Audio analysis works without a network connection once any model you choose
+to use is available on your computer.
+
+Problem reporting is off by default. If you enable reporting or choose to
+submit feedback, the app sends the report information and any supported
+attachments you choose to include. Optional device linking sends the information
+needed to associate reports with your website account. The information sent by
+these features is described in the [Privacy page](https://wavread.com/privacy).
 
 If you configure an external separation tool, that tool is not part of WavRead
 and behaves according to its own terms.
@@ -107,4 +114,4 @@ release.
 
 ## Contact
 
-Erik Mann (EZmannBuilds) — erikmann509@gmail.com
+Erik Mann (EZmannBuilds) — support@wavread.com

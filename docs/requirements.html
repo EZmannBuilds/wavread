@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Device requirements — WavRead</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0B0D10">
+<meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="What WavRead needs to run, what it runs well on, and the upper limits of what it will accept — measured, not estimated.">
@@ -17,25 +17,24 @@
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="stylesheet" href="site.css">
 <script src="js/site.js" defer></script>
-</head>
-<body class="content-page">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-requirements">
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header"><nav aria-label="Main">
-  <a class="wordmark" href="/" aria-label="WavRead home"><img class="brand-mark" src="img/wavread-mark.svg" alt="" width="28" height="28"><span>WavRead</span></a>
-  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><span class="sr-only">Open navigation</span><i></i><i></i></button>
-  <div class="nav-links" id="nav-links"><a href="how-it-works.html">How it works</a><a href="capture.html">DAW capture</a><a href="documents.html">Reports</a><a href="agent.html">Agent skill</a><a href="requirements.html" aria-current="page">Requirements</a><a href="buy.html">Get WavRead</a></div>
-  <span class="spacer"></span><a class="nav-signin" href="signin.html">Sign in</a><a class="btn compact" href="buy.html">Buy — $50</a>
-</nav></header>
-<main id="main">
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>Device requirements</h1>
 <p class="lede">What WavRead needs, what it runs well on, and where its ceiling
 actually is. Every number here was measured on a real machine rather than
 estimated — how, and on what, is at the bottom of the page.</p>
 
-<h2>Minimum</h2>
+</div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#requirements-section-1">Minimum</a><a href="#requirements-section-2">Recommended</a><a href="#requirements-section-3">Measured performance</a><a href="#requirements-section-4">The ceiling: memory, not speed</a><a href="#requirements-section-5">Upper limits — what it will accept</a><a href="#requirements-section-6">What it does not need</a><a href="#requirements-section-7">Not supported</a></nav></aside><div class="reading-body"><section class="content-section" id="requirements-section-1"><h2>Minimum</h2>
 <table class="spec">
   <tr><th>Mac</th><td><strong>Apple Silicon</strong> — M1 or later. WavRead ships
   as an arm64 binary only, so <strong>Intel Macs cannot run it</strong>, with or
@@ -44,7 +43,7 @@ estimated — how, and on what, is at the bottom of the page.</p>
   comes from the Python runtime and the audio libraries built into the app; on
   macOS 13 or earlier it will not launch.</td></tr>
   <tr><th>Windows</th><td><strong>Windows version coming soon. No release date
-  announced.</strong> WavRead is macOS-only today.</td></tr>
+  announced.</strong> WavRead is macOS-only today. <a href="/#windows">Get notified when Windows is ready</a>.</td></tr>
   <tr><th>Memory</th><td><strong>8 GB</strong>. Enough for songs of ordinary
   length — see the ceiling below, because memory is what actually limits
   WavRead, and it grows with the length of the track.</td></tr>
@@ -59,23 +58,18 @@ estimated — how, and on what, is at the bottom of the page.</p>
   field.</td></tr>
 </table>
 
-<h2>Recommended</h2>
+</section><section class="content-section" id="requirements-section-2"><h2>Recommended</h2>
 <table class="spec">
   <tr><th>Memory</th><td><strong>16 GB or more.</strong> It buys you long tracks
   without the machine paging — memory is what limits WavRead, and it grows with
   the length of the track.</td></tr>
-  <tr><th>Disk</th><td><strong>An SSD with room to spare.</strong> Captures from
-  a DAW run to roughly <strong>1 GB per plugin instance per hour</strong>, and
-  stems you bring yourself take whatever your own files take. WavRead lets you
-  put the library on any drive, which is what external drives are for.</td></tr>
+  <tr><th>Disk</th><td><strong>An SSD with room to spare.</strong> Leave room for your exported mix, supplied stems, and saved analyses. You can choose an external drive for your WavRead library.</td></tr>
   <tr><th>CPU</th><td>Any Apple Silicon chip is fast enough. Analysis is the
   heavy step, and it is arithmetic on the samples rather than inference.</td></tr>
-  <tr><th>For DAW capture</th><td>A host that loads AU or VST3 plugins. The
-  plugin itself is close to free — <a href="capture.html">measured here</a> —
-  but plan for the disk.</td></tr>
+  <tr><th>DAW capture</th><td><a href="capture.html">Coming soon.</a> Disabled in public builds. No capture plugin is needed to analyze exported audio.</td></tr>
 </table>
 
-<h2>Measured performance</h2>
+</section><section class="content-section" id="requirements-section-3"><h2>Measured performance</h2>
 <p>One real 3-minute song, and the same song repeated to over 12 minutes, on
 the machine described at the bottom:</p>
 <table>
@@ -88,7 +82,7 @@ and it is a one-off cost — the documents are written once and read from disk
 after that. Lyrics and melody are separate optional passes and are slower;
 they are transcription rather than measurement.</p>
 
-<h2>The ceiling: memory, not speed</h2>
+</section><section class="content-section" id="requirements-section-4"><h2>The ceiling: memory, not speed</h2>
 <p>WavRead holds the whole track in memory to measure it, so <strong>peak memory
 grows with length</strong> — measured at about <strong>0.25 GB per additional
 minute</strong> of audio, on top of a 1.3 GB base.</p>
@@ -107,7 +101,7 @@ minute</strong> of audio, on top of a 1.3 GB base.</p>
   DJ set or a podcast episode is the case to watch.</p>
 </div>
 
-<h2>Upper limits — what it will accept</h2>
+</section><section class="content-section" id="requirements-section-5"><h2>Upper limits — what it will accept</h2>
 <table class="spec">
   <tr><th>Sample rates</th><td>44.1, 48, 96 and 192 kHz all tested and analysed
   correctly. True-peak oversampling adapts to the rate rather than assuming
@@ -121,12 +115,10 @@ minute</strong> of audio, on top of a 1.3 GB base.</p>
   see the table above.</td></tr>
   <tr><th>Short files</th><td>Down to half a second. Measurements needing a longer
   window are reported as unavailable rather than guessed.</td></tr>
-  <tr><th>Stems per song</th><td>No fixed cap. 32 simultaneous capture instances
-  were measured without dropping audio, and wide tables scroll rather than
-  overflow.</td></tr>
+  <tr><th>Stems per song</th><td>No fixed cap. Available memory and the size of the supplied files determine the practical limit.</td></tr>
 </table>
 
-<h2>What it does not need</h2>
+</section><section class="content-section" id="requirements-section-6"><h2>What it does not need</h2>
 <div class="cols">
   <div class="card">
     <h3>No internet</h3>
@@ -152,7 +144,7 @@ minute</strong> of audio, on top of a 1.3 GB base.</p>
   </div>
 </div>
 
-<h2>Not supported</h2>
+</section><section class="content-section" id="requirements-section-7"><h2>Not supported</h2>
 <ul>
   <li><strong>Intel Macs</strong> — the build is arm64 only.</li>
   <li><strong>macOS 13 Ventura and earlier</strong>.</li>
@@ -168,13 +160,8 @@ binaries inside the app bundle, taking the highest. Your own times will differ
 with your chip and what else is running — the shape of the numbers is what
 matters, not the last digit.</p>
 
-</main>
-<footer>
-  <a href="/">WavRead</a> · <a href="how-it-works.html">How it works</a> · <a href="privacy.html">Privacy</a> · <a href="capture.html">DAW capture</a> ·
-  <a href="documents.html">The documents</a> · <a href="install.html">Install</a> · <a href="faq.html">FAQ</a> ·
-  <a href="mailto:support@wavread.com">support@wavread.com</a><br>
-  Audio → readable language, on your own machine.
-</footer>
+</section></div></div></main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/capture.html">DAW capture</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 
 </body>
 </html>

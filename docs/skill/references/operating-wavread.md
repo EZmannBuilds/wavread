@@ -1,71 +1,54 @@
-# Helping someone operate WavRead
+# Operating WavRead 1.5.3.1
 
-Reference for the `wavread` skill. **Read this when someone asks how to run an
-analysis, bring their own stems, capture from a DAW, compare versions, or report a
-problem with the app.** Not needed to read an export you have already been handed.
+The app is a loopback Flask service, normally port 8765. Start with
+`GET /api/v1/capabilities`: it reports version, routes, methods, settings and capture
+availability. `GET /api/v1/forms?path=/settings-page/analysis` returns the rendered
+form controls and HTML. This is also the fallback for options outside JSON settings.
+No cloud account is required to analyze local files.
 
----
+## Settings and context
 
+`GET /api/v1/settings` returns values, effective defaults and validation schema.
+`PATCH /api/v1/settings` accepts a JSON object of only the fields to change.
+Examples: `{"analysis_lyrics":false}`, `{"daw":"Logic Pro","imagery":"A railway station after midnight"}`.
+Boolean values must be JSON booleans; enums must match the advertised choices.
+Reading, performance, accessibility, update checks, analysis passes and creative
+context are editable. External separation command, privacy consent, storage and
+other specialist controls use their existing forms: inspect the relevant Settings
+page rather than guessing fields or overwriting the settings file.
 
-WavRead is a local macOS desktop application. **Audio never leaves the user's
-machine** — no account, no upload, no cloud analysis. That claim is part of the
-product, so never suggest a workflow that breaks it, and never ask a user to send you
-their audio. Ask for the **export**, which is text.
+## Tracks and versions
 
-### The basic run
+`GET /api/v1/tracks` lists saved readings. `GET /json/<name>` provides data.
+`POST /rename/<name>` with form field `new` renames the track and related records.
+Read the redirect destination and re-list the library to confirm the new name.
+Inspect `/track/<name>` for history, identity, markers, references, stage, material
+and export controls. Quote/encode route segments. Never rename a running analysis.
+`POST /analyze` accepts `path` (local file/folder) and `mode` (`batch` or `stems`).
+`GET /jobs/status` reports queued/running/done/failed/cancelled; do not call queued work complete.
 
-1. Open WavRead and go to the Analyze view, which has two sides: **File** and
-   **Bridge**.
-2. On the File side, drag in an audio file or use the file picker.
-3. Wait through the named stages. Analysis runs after the file is read, not in real
-   time, and a long track takes a while.
-4. Read the Track Document and the Feedback Report, and use the export or copy action
-   to hand them to an agent.
+## Stems
 
-### Bring your own stems
+Import aligned files through `/import` multipart form (`file` repeated, `mode=stems`,
+`name`, `genre`, `stage`, `mix_type`). Optional `stem_manifest` is a JSON array in
+file order: `[{"name":"Piano","role":"individual","enabled":true}, ...]`.
+Roles: master, individual, reverb, delay. Names are instrument-first, unique and editable.
+Keep a master separate from the summed instruments. No automatic separation or
+reliable audio-based instrument identification is promised.
 
-WavRead analyses a set of files together as one track: the mix it reports is the
-**summed stems**, and each stem is measured individually. Current versions do not
-separate stems for the user — separation was removed in 1.4.45 — so the two routes
-are dropping stem files (or a folder) in directly, or configuring an external
-separation tool the user already owns and has the rights to use. Point users at
-exporting stems from their DAW first; it is the route with nothing to install.
+On `/track/<name>?view=stems`, edit include/name/type controls. Posting to
+`/track/<name>/stems` creates a fresh analysis with selected audio and a matching
+report. Excluded parts are omitted from summed playback and stem findings; their
+manifest records remain to explain the selection. A supplied master is measured
+separately and never added to its instruments. If any part is excluded, listening
+uses a fresh sum rather than a master that still contains the excluded part.
+Each enabled part has `/track/<name>/stem/<stem>` and a `/data` JSON endpoint.
 
-### Capturing from a DAW
+## Availability
 
-WavRead Bridge is an AU/VST3 plugin that captures takes from the DAW, multiple
-instances at once (master bus plus individual parts), with roles assigned per
-instance. The **Bridge** side of the Analyze page shows what the plugins are doing
-and carries the arming controls. Analysis still runs **after** the take, not during it.
-
-Common things that go wrong, and what to say:
-
-- **An instance joined the take but recorded nothing.** A plugin on a channel the
-  host never runs cannot see the transport edge. Check the channel is actually
-  playing audio through that plugin.
-- **A part that idles mid-take can lose that span.** If a part's captured file is
-  shorter than the take, that is the known gap, not a mixing observation.
-- **The Bridge reports signal present or absent, not a level.** "Signal" on that page
-  is not a dB reading; do not quote it as one.
-- **Capture the master too, when you can.** It is what makes the master-bus
-  comparison in SKILL.md §4 possible at all.
-
-### Versions and comparison
-
-- WavRead keeps a **Mix History** with notes, and song identity and credits are
-  entered per project.
-- **Comparison between two takes is currently the reader's job.** WavRead does not
-  yet emit a "since last take" diff. To compare, you need **both exports** — see SKILL.md §12.
-- **Bounce to a new filename for every version.** It keeps the history readable.
-
-### When something looks wrong with the app itself
-
-Distinguish clearly between **the analysis says something surprising** and **the app
-is misbehaving**. For the second: report the version, the exact stage, what was on
-screen, and what the user expected. Do not speculate about internals you cannot see,
-and do not tell a user to edit files inside the application bundle.
-
-**Version differences matter.** Screen names, panel layout and available measurements
-have all changed across the 1.4.x line. If a user's build does not match what you
-described, believe their screen, not your description.
-
+DAW capture is disabled in public builds and remains Coming soon. Export aligned stems from the
+DAW and import them. Do not bypass this with environment variables. WavRead can
+compare references/versions; use the available reference workspace and both readings.
+A local MCP adapter can wrap these routes with the official MCP SDK. It requires
+an installed adapter runtime and client registration; the Markdown skill is not
+itself an MCP server. See `docs/MCP.md` in the source repository.

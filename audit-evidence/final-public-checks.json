@@ -1,0 +1,65 @@
+{
+  "deployment_id": "dpl_CppRxExSpVGWEu4R2xtynD2VhMD6",
+  "files": [
+    {
+      "route": "/",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "0b627779dd18cd28d63089947320d204ab56c0226f778e962665f3d9850e0108"
+    },
+    {
+      "route": "/buy",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "4c468d7e30999312154abc9848c8de2663c403682790dc114e52e2642190c0e4"
+    },
+    {
+      "route": "/faq",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "86477f66b2cb02f4de275367255dfb695bfa8b6417931da2626aa7fd9ef1fe78"
+    },
+    {
+      "route": "/purchase-complete",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "c805f55dd60ea84abf2b3791b09a0b87c963587a5e90bf5d687bafff95f0f9db"
+    },
+    {
+      "route": "/EULA",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "fc0a8b10dcea4a2bc81646d4bdfeccab9daf2715cfb3b0a2d335664897c58661"
+    },
+    {
+      "route": "/js/early-build.js",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "8cbfcbf0e9beff181200687d4c92fff03f5ced0a6b0baec3434dac5fb9b04725"
+    },
+    {
+      "route": "/js/beta-auth.js",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "ec1ba16e89e878633685f15df408182e6ab70f85fd6bb9f8263aab1a07d70bcb"
+    },
+    {
+      "route": "/js/notify.js",
+      "status": 200,
+      "matches_built_source": true,
+      "sha256": "b8b9550970abdf2ee0e6c0b460b4c35199b058bf741b0e8c65098b573f7b8897"
+    }
+  ],
+  "external_links": [
+    {
+      "url": "https://github.com/EZmannBuilds/wavread-skill",
+      "status": 200,
+      "final_url": "https://github.com/EZmannBuilds/wavread-skill"
+    },
+    {
+      "url": "https://stripe.com/privacy",
+      "status": 200,
+      "final_url": "https://stripe.com/privacy"
+    }
+  ]
+}

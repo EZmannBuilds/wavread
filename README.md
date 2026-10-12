@@ -1,5 +1,7 @@
 # WavRead
 
+The September 10, 2026 product website release is documented in [PUBLIC_WEBSITE_RELEASE_2026-09-10.md](PUBLIC_WEBSITE_RELEASE_2026-09-10.md). It adds the interactive What the Light Remembers example, Windows notifications backed by Supabase, and public capture-coming-soon messaging.
+
 **Your music, translated into words.**
 
 WavRead analyzes music on your own computer and turns it into measurements,

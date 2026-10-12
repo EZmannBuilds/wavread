@@ -1,0 +1,143 @@
+{
+  "version": "1.5.4",
+  "source_snapshot_matches_prior_tested_runtime": true,
+  "prior_suites_passed": 24,
+  "frozen_smoke": {
+    "version": "1.5.4",
+    "frozen_capture_enabled": false,
+    "dev_environment_ignored": true,
+    "routes": {
+      "/bridge/ping": 503,
+      "/bridge/state": 503,
+      "/bridge/arm": 503,
+      "/bridge/join": 503,
+      "/bridge/finished": 503,
+      "/capture/arm": 503,
+      "/capture/sync": 503,
+      "/capture/reload": 503,
+      "/capture/name": 503,
+      "/settings/project-names": 503
+    },
+    "app_data": "/private/tmp/wavread-154/owner-smoke-data"
+  },
+  "website_checks_passed": 43,
+  "eula_sha256": "92788aeb18573243e238dd0e42686e8950120fe8226e96225cb891af8384aacf",
+  "notary_app_submission": "7319bda1-1929-4799-b171-805ddfb831a5",
+  "storage_bucket": "builds",
+  "storage_path": "early/1.5.4/WavRead-1.5.4.dmg",
+  "storage_public": false,
+  "release_status": "published",
+  "notary_dmg_submission": "3f577eb2-8d30-467a-bac0-96d5246c023c",
+  "deep_signature_verified_outside_sandbox": true,
+  "staged_deployment": "https://wavread-hhyi99h3y-lorehouse-team.vercel.app",
+  "staged_dashboard_verified": true,
+  "sha256": "a2afe92d3c7f748759abf85c75de69ccd0b134662fdd777e5f5e2a0c1f615d38",
+  "size_bytes": 137803586,
+  "notarization": "Accepted app and DMG; stapled; Gatekeeper accepted",
+  "uploaded_download_checksum_matches": true,
+  "build_id": 14,
+  "released_at": "2026-09-10T23:28:31.815644+00:00",
+  "production_deployment": "dpl_BzZehRfsueo1iD91kiCouZ4wPpd3",
+  "production_url": "https://wavread.com",
+  "previous_owners_without_new_access": 0,
+  "unknown_account_access": false,
+  "legacy_announcement": "https://github.com/EZmannBuilds/wavread/releases/tag/v1.5.4",
+  "legacy_announcement_assets": [],
+  "live_checks": {
+    "pages": [
+      {
+        "route": "/404",
+        "matches_staged": true
+      },
+      {
+        "route": "/EULA",
+        "matches_staged": true
+      },
+      {
+        "route": "/agent",
+        "matches_staged": true
+      },
+      {
+        "route": "/buy",
+        "matches_staged": true
+      },
+      {
+        "route": "/capture",
+        "matches_staged": true
+      },
+      {
+        "route": "/dashboard",
+        "matches_staged": true
+      },
+      {
+        "route": "/documents",
+        "matches_staged": true
+      },
+      {
+        "route": "/faq",
+        "matches_staged": true
+      },
+      {
+        "route": "/how-it-works",
+        "matches_staged": true
+      },
+      {
+        "route": "/",
+        "matches_staged": true
+      },
+      {
+        "route": "/install",
+        "matches_staged": true
+      },
+      {
+        "route": "/privacy",
+        "matches_staged": true
+      },
+      {
+        "route": "/purchase-complete",
+        "matches_staged": true
+      },
+      {
+        "route": "/requirements",
+        "matches_staged": true
+      },
+      {
+        "route": "/signin",
+        "matches_staged": true
+      },
+      {
+        "route": "/js/beta-auth.js",
+        "matches_staged": true
+      },
+      {
+        "route": "/product.css",
+        "matches_staged": true
+      },
+      {
+        "route": "/pages.css",
+        "matches_staged": true
+      },
+      {
+        "route": "/js/navigation.js",
+        "matches_staged": true
+      }
+    ],
+    "catalog": {
+      "version": "1.5.4",
+      "released_at": "2026-09-10T23:28:31.815644+00:00",
+      "sha256": "a2afe92d3c7f748759abf85c75de69ccd0b134662fdd777e5f5e2a0c1f615d38",
+      "size_bytes": 137803586,
+      "url": "https://wavread.com/dashboard"
+    },
+    "anonymous_download": [
+      {
+        "path": "/storage/v1/object/public/builds/early/1.5.4/WavRead-1.5.4.dmg",
+        "anonymous_status": 400
+      },
+      {
+        "path": "/functions/v1/download-build",
+        "anonymous_status": 401
+      }
+    ]
+  }
+}

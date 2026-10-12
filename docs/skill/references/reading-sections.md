@@ -98,7 +98,7 @@ and a level curve over the take.
   user supplied those files, so **stem names are the user's filenames** and carry no
   guaranteed meaning. The Settings toggle for this stage is still labelled "Stem
   separation" — that is a stale label, not a returning feature.
-- **The mix measured above a stem table is the summed stems** — see SKILL.md §4.
+- **Read `mix_source` before interpreting the mix above a stem table.** It may be a supplied master or a sum of selected stems. The master is never added to its own parts; disabled parts are omitted from a newly built selection. See the operating reference for selection behavior.
 - **"absent" in a level column means the stem measured as never active**, and its
   peak column may still show a value. That combination usually means very quiet or
   effectively silent content — worth flagging as "check this file", not asserting as

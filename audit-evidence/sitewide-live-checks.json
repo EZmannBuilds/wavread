@@ -1,0 +1,116 @@
+[
+  {
+    "path": "EULA.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "cf63b85ce51147231b5ec923eeff16af1e21b6b67b868e7bcef1a523ed637a03"
+  },
+  {
+    "path": "install.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "5ba561329df1f3db3e397d3161ac25fe13bf1c332f023bfa890dfbc1e81c3ffe"
+  },
+  {
+    "path": "index.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "49eafc09463d296c22d31226a20048a17fc6e8ee89e6964d2745fefadf45b2d5"
+  },
+  {
+    "path": "documents.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "3e8e2b338bcb48d9df8922881e7d246cf451ef17290ae3b30c0d33b7b3ef8996"
+  },
+  {
+    "path": "404.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "f1aedaca6176dd62a7c471cbb1e4e0c1b2e1114be42d2e466d81ceef8296c23e"
+  },
+  {
+    "path": "purchase-complete.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "a6b7b19edbbe6a8ceba294e566c4b8606da1bf35d82daf6e13d47ff6d7679d28"
+  },
+  {
+    "path": "dashboard.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "93ebcf8ee0f5e3a140e0368dcd66a8e1b952c1ffd12df57342e1fc37b8aea8ff"
+  },
+  {
+    "path": "agent.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "2aa5fd4e55672f7d3f892866c0725f525b4875e3a1f1d86bcbcc750c2604690b"
+  },
+  {
+    "path": "capture.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "d01b8815f4ad5b74ccba142fce18af6b758ac6536cccfd725e40989a2ff6267a"
+  },
+  {
+    "path": "buy.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "7a6590957f7e47c43a0de766f047d945e4cdb7db52ba227be4b01d5b7c1eb76c"
+  },
+  {
+    "path": "how-it-works.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "715a9294a1bada3e811c301a2301b6fedf590f4efc6aa07fdc71b1fecf393bdc"
+  },
+  {
+    "path": "faq.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "8b1e764824287699a59ce2f08a486c1438c61cfd74f57033a7898919ee356ff8"
+  },
+  {
+    "path": "signin.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "8bb9292292593386421bd78e591ea05cfe01000e131b0255d0802f56e7daca26"
+  },
+  {
+    "path": "requirements.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "0b64f22db164dba5d40f080d84540ec594a78a70939622cb5051a87f4a01e9e7"
+  },
+  {
+    "path": "privacy.html",
+    "status": 200,
+    "source_match": true,
+    "sha256": "acf2e03235449b6cd16b6d251ade0dfb1a816e55c69bd37887f9e7f297eb3737"
+  },
+  {
+    "path": "pages.css",
+    "status": 200,
+    "source_match": true,
+    "sha256": "4e250e8b2bcfbf4abf7ee8b982e2abd43f83a9581c72ae35a014eb49f5bb4143"
+  },
+  {
+    "path": "product.css",
+    "status": 200,
+    "source_match": true,
+    "sha256": "ed51fece4d8915f049f68506ad2dd36e683343749d61e4d0c6b7120cc19f15b9"
+  },
+  {
+    "path": "site.css",
+    "status": 200,
+    "source_match": true,
+    "sha256": "1a9df2b8ea3c24aaaef44e0631f430d8f9550603e5e3096078601050e1d25fbd"
+  },
+  {
+    "path": "js/navigation.js",
+    "status": 200,
+    "source_match": true,
+    "sha256": "5fb8ed531bb8afe95f0642d3448e5a667fbdf9ccde5171bd3dcd510751196ec5"
+  }
+]

@@ -21,7 +21,7 @@ function campaignLabel() {
 async function loadConfiguration() {
   if (LOCAL_HOSTS.has(location.hostname)) return window.WAVREAD_BETA_CONFIG;
   try {
-    const response = await fetch("/api/beta-config", { headers: { Accept: "application/json" } });
+    const response = await fetch("/api/beta-config", { signal: AbortSignal.timeout(10000), headers: { Accept: "application/json" } });
     if (!response.ok) return null;
     const config = await response.json();
     return config.configured ? config : null;
@@ -46,6 +46,8 @@ function setStatus(element, message, state = "", field = null) {
 async function initializeCheckout() {
   const form = document.querySelector("#checkout-form");
   if (!form) return;
+  // Block native submission while configuration is still loading.
+  form.addEventListener("submit", event => event.preventDefault());
   const status = document.querySelector("#checkout-status");
   const unconfigured = document.querySelector("#checkout-unconfigured");
   const submit = form.querySelector("button[type=submit]");
@@ -71,7 +73,7 @@ async function initializeCheckout() {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!form.reportValidity()) return;
+    if (submit.disabled || !form.reportValidity()) return;
     const email = new FormData(form).get("email").trim().toLowerCase();
     const source = campaignLabel();
     submit.disabled = true;
@@ -80,6 +82,7 @@ async function initializeCheckout() {
     try {
       const response = await fetch(endpoint, {
         method: "POST",
+        signal: AbortSignal.timeout(15000),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(source ? { email, source } : { email }),
       });
@@ -103,6 +106,7 @@ async function initializeCheckout() {
       submit.disabled = false;
     }
   });
+  submit.disabled = false;
 }
 
 initializeCheckout();
