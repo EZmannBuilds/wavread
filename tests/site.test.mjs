@@ -730,7 +730,7 @@ test("return pages and supporting guidance do not invent success or promote disa
   // DAW capture is not offered, so no page promises it.
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));
-    assert.doesNotMatch(html, /capture is coming soon|href="\/?capture(\.html)?"/i, `${file} still promotes DAW capture`);
+    assert.doesNotMatch(html, /capture[^.<]*coming soon|href="\/?capture(\.html)?"/i, `${file} still promotes DAW capture`);
   }
   const vercel = JSON.parse(await read("vercel.json"));
   assert.ok(vercel.redirects.some(r => r.source === "/capture"), "/capture redirects rather than 404s");
