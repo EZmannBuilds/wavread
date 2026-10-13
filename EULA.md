@@ -1,6 +1,6 @@
 # WavRead — End User Licence Agreement
 
-**Version 1.1 · Effective 2026-09-10**
+**Version 1.2 · Effective 2026-10-12**
 
 This agreement is between you and Erik Mann (EZmannBuilds) ("we", "us"), the
 owner of WavRead. By installing or using WavRead, you agree to it. If you do
@@ -94,8 +94,8 @@ and you may have rights under consumer law that this agreement does not affect.
 
 ## 8. Refunds
 
-If you paid for WavRead and it does not work for you, contact us within 30 days
-of purchase and we will refund it. Statutory refund rights, where they apply,
+If you paid for WavRead, you may ask for a refund for any reason within 30 days
+of purchase and we will refund it; a refund ends access to the builds. Statutory refund rights, where they apply,
 are in addition to this and are not limited by it.
 
 ## 9. Ending this licence

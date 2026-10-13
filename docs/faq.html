@@ -26,7 +26,7 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
 <nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
-<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/signin.html">Sign in</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
 <main id="main" class="page-content wrap"><div class="page-hero">
 
 <h1>Questions</h1>
@@ -51,8 +51,8 @@
   once-a-day version check you can switch off, the update you press the button
   for, and one one-time model download <em>if</em> you transcribe lyrics.
   WavRead ships no separation model and never fetches one: stems come from you.
-  From 1.4.37 there is one more, and it is off by default: problem reports,
-  which send a scrubbed crash record only after you turn them on.
+  There is one more, and it is off by default: problem reports, which send a
+  scrubbed crash record only after you turn them on.
   <a href="privacy.html">Privacy</a> lists every request and every field.
   Everything else runs offline, and the app works with the network cable out.</p>
 </div></details>
@@ -82,7 +82,7 @@
 </div></details>
 
 <details class="question"><summary>Will macOS warn me when I open it?</summary><div>
-  <p>Once, benignly. WavRead is signed with an Apple Developer ID and notarised
+  <p>Once, benignly. WavRead is signed with an Apple Developer ID and notarized
   by Apple, with the ticket stapled to both the app and the disk image, so it
   works even on a Mac that is offline. The first launch still shows the ordinary
   <em>"downloaded from the Internet — are you sure you want to open it?"</em>
@@ -91,8 +91,8 @@
   again.</p>
   <p>What you will <em>not</em> see is the refusal — <em>"cannot be opened
   because Apple cannot check it for malicious software"</em>, with no Open
-  button. That is what builds before 1.4.37 did, and it needed a trip through
-  System Settings → Privacy &amp; Security. That part is over.
+  button. Unsigned apps get that, and it needs a trip through System Settings →
+  Privacy &amp; Security. WavRead does not.
   <a href="install.html">The install guide</a> shows both, side by side.</p>
 </div></details>
 
@@ -101,12 +101,31 @@
   <a href="requirements.html">requirements</a> for the full picture.</p>
 </div></details>
 
+<details class="question"><summary>What will Windows show the first time?</summary><div>
+  <p>A SmartScreen warning. The Windows installer is not yet code-signed, so
+  Windows says it is from an unknown publisher. Choose <em>More info</em>, then
+  <em>Run anyway</em>; it asks once. The installer and the installed files are
+  the ones listed on your dashboard, with a checksum you can verify. The
+  <a href="install.html#install-windows">install guide</a> shows the screens.</p>
+</div></details>
+
+<details class="question"><summary>Does Windows need anything else installed?</summary><div>
+  <p>The Microsoft Edge WebView2 runtime, which Windows 11 and an up-to-date
+  Windows 10 already have. The installer checks and tells you if it is missing.
+  Windows 10 or 11, 64-bit; see <a href="requirements.html">requirements</a>.</p>
+</div></details>
+
+<details class="question"><summary>Do I need to buy it twice for Mac and Windows?</summary><div>
+  <p>No. One purchase covers both. Every version is published for Mac and for
+  Windows, and both downloads are on your dashboard.</p>
+</div></details>
+
 <details class="question"><summary>I remember the free downloads. Can I still get one?</summary><div>
   <p>No. Those downloads were withdrawn when WavRead became a paid product —
   they were unsigned, they used a runtime that no longer gets fixes, and
   offering them beside a paid build would have sold the past as the present.
   The current build is the only one available, and the only one that is
-  signed, notarised and supported.</p>
+  signed, notarized and supported.</p>
 </div></details>
 
 <details class="question"><summary>How accurate are the loudness and peak numbers?</summary><div>
@@ -129,7 +148,7 @@
 
 <details class="question"><summary>Where do my files live?</summary><div>
   <p>In one folder you choose, with everything in it: analyses, documents,
-  captures and copies of your audio. Settings shows you where it is, how big it
+  stems and copies of your audio. Settings shows you where it is, how big it
   is, and moves it to another drive if you want — copying everything first and
   removing the original only once the copy is complete.</p>
 </div></details>
@@ -155,16 +174,15 @@
 </div></details>
 
 <details class="question"><summary>Does it update itself?</summary><div>
-  <p>Only when you press the button. Update now downloads the release, checks it
-  against the checksum published in the release notes, confirms the app inside is
-  the version it claims to be, and swaps it in — moving your current app aside
-  first and putting it back if anything fails. The updater checks public GitHub
-  releases; sign-in-protected tester builds must be downloaded manually from the
-  tester dashboard.</p>
+  <p>No. Once a day WavRead asks wavread.com which version is newest — a request
+  with nothing in it about you — and if there is a newer one it tells you and
+  points you to your account, where every build is behind your sign-in. Nothing
+  is downloaded or installed on its own. You can switch the daily check off in
+  Settings → Privacy.</p>
 </div></details>
 
 </section></div></div></main>
-<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Reports</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
 
 </body>
 </html>

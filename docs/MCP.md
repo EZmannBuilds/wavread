@@ -1,141 +1,51 @@
-# Local WavRead MCP
+# WavRead and MCP assistants
 
-Implemented in `integrations/wavread_mcp/server.py` using the official Python MCP
-SDK, pinned to 2.2.0 with a committed uv lockfile. It runs as a local stdio process
-and talks only to WavRead's loopback HTTP API. No public MCP port or hosted service
-is needed. Audio uploads are local transfers to the local app. Measurements,
-context and page text returned by tools enter the assistant conversation; a cloud
-assistant can therefore receive those results. Existing app actions such as update
-checks can still use the internet.
+WavRead 1.5.6 and later carry a small helper program, `wavread-mcp`, inside the
+app. It lets an assistant that speaks MCP (Claude Desktop, Claude Code, Codex
+and others) operate WavRead: analyze files, read the measurements, compare with
+references, choose stems, rename tracks and change settings. WavRead itself
+never mentions it, and nothing in WavRead needs an assistant.
 
-## In the app (1.5.6 and later)
+## Where it is
 
-Every build ships the server frozen into its own program, `wavread-mcp`, beside
-the app:
-
-| Platform | Installed helper |
+| | Path |
 |---|---|
+| macOS | `/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp` |
 | Windows | `%LOCALAPPDATA%\Programs\WavRead\mcp\wavread-mcp.exe` |
-| macOS | `WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp` |
 
-The app itself never mentions the helper: most musicians want no AI in their
-mixing tool, so there is no settings page, menu item or link for it. Whoever
-wants it adds it to their client by path:
+## Adding it to an assistant
 
-```sh
-claude mcp add --scope user wavread -- "/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp"
-codex mcp add wavread -- "/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp"
+Claude Code: `claude mcp add --scope user wavread -- "<path>"`
+
+Codex: `codex mcp add wavread -- "<path>"`
+
+Claude Desktop: in Settings › Developer › Edit Config, add to `mcpServers`:
+
+```json
+{"mcpServers": {"wavread": {"command": "<path>", "args": []}}}
 ```
 
-For Claude Desktop, add it to `claude_desktop_config.json` under `mcpServers`
-as `{"wavread": {"command": "<that path>", "args": []}}`. On Windows the path is
-`%LOCALAPPDATA%\Programs\WavRead\mcp\wavread-mcp.exe`. Any other client takes
-it as a local stdio server with that command and no arguments. Access is on by
-default and covers every WavRead action, deletes included.
+Any other client takes it as a local stdio server with that command and no
+arguments. If WavRead is closed, the helper opens it.
 
-Its `start_wavread` tool opens the WavRead it was installed with (`WavRead.exe`
-beside its `mcp` folder, or the `WavRead.app` that contains it) and waits up to
-30 seconds for the app to answer.
+## What it can do
 
-How it is built: `tools/build.py` syncs `integrations/wavread_mcp` from its
-`uv.lock` (with the `build` group, which adds PyInstaller), freezes it with
-`integrations/wavread_mcp/wavread_mcp.spec`, and copies it into the app. A
-separate program rather than a mode of `WavRead.exe`: the app is a windowed
-build with no stdio on Windows, and the MCP SDK's dependencies would otherwise
-have to be resolved into `requirements.lock.txt` beside numba and scipy.
-`tools/gen_licenses.py` lists the helper's components too. On macOS,
-`tools/sign_and_notarize.sh` seals the nested helper bundle before the app.
+Twelve tools: `start_wavread`, `capabilities`, `settings`, `list_tracks`,
+`read_track`, `analyze_files`, `jobs`, `select_stems`, `rename_track`,
+`inspect_page`, `app_request` and `save_app_file`. Together they reach every
+action the app offers, including deleting, with the same access you have in
+the app. Ask the assistant for what you want done, and check the result in
+WavRead.
 
-## From source
+## What leaves your computer
 
-From the repository root:
+Nothing, from the helper itself: it talks only to WavRead, on this computer,
+and audio is never sent anywhere. What a tool returns (measurements, track
+names, document text and your notes) goes into the assistant's conversation,
+under that assistant's privacy policy. The [privacy page](privacy.html) covers
+the rest of the app.
 
-```sh
-uv sync --project integrations/wavread_mcp --python 3.12 --frozen
-```
+## The skill
 
-Then register the server with your client, using the adapter's interpreter:
-
-| | Interpreter |
-|---|---|
-| macOS / Linux | `integrations/wavread_mcp/.venv/bin/python` |
-| Windows | `integrations\wavread_mcp\.venv\Scripts\python.exe` |
-
-```sh
-codex mcp add wavread -- "$PWD/integrations/wavread_mcp/.venv/bin/python" "$PWD/integrations/wavread_mcp/server.py"
-claude mcp add --scope user wavread -- "$PWD/integrations/wavread_mcp/.venv/bin/python" "$PWD/integrations/wavread_mcp/server.py"
-```
-
-Use absolute paths to your checkout.
-
-The adapter has its own Python 3.12 environment. The audio engine keeps its existing
-Python environment and DSP dependencies. Keep the checkout and both environments
-in place. Open a fresh task or reload the client if its current tool list does not
-refresh.
-
-Start the source app through the MCP `start_wavread` tool or:
-
-```sh
-integrations/wavread_mcp/.venv/bin/python integrations/wavread_mcp/start_app.py
-```
-
-Close an older running WavRead first. The launcher never kills an existing app. It
-opens the source app with `WAVREAD_USE_APP_DATA=1`, using the desktop's configured
-library rather than the checkout's development library. It does not copy or
-migrate audio. Logs: `~/Library/Logs/WavRead/local-app.log` on macOS,
-`%LOCALAPPDATA%\WavRead\Logs\local-app.log` on Windows. The launcher needs the
-source app's `.venv` with its existing native dependencies.
-
-## Tools and control
-
-- `start_wavread`: start the local app, or report an existing compatible instance.
-- `capabilities`: app/version, route methods, settings schema and capture availability.
-- `inspect_page`: current form controls, choices and rendered HTML.
-- `app_request`: all implemented HTTP actions, including specialist settings,
-  history, references, markers, comparisons, reanalysis, storage, exports and deletes.
-  Accepts query, repeated form fields, or JSON. Discover routes before using them.
-- `list_tracks` / `read_track`: saved library and actual JSON readings, including
-  per-instrument data. `/api/v1/tracks/<name>` is the raw reading endpoint.
-- `settings`: validated partial updates that preserve other preferences.
-- `rename_track`: rename related files/records and return the resulting library.
-- `analyze_files`: stream local audio uploads and queue track or aligned stem analysis.
-- `select_stems`: rename instruments, assign individual/master/reverb/delay roles,
-  and include/exclude stems in a new selection reading. Disabled parts are excluded
-  from summed playback and findings. Masters are measured separately.
-- `jobs`: progress, failures, completion and cancellation by exact job name.
-- `save_app_file`: stream a response to a new local file without returning binary
-  audio to the assistant. Existing destinations are not overwritten.
-
-This is full access to implemented WavRead actions, including destructive ones;
-there is no read-only tier. The assistant must still follow the user's requested
-scope. It cannot make an unimplemented feature available. Browser-only transient
-controls and DAW/VST automation are not provided by this HTTP adapter. Serum,
-Analog Lab and native DAW project editing need an integration with the chosen DAW.
-Public-build capture restrictions remain in place.
-
-HTTP redirects are reported as redirects, not automatically as successful changes.
-Tools must read the returned messages and verify saved state. Analysis is queued:
-read `jobs` before claiming a finished result. A missing or older app gives an
-explicit error. API destinations are restricted to loopback; environment proxy
-settings and automatic redirects are disabled. Alternate local instances can use
-`WAVREAD_URL=http://127.0.0.1:<port>`; the launcher handles only default port 8765.
-
-## Verification
-
-```sh
-.venv/bin/python tests/test_mcp.py
-.venv/bin/python tests/test_agent_stems.py
-.venv/bin/python tests/test_assistants.py
-```
-
-`WAVREAD_MCP_BINARY=<path to wavread-mcp>` makes `test_mcp.py` run the same checks
-against a frozen helper instead of `server.py`; CI does this for the Windows build.
-`test_assistants.py` checks that the helper finds its app, and that the app
-itself shows no AI assistants page, link or wording.
-
-The MCP test launches the real stdio server and client against a temporary Flask
-library with real DSP fixtures. It checks discovery, form inspection, invalid
-settings/routes, settings persistence, renaming, local exports and overwrite
-refusal, audio upload/analysis, and stem selection with separate master data.
-The API/stem suite additionally checks selected playback audio against its source.
-No test modifies the user's library.
+The [WavRead skill](agent.html) tells an assistant how to read the documents and
+run the app well. It works with or without the helper.

@@ -1,8 +1,7 @@
 # Operating WavRead 1.5.6
 
 The app is a loopback Flask service, normally port 8765. Start with
-`GET /api/v1/capabilities`: it reports version, routes, methods, settings and capture
-availability. `GET /api/v1/forms?path=/settings-page/analysis` returns the rendered
+`GET /api/v1/capabilities`: it reports version, routes, methods and settings. `GET /api/v1/forms?path=/settings-page/analysis` returns the rendered
 form controls and HTML. This is also the fallback for options outside JSON settings.
 No cloud account is required to analyze local files.
 
@@ -46,8 +45,8 @@ Each enabled part has `/track/<name>/stem/<stem>` and a `/data` JSON endpoint.
 
 ## Availability
 
-DAW capture is not available in public builds, and the app has no page for it. Export aligned stems from the
-DAW and import them. Do not bypass this with environment variables. WavRead can
+WavRead does not capture from a DAW. Export aligned stems from the DAW and
+import them. WavRead can
 compare references/versions; use the available reference workspace and both readings.
 From 1.5.6 the app ships its own MCP helper, `wavread-mcp`, at
 `/Applications/WavRead.app/Contents/Helpers/WavRead MCP.app/Contents/MacOS/wavread-mcp`

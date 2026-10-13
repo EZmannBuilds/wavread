@@ -167,7 +167,7 @@ function renderKnownIssues(issues) {
     article.className = "issue";
     const meta = document.createElement("p");
     meta.className = "issue-meta";
-    meta.textContent = `${issue.status} · ${issue.affected_versions || "Current beta"}`;
+    meta.textContent = `${issue.status} · ${issue.affected_versions || "Current build"}`;
     const title = document.createElement("h3");
     title.textContent = issue.title;
     const summary = document.createElement("p");
@@ -293,6 +293,11 @@ async function loadBuilds(standing) {
     return;
   }
   const builds = data || [];
+  // The "Current build" card takes its date from the catalog rather than from
+  // a line typed into the page, which went stale once already.
+  const dateEl = document.querySelector("#current-build-date");
+  const newest = builds.find((b) => (b.platform || "macos") === "macos");
+  if (dateEl && newest) dateEl.textContent = fmtDate(newest.released_at);
   const has = (b) => standing.everything || standing.owned.has(b.version);
   locked.hidden = builds.length === 0 || builds.some(has);
   list.replaceChildren();

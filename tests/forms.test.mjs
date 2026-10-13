@@ -26,7 +26,7 @@ test('checkout blocks native submission until configuration and recovers after a
     location: {hostname: 'wavread.com', host: 'wavread.com', search: '', assign: () => assert.fail('unexpected checkout navigation')},
     FormData: class {get() {return f.field.value;}},
     fetch: () => {calls++; return calls === 1 ? new Promise(resolve => {resolveConfig = resolve;}) : Promise.reject(new Error('offline'));}});
-  vm.runInContext(await readFile('docs/js/early-build.js','utf8'), context);
+  vm.runInContext(await readFile('docs/js/buy.js','utf8'), context);
   assert.equal((await f.submit()).prevented, true);
   assert.equal(f.button.disabled, true);
   assert.equal(calls, 1, 'no checkout request before configuration');

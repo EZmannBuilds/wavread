@@ -423,7 +423,7 @@ test("the archive, the platform, and the name of what comes next", async () => {
 test("an ad campaign label is a label, not a tracker", async () => {
   const shared = await read("supabase/functions/_shared/mod.ts");
   const checkout = await read("supabase/functions/create-checkout/index.ts");
-  const page = await read("docs/js/early-build.js");
+  const page = await read("docs/js/buy.js");
   const privacy = await read("docs/privacy.html");
   const vercel = await read("vercel.json");
 
@@ -522,7 +522,7 @@ test("the shop never reads as shut to anything that cannot run CSS", async () =>
     "no failure text ships inside the page; the script writes it when it is true");
   assert.match(buy, /id="checkout-unconfigured"[^>]*hidden/,
     "the empty container is still there for the script to fill");
-  const js = await read("docs/js/early-build.js");
+  const js = await read("docs/js/buy.js");
   assert.match(js, /sayUnconfigured/, "and the script is what says it");
   assert.match(js, /Nothing has been charged/,
     "which says the thing a person needs to hear, not the thing an operator does");
@@ -726,7 +726,7 @@ test("return pages and supporting guidance do not invent success or promote disa
   const complete = await read('docs/purchase-complete.html');
   assert.doesNotMatch(complete, /Stripe has confirmed|Payment received|purchase is confirmed|You're in early/);
   assert.match(complete, /Opening this page alone does not confirm a payment/);
-  assert.match(await read('docs/skill/references/operating-wavread.md'), /not available in public builds/);
+  assert.match(await read('docs/skill/references/operating-wavread.md'), /does not capture from a DAW/);
   // DAW capture is not offered, so no page promises it.
   for (const file of htmlFiles) {
     const html = await read(join("docs", file));

@@ -104,9 +104,23 @@
     for (let i = 0; i < 160; i++) { const slice = waves.slice(Math.floor(i * waves.length / 160), Math.floor((i + 1) * waves.length / 160)); const h = Math.max(2, Math.max(...slice) * 40); bars += `<rect x="${i * 4}" y="${22-h/2}" width="2" height="${h}" rx="1" fill="#789fbc"/>`; }
     document.querySelector('#waveform').innerHTML = svg(bars, 'Waveform of the sample mix', 44, 640);
     const sectionChart = document.querySelector('#section-chart');
+    // Bars are scaled to this song's own range, rounded out to whole decibels,
+    // so its 18 LU swing fills the chart instead of the top half of a fixed
+    // 30 LU axis, and faint lines say where the bars are measured from.
+    const levels = sample.sections.map(s => s.lufs);
+    const top = Math.ceil(Math.max(...levels) / 5) * 5;
+    const bottom = Math.floor(Math.min(...levels) / 5) * 5 - 2;
+    const span = top - bottom;
+    for (let line = top - 5; line > bottom; line -= 5) {
+      const grid = document.createElement('span');
+      grid.className = 'grid';
+      grid.style.bottom = `${(line - bottom) / span * 100}%`;
+      grid.innerHTML = `<i>${line}</i>`;
+      sectionChart.append(grid);
+    }
     sample.sections.forEach(section => {
       const button = document.createElement('button');
-      button.style.height = `${Math.max(8, (section.lufs + 45) / 30 * 100)}%`;
+      button.style.height = `${Math.max(4, (section.lufs - bottom) / span * 100)}%`;
       button.setAttribute('aria-label', `Listen to section ${section.n} at ${section.start}, ${section.lufs} LUFS`);
       button.title = `${section.start}–${section.end}: ${section.lufs} LUFS`;
       const value = document.createElement('span'); value.textContent = section.lufs; button.append(value);
