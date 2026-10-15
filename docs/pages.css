@@ -89,6 +89,7 @@ body.site-page main.page-content .dashboard-card h2{font-size:25px;margin:14px 0
 body.site-page main.page-content .dashboard-section>h2{margin:24px 24px 15px;font-size:25px}
 body.site-page main.page-content .dashboard-section>p{margin:0 24px 22px}body.site-page main.page-content .dashboard-section h3{font:16px Space,Arial,sans-serif;color:var(--ink);letter-spacing:0;text-transform:none}
 .site-page .dashboard-section>div{max-width:calc(100% - 48px);overflow-x:auto}.site-page .dashboard-section .form-row{overflow:visible}
+.site-page .platform-downloads{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}.site-page .platform-download{flex:1 1 240px;border:1px solid var(--line);border-radius:10px;padding:14px 16px}.site-page .platform-download[data-detected]{border-color:var(--ink)}body.site-page main.page-content .platform-download p{margin:4px 0 0;font-size:12px;color:var(--muted)}
 .site-page .dashboard-section .onboarding-list{padding:0;margin:24px;list-style:none}.site-page .onboarding-list li{background:#f0f3f7;padding:18px;margin:0;font-size:12px}
 .site-page .tester-badge,.site-page .card-kicker{font:12px Inter,sans-serif;letter-spacing:0;text-transform:none;color:#286c70}
 .site-page .dashboard-head{border-bottom:1px solid var(--line);padding-bottom:28px}

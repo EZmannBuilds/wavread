@@ -279,6 +279,101 @@ async function downloadBuild(build, statusEl) {
 
 const PLATFORM_NAMES = { macos: "macOS", windows: "Windows" };
 
+// Which desktop this browser runs on: "macos", "windows", or null when it
+// cannot tell — a phone, a tablet, Linux, ChromeOS, anything unrecognized.
+// It only decides which download button is highlighted. Both are always
+// shown, and each one only ever fetches a build of its own platform.
+function detectPlatform(nav = globalThis.navigator) {
+  if (!nav) return null;
+  const hint = nav.userAgentData?.platform;
+  if (hint === "macOS") return "macos";
+  if (hint === "Windows") return "windows";
+  const agent = String(nav.userAgent || "");
+  const legacy = String(nav.platform || "");
+  if (nav.userAgentData?.mobile || /Android|iPhone|iPad|iPod|Mobile/i.test(agent)) return null;
+  // iPadOS Safari introduces itself as a Mac; only a touch screen gives it away.
+  if (/Macintosh|Mac OS X/.test(agent) || /^Mac/.test(legacy)) return nav.maxTouchPoints > 1 ? null : "macos";
+  if (/Windows/.test(agent) || /^Win/.test(legacy)) return "windows";
+  return null;
+}
+
+// The newest build of one platform — never just the newest build. Windows
+// 1.5.6 was published after Mac 1.5.6, so the first row of the catalog is a
+// Windows installer, and a Mac button that took it would hand a Mac the .exe.
+function newestFor(builds, platform) {
+  return builds.find((b) => (b.platform || "macos") === platform) || null;
+}
+
+// The same button the table row has: Download when this account owns the
+// build, otherwise Buy, otherwise nothing to press.
+function buildAction(build, has, status, downloadLabel = "Download") {
+  const action = document.createElement("button");
+  action.type = "button";
+  action.className = "btn tiny";
+  if (has(build)) {
+    action.textContent = downloadLabel;
+    action.addEventListener("click", () => downloadBuild(build, status));
+  } else {
+    // No fallback price. A hardcoded default outlived the price it was
+    // copied from once already; if the catalog did not give us a number,
+    // the button says nothing rather than a stale one.
+    if (build.price_cents > 0) {
+      action.textContent = `Buy — $${(build.price_cents / 100).toFixed(2)}`;
+      action.addEventListener("click", () => buyBuild(build, status));
+    } else {
+      action.textContent = "Not for sale";
+      action.disabled = true;
+    }
+  }
+  return action;
+}
+
+const PLATFORM_CHOICES = {
+  macos: { label: "Download for Mac", needs: "Apple Silicon, macOS 14 or later" },
+  windows: { label: "Download for Windows", needs: "Windows 10 or 11, 64-bit" }
+};
+
+// One button per platform, the detected one first and highlighted. With no
+// confident guess neither is, and the note asks the reader to pick.
+function renderPlatformDownloads(builds, has, status) {
+  const box = document.querySelector("#platform-downloads");
+  const note = document.querySelector("#platform-note");
+  if (!box) return;
+  const detected = detectPlatform();
+  const order = detected === "windows" ? ["windows", "macos"] : ["macos", "windows"];
+  box.replaceChildren(...order.map((platform) => {
+    const choice = PLATFORM_CHOICES[platform];
+    const build = newestFor(builds, platform);
+    let action;
+    if (build) {
+      action = buildAction(build, has, status, choice.label);
+    } else {
+      action = document.createElement("button");
+      action.type = "button";
+      action.textContent = choice.label;
+      action.disabled = true;
+    }
+    action.className = platform === detected ? "btn primary" : "btn";
+    const detail = document.createElement("p");
+    detail.textContent = build
+      ? `${PLATFORM_NAMES[platform]} · ${build.version} · ${choice.needs}`
+      : `${PLATFORM_NAMES[platform]} · not published yet`;
+    const item = document.createElement("div");
+    item.className = "platform-download";
+    item.dataset.platform = platform;
+    if (platform === detected) item.dataset.detected = "true";
+    item.append(action, detail);
+    return item;
+  }));
+  box.hidden = false;
+  if (note) {
+    note.hidden = false;
+    note.textContent = detected
+      ? `This looks like ${detected === "macos" ? "a Mac" : "a Windows PC"}, so that build is first. The other is beside it.`
+      : "Choose the build for the computer you will install WavRead on.";
+  }
+}
+
 async function loadBuilds(standing) {
   const list = document.querySelector("#builds-list");
   const empty = document.querySelector("#builds-empty");
@@ -296,7 +391,7 @@ async function loadBuilds(standing) {
   // The "Current build" card takes its date from the catalog rather than from
   // a line typed into the page, which went stale once already.
   const dateEl = document.querySelector("#current-build-date");
-  const newest = builds.find((b) => (b.platform || "macos") === "macos");
+  const newest = newestFor(builds, "macos");
   if (dateEl && newest) dateEl.textContent = fmtDate(newest.released_at);
   const has = (b) => standing.everything || standing.owned.has(b.version);
   locked.hidden = builds.length === 0 || builds.some(has);
@@ -306,28 +401,12 @@ async function loadBuilds(standing) {
     return;
   }
   empty.hidden = true;
+  renderPlatformDownloads(builds, has, status);
   const rows = builds.map((build) => {
     const sha = document.createElement("code");
     sha.textContent = build.sha256;
     const size = `${(build.size_bytes / (1024 * 1024)).toFixed(0)} MB`;
-    const action = document.createElement("button");
-    action.type = "button";
-    action.className = "btn tiny";
-    if (has(build)) {
-      action.textContent = "Download";
-      action.addEventListener("click", () => downloadBuild(build, status));
-    } else {
-      // No fallback price. A hardcoded default outlived the price it was
-      // copied from once already; if the catalog did not give us a number,
-      // the button says nothing rather than a stale one.
-      if (build.price_cents > 0) {
-        action.textContent = `Buy — $${(build.price_cents / 100).toFixed(2)}`;
-        action.addEventListener("click", () => buyBuild(build, status));
-      } else {
-        action.textContent = "Not for sale";
-        action.disabled = true;
-      }
-    }
+    const action = buildAction(build, has, status);
     const state = document.createElement("span");
     state.className = "table-status";
     state.textContent = standing.everything || standing.owned.has(build.version) ? "included" : "not owned";
