@@ -16,6 +16,7 @@ import {
   readJson,
   serviceClient,
 } from "../_shared/mod.ts";
+import { checkoutBuild } from "./build.mjs";
 
 const CURRENCY = "usd";
 
@@ -43,20 +44,12 @@ Deno.serve(async (req: Request) => {
 
   // Each build is bought on its own, so the price and the name come from the
   // catalog rather than from anything the browser says. A checkout that names
-  // no build buys the current one. A build priced at zero is not for sale and
-  // is skipped by the guard below — that is how the pre-2026-08-29 builds,
-  // which carry a separation backend that may not be sold, stay unsellable.
-  const db = serviceClient();
-  let build = null;
-  const wanted = Number(body?.build_id);
-  const query = db
-    .from("builds")
-    .select("id, version, price_cents")
-    .eq("published", true);
-  const found = Number.isInteger(wanted) && wanted > 0
-    ? await query.eq("id", wanted).maybeSingle()
-    : await query.order("released_at", { ascending: false }).limit(1).maybeSingle();
-  if (!found.error && found.data) build = found.data;
+  // no build buys the current Mac build; one that names a build buys that
+  // published build, whatever its platform (build.mjs). A build priced at zero
+  // is not for sale and is skipped by the guard below — that is how the
+  // pre-2026-08-29 builds, which carry a separation backend that may not be
+  // sold, stay unsellable.
+  const build = await checkoutBuild(serviceClient(), body?.build_id);
 
   // No sellable build, no sale. This used to fall through to a default price,
   // which meant the store would take five dollars and grant an entitlement
