@@ -6,11 +6,14 @@
 // idempotent on the checkout session id, so a retried webhook cannot grant
 // twice or charge history twice.
 //
-// Fulfillment for a paid early_build session:
+// Fulfillment for an early_build session that is payment_status paid, or
+// no_payment_required because a 100% promotion code brought it to $0 (a review
+// copy, REVIEW_CODES.md — fulfillment.mjs decides which):
 //   1. find or create the durable WavRead account for the checkout email
-//   2. record the purchase (unique on the Stripe session id), with the label
-//      the buyer arrived from and the affiliate it credits, if any
-//      (attribution.mjs)
+//   2. record the purchase (unique on the Stripe session id) as a sale or a
+//      review, with the label the buyer arrived from and the affiliate it
+//      credits, if any (attribution.mjs) — a review credits no one, records
+//      amount 0, and is never counted as a sale
 //   3. grant the early_build entitlement if none is active
 //   4. make sure a Supabase Auth user exists for that email, and bind it to
 //      the account if the account has no binding — the buyer can then sign in
@@ -28,6 +31,7 @@ import {
   timingSafeEqual,
 } from "../_shared/mod.ts";
 import { purchaseAttribution } from "./attribution.mjs";
+import { checkoutPurchase } from "./fulfillment.mjs";
 
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 
@@ -86,14 +90,17 @@ async function authUserIdFor(db: any, email: string): Promise<string | null> {
 // deno-lint-ignore no-explicit-any
 async function fulfill(db: any, session: any): Promise<string> {
   if (session?.mode !== "payment") return "ignored: not a payment session";
-  if (session?.payment_status !== "paid") return "ignored: not paid";
+  // Paid, or $0 through a review code. Unpaid and still-pending sessions grant
+  // nothing; an async payment that succeeds later arrives as its own event.
+  const purchase = checkoutPurchase(session);
+  if (!purchase) return "ignored: not paid";
   if (session?.metadata?.product !== "early_build") {
     return "ignored: unknown product";
   }
   const email = normalizeEmail(
     session?.customer_details?.email ?? session?.customer_email,
   );
-  if (!email) throw new Error("paid session carries no usable email");
+  if (!email) throw new Error("completed session carries no usable email");
 
   // 1. The durable account. Email is the recovery identity, so it is the key.
   let testerId: string;
@@ -126,13 +133,13 @@ async function fulfill(db: any, session: any): Promise<string> {
   // affiliate cannot re-attribute a sale already recorded.
   const attribution = await purchaseAttribution(db, session, email);
 
-  const purchase = await db
+  const recorded = await db
     .from("purchases")
     .upsert({
       tester_id: testerId,
       product: "early_build",
       build_version: boughtAt,
-      amount_cents: session.amount_total ?? 0,
+      amount_cents: purchase.amount_cents,
       currency: (session.currency ?? "usd").toLowerCase(),
       stripe_checkout_session_id: session.id,
       stripe_payment_intent: typeof session.payment_intent === "string"
@@ -142,11 +149,13 @@ async function fulfill(db: any, session: any): Promise<string> {
       status: "paid",
       source: attribution.source,
       affiliate_code: attribution.affiliate_code,
+      kind: purchase.kind,
+      stripe_promotion_code: purchase.stripe_promotion_code,
     }, {
       onConflict: "stripe_checkout_session_id",
       ignoreDuplicates: true,
     });
-  if (purchase.error) throw purchase.error;
+  if (recorded.error) throw recorded.error;
   const purchaseRow = await db
     .from("purchases")
     .select("id")
