@@ -8,7 +8,9 @@
 //
 // Fulfillment for a paid early_build session:
 //   1. find or create the durable WavRead account for the checkout email
-//   2. record the purchase (unique on the Stripe session id)
+//   2. record the purchase (unique on the Stripe session id), with the label
+//      the buyer arrived from and the affiliate it credits, if any
+//      (attribution.mjs)
 //   3. grant the early_build entitlement if none is active
 //   4. make sure a Supabase Auth user exists for that email, and bind it to
 //      the account if the account has no binding — the buyer can then sign in
@@ -25,6 +27,7 @@ import {
   serviceClient,
   timingSafeEqual,
 } from "../_shared/mod.ts";
+import { purchaseAttribution } from "./attribution.mjs";
 
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 
@@ -118,6 +121,10 @@ async function fulfill(db: any, session: any): Promise<string> {
   const boughtAt = typeof session?.metadata?.bought_at_version === "string"
     ? session.metadata.bought_at_version
     : null;
+  // The advertisement or affiliate the buyer arrived from. Decided once, on the
+  // first delivery: the upsert below ignores retries, so a later change to the
+  // affiliate cannot re-attribute a sale already recorded.
+  const attribution = await purchaseAttribution(db, session, email);
 
   const purchase = await db
     .from("purchases")
@@ -133,6 +140,8 @@ async function fulfill(db: any, session: any): Promise<string> {
         : null,
       email,
       status: "paid",
+      source: attribution.source,
+      affiliate_code: attribution.affiliate_code,
     }, {
       onConflict: "stripe_checkout_session_id",
       ignoreDuplicates: true,

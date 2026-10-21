@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { checkoutBuild, DEFAULT_PLATFORM } from '../supabase/functions/create-checkout/build.mjs';
+import { checkoutAttribution } from '../supabase/functions/create-checkout/attribution.mjs';
 
 // The catalog as it stands since 2026-10-12: the Mac and Windows builds of
 // 1.5.6 both published, the Windows row the newer of the two, and a withdrawn
@@ -95,4 +96,34 @@ test('the checkout function chooses its build with checkoutBuild', async () => {
   assert.match(fn, /const build = await checkoutBuild\(serviceClient\(\), body\?\.build_id\);/);
   // No second, platform-blind query for the newest build left beside it.
   assert.doesNotMatch(fn, /released_at/);
+});
+
+test('an advertisement label reaches Stripe as metadata[source] alone', () => {
+  assert.deepEqual(checkoutAttribution('reels-a'), { 'metadata[source]': 'reels-a' });
+  assert.deepEqual(checkoutAttribution(' TIKTOK-Hook2 '), { 'metadata[source]': 'tiktok-hook2' });
+});
+
+test('an affiliate label also sets client_reference_id and metadata[affiliate]', () => {
+  assert.deepEqual(checkoutAttribution('aff-example'), {
+    'metadata[source]': 'aff-example',
+    'client_reference_id': 'aff-example',
+    'metadata[affiliate]': 'example',
+  });
+  assert.equal(checkoutAttribution(' AFF-Studio-2 ')['metadata[affiliate]'], 'studio-2');
+});
+
+test('a missing or unrecognized label adds nothing, and never stops the sale', () => {
+  for (const value of [undefined, null, '', 'aff-a', 'aff_example', 'newsletter', 'reels-a plus prose', 42, { source: 'aff-example' }]) {
+    assert.deepEqual(checkoutAttribution(value), {}, `${JSON.stringify(value)} adds no field`);
+  }
+});
+
+test('the checkout function sends exactly those fields, after the price is fixed', async () => {
+  const fn = await readFile(new URL('../supabase/functions/create-checkout/index.ts', import.meta.url), 'utf8');
+  assert.match(fn, /import \{ checkoutAttribution \} from "\.\/attribution\.mjs";/);
+  assert.match(fn, /for \(const \[field, value\] of Object\.entries\(checkoutAttribution\(body\?\.source\)\)\) \{\s*params\.set\(field, value\);/);
+  // The label can name an affiliate, never a price: amount and attribution are
+  // separate, and nothing about the label reaches unit_amount.
+  assert.ok(fn.indexOf('unit_amount]", String(amountCents)') < fn.indexOf('checkoutAttribution(body'));
+  assert.doesNotMatch(fn, /client_reference_id|metadata\[affiliate\]/, 'set in one place only, attribution.mjs');
 });

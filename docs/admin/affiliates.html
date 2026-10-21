@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Affiliates — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f0f3f7">
+<meta name="description" content="WavRead account page.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script src="/js/beta-config.js" defer></script>
+<script src="/js/affiliates-admin.js" type="module"></script>
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-dashboard">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/dashboard.html">Dashboard</a><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap beta-shell">
+  <h1 class="sr-only">WavRead account page</h1>
+  <div class="state-panel loading-state" id="loading-state" role="status">Checking access…</div>
+  <section class="state-panel" id="unavailable-state" hidden><h2>Nothing to show here</h2><p>This page has nothing for this account. Questions go to <a href="mailto:support@wavread.com">support@wavread.com</a>.</p><a class="btn" href="/">Return to WavRead</a></section>
+
+  <!-- Hidden until the owner check passes. Everything inside is filled from
+       owner-checked database functions; for anyone else it stays empty. -->
+  <div id="admin-content" hidden>
+    <header class="dashboard-head">
+      <div><p class="tester-badge">Owner controls</p><h2>Affiliates</h2><p>Each affiliate gets a link. A sale made through it credits them at their rate, unless the affiliate is inactive or is the buyer. Nothing on this page pays anyone.</p></div>
+    </header>
+
+    <section class="dashboard-section" aria-labelledby="affiliate-form-title">
+      <span class="card-kicker">Add or edit</span><h2 id="affiliate-form-title">Add an affiliate</h2>
+      <p>The code becomes their link and cannot be changed later — links already shared, and the sales they made, depend on it. To retire a code, deactivate the affiliate.</p>
+      <form id="affiliate-form" novalidate>
+        <div class="form-row">
+          <div class="form-field"><label for="affiliate-code">Code</label><input id="affiliate-code" name="code" required minlength="2" maxlength="32" pattern="[a-z0-9\-]{2,32}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="affiliate-code-help"><p class="field-help" id="affiliate-code-help">2 to 32 lowercase letters, digits or hyphens. Their link: <span id="affiliate-code-preview">https://wavread.com/?from=aff-…</span></p></div>
+          <div class="form-field"><label for="affiliate-name">Name</label><input id="affiliate-name" name="name" required maxlength="120" autocomplete="off"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label for="affiliate-email">Email</label><input id="affiliate-email" name="email" type="email" required maxlength="254" autocomplete="off" aria-describedby="affiliate-email-help"><p class="field-help" id="affiliate-email-help">For paying them. A purchase made with this email credits nobody.</p></div>
+          <div class="form-field"><label for="affiliate-pct">Commission (%)</label><input id="affiliate-pct" name="pct" type="number" required min="0" max="100" step="0.01" value="30" aria-describedby="affiliate-pct-help"><p class="field-help" id="affiliate-pct-help">Of the amount the buyer paid. Changing it re-prices this affiliate's sales that have not been paid out.</p></div>
+        </div>
+        <div class="form-field checkbox-field" id="affiliate-active-field" hidden><input id="affiliate-active" name="active" type="checkbox" checked><label for="affiliate-active">Active — new sales through their link credit them</label></div>
+        <div class="inline-actions">
+          <button class="btn primary" type="submit" disabled>Add affiliate</button>
+          <button class="btn" id="affiliate-cancel" type="button" hidden>Cancel editing</button>
+        </div>
+        <p id="affiliate-form-status" class="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="affiliate-list-title">
+      <span class="card-kicker">Affiliates</span><h2 id="affiliate-list-title">Links and sales</h2>
+      <p>Sales are paid, not refunded, and more than $0. Pending is commission on sales still inside the 30-day refund window; payable is commission on sales past it.</p>
+      <p id="affiliate-list-status" class="form-status" role="status" aria-live="polite"></p>
+      <div id="affiliate-list"></div>
+      <div id="affiliate-empty" class="empty-state" hidden>No affiliates yet. Add one above to get their link.</div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="affiliate-months-title">
+      <span class="card-kicker">Payable</span><h2 id="affiliate-months-title">Payable earnings by month</h2>
+      <p>Commission on sales older than 30 days, by the month the sale was made (UTC), on the gross amount the buyer paid. Still to confirm: gross or net of Stripe's fee, and whether payouts are monthly. Payouts are not recorded here.</p>
+      <div id="affiliate-months"></div>
+      <div id="affiliate-months-empty" class="empty-state" hidden>Nothing payable yet. A sale becomes payable 30 days after it is made.</div>
+    </section>
+  </div>
+</main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
+</body>
+</html>

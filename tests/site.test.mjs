@@ -421,22 +421,33 @@ test("the archive, the platform, and the name of what comes next", async () => {
 });
 
 test("an ad campaign label is a label, not a tracker", async () => {
-  const shared = await read("supabase/functions/_shared/mod.ts");
-  const checkout = await read("supabase/functions/create-checkout/index.ts");
+  const labels = await read("supabase/functions/_shared/labels.mjs");
+  const attribution = await read("supabase/functions/create-checkout/attribution.mjs");
   const page = await read("docs/js/buy.js");
+  const navigation = await read("docs/js/navigation.js");
   const privacy = await read("docs/privacy.html");
   const vercel = await read("vercel.json");
 
   // The label reaches Stripe with the purchase and stops there.
-  assert.match(checkout, /metadata\[source\]/);
-  assert.match(checkout, /if \(source\) params\.set/, "an unrecognized label is dropped, never a failed purchase");
+  assert.match(attribution, /metadata\[source\]/);
+  assert.match(attribution, /if \(!source\) return \{\};/, "an unrecognized label is dropped, never a failed purchase");
   assert.match(page, /campaignLabel/);
-  assert.doesNotMatch(page, /document\.cookie|localStorage|sessionStorage/, "the label is read from the URL and sent once, never stored in the browser");
+  // An advertisement's label is read from the URL and sent once, never stored.
+  // The one thing kept in the browser is an affiliate's referral label, under
+  // one key, for 30 days — and only navigation.js writes it.
+  assert.doesNotMatch(page, /document\.cookie|sessionStorage|localStorage\.setItem/, "buy.js stores nothing");
+  assert.doesNotMatch(navigation, /document\.cookie|sessionStorage/);
+  assert.equal([...navigation.matchAll(/localStorage\.setItem\(([^,]+),/g)].map((m) => m[1]).join(), "REFERRAL_KEY", "one key is written");
+  assert.match(navigation, /if \(affiliate\) \{\s*localStorage\.setItem/, "and only for an affiliate's label");
+  for (const file of [page, navigation]) {
+    assert.match(file, /REFERRAL_KEY = ["']wavread-referral["']/);
+    assert.match(file, /REFERRAL_MAX_AGE_MS = 30 \* 24 \* 60 \* 60 \* 1000;/, "30 days, in both places");
+  }
 
   // The channel comes from a list WavRead knows, and the pattern is anchored:
   // a label that merely contains "reels" is not a label WavRead accepts.
-  const channels = JSON.parse(shared.match(/const CAMPAIGN_CHANNELS = (\[[\s\S]*?\]);/)[1]);
-  const template = shared.match(/const CAMPAIGN_RE = new RegExp\(\s*`([^`]+)`/)[1];
+  const channels = JSON.parse(labels.match(/const CAMPAIGN_CHANNELS = (\[[\s\S]*?\]);/)[1]);
+  const template = labels.match(/const CAMPAIGN_RE = new RegExp\(\s*`([^`]+)`/)[1];
   assert.ok(template.startsWith("^(") && template.endsWith("$"), "the campaign pattern is anchored at both ends");
   const pattern = new RegExp(template.replace('${CAMPAIGN_CHANNELS.join("|")}', channels.join("|")));
   for (const good of ["reels", "reels-a", "tiktok-hook2"]) {
@@ -449,6 +460,8 @@ test("an ad campaign label is a label, not a tracker", async () => {
   // Disclosure ships in the same release as the behaviour, and the site still
   // loads no third-party script — a pixel cannot be slipped in quietly.
   assert.match(privacy, /campaign label/i);
+  assert.match(privacy, /referral code may be\s+kept in your browser for up to 30 days to credit the referrer, and nothing else\s+is stored/,
+    "the one thing stored in the browser is disclosed, with its limit");
   assert.match(privacy, /no analytics or advertising trackers/);
   assert.match(vercel, /script-src 'self' https:\/\/cdn\.jsdelivr\.net;/, "no third-party script host");
 });
