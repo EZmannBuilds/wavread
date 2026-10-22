@@ -61,7 +61,7 @@ revocable report token, and only after its user typed a link code.
 
 | Function | JWT | Purpose |
 | --- | --- | --- |
-| `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign label) |
+| `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign or affiliate label) |
 | `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase, entitlement, auth user |
 | `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
 | `crash-report` | no (optional token) | validated, deduplicated crash intake, rate-limited per install, per address and overall |
@@ -128,7 +128,7 @@ and no third-party host — none of which the site's CSP or its privacy page
 would permit anyway.
 
 The label is bounded on purpose: the channel must be one of
-`CAMPAIGN_CHANNELS` in `_shared/mod.ts` and the variant after it is at most
+`CAMPAIGN_CHANNELS` in `_shared/labels.mjs` and the variant after it is at most
 twelve characters, so a stranger cannot write prose into a payment record.
 An unrecognized label is dropped rather than refused — attribution must never
 be able to block a sale.
@@ -138,6 +138,33 @@ create-checkout`. New *variants* of an existing channel need no deploy, which
 is why the shape is a known channel plus a free suffix rather than a fixed
 list. Until that function is redeployed, `metadata[source]` is never written
 and links carrying `?from=` still sell normally.
+
+### Affiliate links
+
+An affiliate's link is `https://wavread.com/?from=aff-<code>`. It follows the
+campaign label's path with three differences:
+
+- The browser keeps it. `navigation.js` stores the newest affiliate label in
+  `localStorage` (`wavread-referral`, with the time it was followed) for 30
+  days, and `buy.js` sends it when the purchase page carries no label of its
+  own. Advertisement labels are still never stored. The privacy page says so.
+- `create-checkout` also sets `client_reference_id` to the label and
+  `metadata[affiliate]` to the code, so an affiliate sale is easy to find in
+  Stripe.
+- `stripe-webhook` records `purchases.source` (any recognized label) and
+  `purchases.affiliate_code`. The code is credited only if
+  `attributable_affiliate` finds it in `wavread_private.affiliates`, active, and
+  with an email that is not the buyer's. A failed lookup records the sale with
+  no affiliate; it never blocks fulfillment.
+
+Affiliates are managed by the owner at `/admin/affiliates` (linked from the
+dashboard's owner controls) through `owner_affiliates` and
+`owner_save_affiliate`, which check the same owner identity as the licence
+controls. What each affiliate is owed is the view
+`wavread_private.affiliate_earnings`: paid, not refunded, more than $0, older
+than 30 days, by month, on the gross amount. Gross-versus-net and the payout
+cadence are open decisions recorded in
+`20261021120000_affiliate_tracking.sql`.
 
 ## Provisioning status — 2026-08-27
 

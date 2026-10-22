@@ -9,13 +9,35 @@ const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
 // If this page was reached from an advertisement, the link carries a short
 // campaign label — `?from=reels-a`. It is read from the address bar, sent once
 // with the purchase, and kept nowhere else: no cookie, no storage, no script
-// from anyone else. The server decides which labels it recognizes; this only
-// keeps something obviously wrong from being sent at all.
+// from anyone else.
+//
+// An affiliate's link carries `?from=aff-<code>` instead, and that one label is
+// the exception: navigation.js keeps it in localStorage for 30 days, so a
+// referral still counts when the buyer comes back later without the link. It
+// is read back here only when the address bar carries no label of its own —
+// the link someone followed to this page wins over one they followed before.
+// The server decides which labels it recognizes; this only keeps something
+// obviously wrong from being sent at all.
+const AFFILIATE_LABEL = /^aff-[a-z0-9-]{2,32}$/;
+const REFERRAL_KEY = "wavread-referral";
+const REFERRAL_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+function storedReferral() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(REFERRAL_KEY));
+    const age = Date.now() - saved.savedAt;
+    if (AFFILIATE_LABEL.test(saved.label) && age >= 0 && age < REFERRAL_MAX_AGE_MS) return saved.label;
+    localStorage.removeItem(REFERRAL_KEY);
+  } catch {
+    // Nothing stored, storage blocked, or unreadable: there is no referral.
+  }
+  return null;
+}
+
 function campaignLabel() {
-  const raw = new URLSearchParams(location.search).get("from");
-  if (!raw) return null;
-  const label = raw.trim().toLowerCase();
-  return /^[a-z0-9-]{1,24}$/.test(label) ? label : null;
+  const label = new URLSearchParams(location.search).get("from")?.trim().toLowerCase();
+  if (label && (/^[a-z0-9-]{1,24}$/.test(label) || AFFILIATE_LABEL.test(label))) return label;
+  return storedReferral();
 }
 
 async function loadConfiguration() {

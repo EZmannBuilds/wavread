@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check docs/js/site.js && node --check docs/js/beta-auth.js && node --check docs/js/buy.js && node --check docs/api/beta-config.js && node --check docs/api/latest-build.js && node --check docs/js/product.js && node --check supabase/functions/notification-signup/handler.mjs && node --check supabase/functions/create-checkout/build.mjs && node --check docs/js/navigation.js && node --check docs/js/case-study.js",
+    "check": "node --check docs/js/site.js && node --check docs/js/beta-auth.js && node --check docs/js/buy.js && node --check docs/api/beta-config.js && node --check docs/api/latest-build.js && node --check docs/js/product.js && node --check supabase/functions/notification-signup/handler.mjs && node --check supabase/functions/create-checkout/build.mjs && node --check docs/js/navigation.js && node --check docs/js/case-study.js && node --check docs/js/affiliates-admin.js && node --check supabase/functions/_shared/labels.mjs && node --check supabase/functions/create-checkout/attribution.mjs && node --check supabase/functions/stripe-webhook/attribution.mjs",
     "test": "node --test tests/*.test.mjs"
   }
 }

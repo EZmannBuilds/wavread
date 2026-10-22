@@ -15,11 +15,35 @@ if (menu) {
   });
 }
 
-// Carry a non-personal campaign label through public pages to checkout.
-// Match the server's channel/variant contract; no persistent storage.
+// Carry a non-personal label through public pages to checkout, matching the
+// server's contract (supabase/functions/_shared/labels.mjs). An advertisement's
+// channel/variant label is carried in links only and never stored. An
+// affiliate's aff-<code> label is also kept in this browser for 30 days, so a
+// referral still counts when the buyer comes back later without the link; the
+// newest affiliate link replaces any earlier one, and an expired one is removed
+// on the next page view. buy.js reads it back with the same key and age.
 (() => {
+  const AFFILIATE = /^aff-[a-z0-9-]{2,32}$/;
+  const REFERRAL_KEY = 'wavread-referral';
+  const REFERRAL_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+  const freshReferral = raw => {
+    try {
+      const saved = JSON.parse(raw);
+      const age = Date.now() - saved.savedAt;
+      return AFFILIATE.test(saved.label) && age >= 0 && age < REFERRAL_MAX_AGE_MS ? saved.label : null;
+    } catch { return null; }
+  };
   const source = new URLSearchParams(location.search).get('from')?.trim().toLowerCase();
-  if (!source || !/^(reels|tiktok|shorts|yt|direct)(-[a-z0-9]{1,12})?$/.test(source)) return;
+  const affiliate = !!source && AFFILIATE.test(source);
+  try {
+    if (affiliate) {
+      localStorage.setItem(REFERRAL_KEY, JSON.stringify({label: source, savedAt: Date.now()}));
+    } else {
+      const raw = localStorage.getItem(REFERRAL_KEY);
+      if (raw !== null && !freshReferral(raw)) localStorage.removeItem(REFERRAL_KEY);
+    }
+  } catch { /* storage blocked: the link still carries the label on this visit */ }
+  if (!source || !(affiliate || /^(reels|tiktok|shorts|yt|direct)(-[a-z0-9]{1,12})?$/.test(source))) return;
   const pages = new Set(['/', '/index', '/buy', '/early-build', '/how-it-works', '/documents', '/agent', '/requirements', '/install', '/faq', '/privacy', '/EULA']);
   document.querySelectorAll('a[href]').forEach(link => {
     if (link.hasAttribute('download')) return;

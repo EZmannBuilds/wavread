@@ -9,13 +9,13 @@
 // the account is created by fulfillment, keyed to the checkout email.
 
 import {
-  campaignSource,
   json,
   normalizeEmail,
   preflight,
   readJson,
   serviceClient,
 } from "../_shared/mod.ts";
+import { checkoutAttribution } from "./attribution.mjs";
 import { checkoutBuild } from "./build.mjs";
 
 const CURRENCY = "usd";
@@ -84,12 +84,15 @@ Deno.serve(async (req: Request) => {
   // the entitlement the webhook grants must stay unscoped. Naming a build here
   // would quietly sell access to that build alone.
   params.set("metadata[bought_at_version]", build.version);
-  // Which advertisement this purchase came from, when the buyer arrived by
-  // one. A label like "reels-a" and nothing else — no identifier, no profile,
-  // and no consequence for the buyer. An unrecognized label is dropped rather
-  // than refused: a mistyped link must still be able to sell.
-  const source = campaignSource(body?.source);
-  if (source) params.set("metadata[source]", source);
+  // Which advertisement or affiliate this purchase came from, when the buyer
+  // arrived by one. A label like "reels-a" or "aff-example" and nothing else —
+  // no identifier, no profile, and no consequence for the buyer or the price.
+  // An unrecognized label is dropped rather than refused: a mistyped link must
+  // still be able to sell. The fields are chosen in attribution.mjs; whether an
+  // affiliate is actually credited is decided by the webhook, never here.
+  for (const [field, value] of Object.entries(checkoutAttribution(body?.source))) {
+    params.set(field, value);
+  }
   params.set(
     "success_url",
     `${siteUrl}/purchase-complete?session_id={CHECKOUT_SESSION_ID}`,
