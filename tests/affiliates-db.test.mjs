@@ -289,3 +289,75 @@ dbTest('earnings are 30% of gross, payable by month once 30 days old; refunds an
   as(OWNER, save('update', 'earner', 'Example Earner', 'earner@example.net', 20));
   assert.equal(overview('earner').payable_commission_cents, 2000);
 });
+
+// === review copies (20261021190000_review_promotion_codes.sql) ==============
+
+// A purchase as the webhook writes a review: a 100% promotion code brought the
+// checkout to $0, so the row is kind 'review', amount 0 and credits no one.
+function review({ session, cents = 0, code = null, source = 'aff-reviewed', promo = 'promo_1TestReviewCode', kind = 'review' }) {
+  return as(SERVICE, `insert into public.purchases
+      (tester_id, product, amount_cents, stripe_checkout_session_id, email, status, source, affiliate_code, kind, stripe_promotion_code)
+    select tester_id, 'early_build', ${cents}, ${quote(session)}, 'buyer@example.net', 'paid',
+      ${source ? quote(source) : 'null'}, ${code ? quote(code) : 'null'}, ${quote(kind)}, ${promo ? quote(promo) : 'null'}
+    from public.accounts where email = 'buyer@example.net'`);
+}
+
+dbTest('a review is $0, credits no one, and the database refuses one that does not', () => {
+  as(OWNER, save('create', 'reviewed', 'Example Reviewed', 'reviewed@example.net', 30));
+  assert.equal(review({ session: 'cs_test_review_ok_____' }), null, 'a review as the webhook writes it');
+  assert.equal(review({ session: 'cs_test_review_no_code', promo: null, source: null }), null, 'with no code or label recorded');
+  assert.equal(review({ session: 'cs_test_review_longest', promo: `promo_${'a'.repeat(100)}` }), null,
+    'the longest promotion code id fulfillment.mjs accepts fits the column');
+
+  assert.equal(review({ session: 'cs_test_review_affil__', code: 'reviewed' }).error?.code, '23514', 'a review cannot credit an affiliate');
+  assert.equal(review({ session: 'cs_test_review_charged', cents: 5000 }).error?.code, '23514', 'a review cannot carry an amount');
+  assert.equal(review({ session: 'cs_test_review_kind___', kind: 'gift' }).error?.code, '23514', 'sale and review are the only kinds');
+  assert.equal(review({ session: 'cs_test_review_promo__', promo: 'REVIEW-7Q4M2K' }).error?.code, '23514', 'the id is stored, never the code');
+
+  // Every purchase written before this migration, and every one the webhook
+  // writes without saying, is a sale.
+  assert.equal(purchase({ session: 'cs_test_plain_sale_____', code: 'reviewed', daysAgo: 1 }), null);
+  const kinds = JSON.parse(psql(`select jsonb_object_agg(stripe_checkout_session_id, kind) from public.purchases
+    where stripe_checkout_session_id in ('cs_test_plain_sale_____', 'cs_test_review_ok_____')`).out);
+  assert.deepEqual(kinds, { cs_test_plain_sale_____: 'sale', cs_test_review_ok_____: 'review' });
+});
+
+dbTest('a review through an affiliate link adds nothing to their sales, pending, payable or refunds', () => {
+  as(OWNER, save('create', 'counted', 'Example Counted', 'counted@example.net', 30));
+  purchase({ session: 'cs_test_counted_payable', code: 'counted', daysAgo: 40 });
+  purchase({ session: 'cs_test_counted_pending', code: 'counted', daysAgo: 3 });
+  const before = overview('counted');
+  const earningsBefore = psql(`select coalesce(sum(commission_cents), 0) from wavread_private.affiliate_earnings where affiliate_code = 'counted'`).out;
+
+  // What the webhook records for a reviewer who followed ?from=aff-counted.
+  assert.equal(review({ session: 'cs_test_counted_review_', source: 'aff-counted' }), null);
+  assert.deepEqual(overview('counted'), before, 'the admin page reads exactly what it did');
+  assert.equal(psql(`select coalesce(sum(commission_cents), 0) from wavread_private.affiliate_earnings where affiliate_code = 'counted'`).out,
+    earningsBefore);
+  assert.deepEqual([before.sales, before.pending_sales, before.payable_commission_cents], [2, 1, 1500]);
+
+  // The constraint above keeps a review's affiliate null. Were it ever lifted,
+  // affiliate_sales still excludes a review by its kind — even one that, by
+  // some mistake, carried a full amount — so it is never a sale or a payout.
+  const lifted = psql(`begin;
+    alter table public.purchases drop constraint purchases_review_is_free;
+    insert into public.purchases (tester_id, product, amount_cents, stripe_checkout_session_id, email, status, purchased_at, affiliate_code, kind)
+    select tester_id, 'early_build', 5000, 'cs_test_counted_mistake', 'buyer@example.net', 'paid', now() - interval '40 days', 'counted', 'review'
+      from public.accounts where email = 'buyer@example.net';
+    select jsonb_build_object(
+      'state', (select state from wavread_private.affiliate_sales s join public.purchases p on p.id = s.purchase_id
+                 where p.stripe_checkout_session_id = 'cs_test_counted_mistake'),
+      'payable', (select coalesce(sum(commission_cents), 0) from wavread_private.affiliate_earnings where affiliate_code = 'counted'));
+    rollback;`);
+  assert.ok(!lifted.error, lifted.error?.message);
+  assert.deepEqual(JSON.parse(lifted.out), { state: 'excluded', payable: Number(earningsBefore) });
+  assert.equal(psql(`select count(*) from pg_constraint where conname = 'purchases_review_is_free'`).out, '1', 'and the constraint is back');
+});
+
+dbTest('affiliate_sales is still invoker-rights and closed to client roles after the replace', () => {
+  const options = psql(`select array_to_string(reloptions, ',') from pg_class where oid = 'wavread_private.affiliate_sales'::regclass`).out;
+  assert.match(options, /security_invoker=true/);
+  for (const who of [ANON, STRANGER, OWNER]) {
+    assert.equal(as(who, 'select count(*) from wavread_private.affiliate_sales').error?.code, '42501');
+  }
+});

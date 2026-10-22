@@ -62,7 +62,7 @@ revocable report token, and only after its user typed a link code.
 | Function | JWT | Purpose |
 | --- | --- | --- |
 | `create-checkout` | no | email in, Stripe hosted-checkout URL out ($5, `early_build`, optional campaign or affiliate label) |
-| `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase, entitlement, auth user |
+| `stripe-webhook` | no (Stripe signature) | verified fulfillment: account, purchase (a sale, or a $0 review), entitlement, auth user |
 | `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
 | `crash-report` | no (optional token) | validated, deduplicated crash intake, rate-limited per install, per address and overall |
 | `submit-report` | no (token required) | the app's Report a Problem submissions |
@@ -165,6 +165,24 @@ controls. What each affiliate is owed is the view
 than 30 days, by month, on the gross amount. Gross-versus-net and the payout
 cadence are open decisions recorded in
 `20261021120000_affiliate_tracking.sql`.
+
+### Review codes
+
+Reviewers get a one-use 100% Stripe promotion code. The Stripe setup is in
+[REVIEW_CODES.md](REVIEW_CODES.md); none of it has been done yet.
+`create-checkout` sends `allow_promotion_codes=true`, and a code that brings
+a payment-mode session to $0 finishes without a card by itself (Stripe's
+no-cost orders). It does not send `payment_method_collection`, which Stripe
+accepts in subscription mode only. `stripe-webhook` grants a $0 session
+(`payment_status` `no_payment_required`) the usual licence, but records it as
+`purchases.kind = 'review'`: amount 0, `affiliate_code` null whatever link the
+reviewer arrived by, and the `promo_…` id in `stripe_promotion_code` when the
+session names one. A review is never a sale. `affiliate_sales` excludes it by
+kind, and the `purchases_review_is_free` constraint refuses a review row that
+carries an amount or an affiliate. Count sales as `kind = 'sale' and status =
+'paid' and amount_cents > 0`. Migration
+`20261021190000_review_promotion_codes.sql` must be applied before the webhook
+that writes those columns is deployed.
 
 ## Provisioning status — 2026-08-27
 

@@ -93,6 +93,16 @@ Deno.serve(async (req: Request) => {
   for (const [field, value] of Object.entries(checkoutAttribution(body?.source))) {
     params.set(field, value);
   }
+  // Reviewers get a one-use 100% promotion code, made by hand in Stripe
+  // (REVIEW_CODES.md), and type it on Stripe's page; every buyer sees the
+  // field. The price above is untouched: Stripe applies the discount, and
+  // stripe-webhook records a $0 checkout as a review copy — a licence, never a
+  // sale, and no affiliate commission. A payment-mode session that comes to
+  // $0 finishes without a card by itself (Stripe's no-cost orders, API version
+  // 2023-08-16 or later); anything above $0 still collects one.
+  // payment_method_collection is deliberately not sent: Stripe accepts it in
+  // subscription mode only, and here it would refuse every checkout.
+  params.set("allow_promotion_codes", "true");
   params.set(
     "success_url",
     `${siteUrl}/purchase-complete?session_id={CHECKOUT_SESSION_ID}`,
