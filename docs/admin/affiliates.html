@@ -28,7 +28,7 @@
        owner-checked database functions; for anyone else it stays empty. -->
   <div id="admin-content" hidden>
     <header class="dashboard-head">
-      <div><p class="tester-badge">Owner controls</p><h2>Affiliates</h2><p>Each affiliate gets a link. A sale made through it credits them at their rate, unless the affiliate is inactive or is the buyer. Nothing on this page pays anyone.</p></div>
+      <div><p class="tester-badge">Owner controls</p><h2>Affiliates</h2><p>Each affiliate gets a link. A sale made through it credits them at their rate, unless the affiliate is inactive or is the buyer. Nothing on this page sends money: you pay affiliates by hand, then record it under Payouts.</p></div>
     </header>
 
     <section class="dashboard-section" aria-labelledby="affiliate-form-title">
@@ -54,17 +54,33 @@
 
     <section class="dashboard-section" aria-labelledby="affiliate-list-title">
       <span class="card-kicker">Affiliates</span><h2 id="affiliate-list-title">Links and sales</h2>
-      <p>Sales are paid, not refunded, and more than $0. Pending is commission on sales still inside the 30-day refund window; payable is commission on sales past it.</p>
+      <p>Sales are paid, not refunded, and more than $0. Pending is commission on sales still inside the 30-day refund window; payable is commission on sales past it that has not been paid out; paid out is what Payouts has recorded. Refunds counts every sale with a refund, in part or in full.</p>
       <p id="affiliate-list-status" class="form-status" role="status" aria-live="polite"></p>
       <div id="affiliate-list"></div>
       <div id="affiliate-empty" class="empty-state" hidden>No affiliates yet. Add one above to get their link.</div>
     </section>
 
-    <section class="dashboard-section" aria-labelledby="affiliate-months-title">
-      <span class="card-kicker">Payable</span><h2 id="affiliate-months-title">Payable earnings by month</h2>
-      <p>Commission on sales older than 30 days, by the month the sale was made (UTC), on the gross amount the buyer paid. Still to confirm: gross or net of Stripe's fee, and whether payouts are monthly. Payouts are not recorded here.</p>
-      <div id="affiliate-months"></div>
-      <div id="affiliate-months-empty" class="empty-state" hidden>Nothing payable yet. A sale becomes payable 30 days after it is made.</div>
+    <section class="dashboard-section" aria-labelledby="payouts-title">
+      <span class="card-kicker">Payouts</span><h2 id="payouts-title">Monthly payouts</h2>
+      <p>Commission is the affiliate's rate of the amount the buyer paid — $15 on a $50 sale at 30% — paid by hand once a month for the month the sales were made (UTC). A month can be paid once every sale in it is past the 30-day refund window, 30 days after the month ends; until then it is on hold and its amount is the total so far. Pay the affiliate first, then mark the month paid here. Its amount and sales are then frozen: a later rate change only affects sales not yet paid.</p>
+      <p>A sale with any refund is never payable. Before payout, a refund that is not recorded as full is listed as needs review: check it in Stripe. After payout, a refunded sale is listed as clawback needed, with the commission that was paid on it. Nothing here is adjusted automatically, and a recorded payout cannot be changed from this page.</p>
+      <div class="inline-actions">
+        <button class="btn" id="payouts-csv" type="button" disabled>Download CSV</button>
+        <button class="btn" id="payout-sales-csv" type="button" disabled>Download per-sale CSV</button>
+      </div>
+      <p id="payouts-status" class="form-status" role="status" aria-live="polite"></p>
+      <form id="payout-form" hidden novalidate>
+        <h3 id="payout-form-title">Mark a month paid</h3>
+        <p id="payout-summary"></p>
+        <div class="form-field"><label for="payout-note">How you paid</label><input id="payout-note" name="note" required maxlength="80" autocomplete="off" aria-describedby="payout-note-help"><p class="field-help" id="payout-note-help">A few words, for example PayPal or Zelle. No account, card or phone numbers.</p></div>
+        <div class="inline-actions">
+          <button class="btn primary" id="payout-confirm" type="submit">Confirm payment</button>
+          <button class="btn" id="payout-cancel" type="button">Cancel</button>
+        </div>
+        <p id="payout-form-status" class="form-status" role="status" aria-live="polite"></p>
+      </form>
+      <div id="payouts"></div>
+      <div id="payouts-empty" class="empty-state" hidden>No months yet. A month appears here once an affiliate's link makes a sale.</div>
     </section>
   </div>
 </main>

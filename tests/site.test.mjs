@@ -207,7 +207,7 @@ test("no page promises builds the per-build model does not include", async () =>
   //
   // Read across ALL migrations, not "whichever sorts last". Asserting against
   // the newest file meant every later migration had to restate the previous
-  // one's contents to keep this passing — a tax on every future change, and
+  // one's contents to keep this passing — a cost on every future change, and
   // one the rename to `accounts` promptly triggered. Migrations are a history:
   // what matters is that these decisions appear in it, and that the reversal
   // came after the thing it reversed.
