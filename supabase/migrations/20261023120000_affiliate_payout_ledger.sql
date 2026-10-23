@@ -15,7 +15,9 @@
 --                                           a full one (written by stripe-webhook)
 --   wavread_private.affiliate_sales         rebuilt: a paid sale reads its frozen
 --                                           commission; adds the paid,
---                                           needs_review and clawback states
+--                                           needs_review and clawback states;
+--                                           a review copy never earns (built
+--                                           with or without purchases.kind)
 --   wavread_private.affiliate_earnings      rebuilt on the same rules
 --   wavread_private.affiliate_overview      rebuilt: paid-out and clawback totals
 --   public.owner_affiliate_payable_by_month()  the admin page's Payouts read
@@ -25,7 +27,8 @@
 -- 20261021120000 on payout cadence, freezing the rate, and recording payouts):
 --   * Commission is the affiliate's rate (30% by default) of the GROSS amount
 --     the buyer paid, rounded to the cent per sale: $15 on a $50 sale. A $0
---     sale earns nothing.
+--     sale earns nothing, and neither does a review copy (purchases.kind other
+--     than 'sale', where that column exists).
 --   * Paid monthly, by the UTC month the sale was made, once every sale in that
 --     month is past the 30-day refund window: month M can be marked paid from
 --     the first of M + 1, plus 30 days.
@@ -45,7 +48,9 @@
 -- (wavread_private.owner_can_grant(), as for the licence controls). This
 -- migration names no person and pays no one.
 --
--- Apply with apply_migration or the SQL editor, never with db push: production's
+-- Order: when 20261021190000_review_promotion_codes.sql is also pending, apply
+-- it first and this one second (see the affiliate_sales block below). Apply
+-- with apply_migration or the SQL editor, never with db push: production's
 -- migration history does not match this directory's file names.
 
 begin;
@@ -188,7 +193,7 @@ for each statement execute function wavread_private.payout_ledger_is_append_only
 --
 --   paid          in a recorded payout, and never refunded since
 --   clawback      in a recorded payout, and refunded (in any amount) since
---   excluded      nothing was charged ($0)
+--   excluded      nothing was charged ($0), or not a sale (a review copy)
 --   refunded      refunded in full, as recorded — not owed, as before
 --   needs_review  not paid out, and either refunded partially or by an amount
 --                 that was not recorded, or credited to a month that is already
@@ -198,6 +203,41 @@ for each statement execute function wavread_private.payout_ledger_is_append_only
 --
 -- commission_pct and commission_cents are the frozen payout figures for a paid
 -- or clawback sale, and the affiliate's current rate for any other.
+--
+-- Review copies. 20261021190000_review_promotion_codes.sql (a separate change)
+-- adds purchases.kind, 'sale' or 'review', and excludes everything but a sale
+-- from this view. This migration must keep that rule whether or not that one
+-- has been applied, so the view is built here by a block that asks the catalog
+-- whether purchases.kind exists:
+--
+--   it exists   only kind = 'sale' can earn: any other kind, and any $0
+--               purchase, is excluded
+--   it does not every purchase is a sale, and any $0 purchase is excluded,
+--               as before
+--
+-- The two definitions differ only in that one condition; the columns are the
+-- same, so everything below reads the view the same way. Apply the review-code
+-- migration FIRST when both are pending: it replaces this view itself and,
+-- once this migration's columns exist, that replace is refused. The block is
+-- safe to run again on its own (it only replaces the view), which is how the
+-- view picks up purchases.kind if that column ever arrives after this.
+do $build$
+declare
+  has_kind boolean := exists (
+    select 1
+      from pg_attribute
+     where attrelid = 'public.purchases'::regclass
+       and attname = 'kind'
+       and attnum > 0
+       and not attisdropped
+  );
+  -- A fixed string: nothing from outside the migration reaches this SQL.
+  not_a_sale text := case
+    when has_kind then $cond$p.kind is distinct from 'sale' or p.amount_cents <= 0$cond$
+    else $cond$p.amount_cents <= 0$cond$
+  end;
+begin
+  execute format($view$
 create or replace view wavread_private.affiliate_sales
 with (security_invoker = true) as
 select p.id as purchase_id,
@@ -210,7 +250,7 @@ select p.id as purchase_id,
        case
          when i.purchase_id is not null and r.has_refund then 'clawback'
          when i.purchase_id is not null then 'paid'
-         when p.amount_cents <= 0 then 'excluded'
+         when %s then 'excluded'
          when r.has_refund and p.amount_refunded_cents >= p.amount_cents then 'refunded'
          when r.has_refund then 'needs_review'
          when paid_month.id is not null then 'needs_review'
@@ -231,7 +271,10 @@ select p.id as purchase_id,
   left join wavread_private.affiliate_payouts po on po.id = i.payout_id
   left join wavread_private.affiliate_payouts paid_month
     on paid_month.affiliate_code = p.affiliate_code
-   and paid_month.period_month = date_trunc('month', p.purchased_at at time zone 'UTC')::date;
+   and paid_month.period_month = date_trunc('month', p.purchased_at at time zone 'UTC')::date
+$view$, not_a_sale);
+end;
+$build$;
 
 -- What each affiliate has earned, by the month the sales were made: payable
 -- sales at the current rate, and paid sales at the commission frozen when they

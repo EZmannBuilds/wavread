@@ -18,6 +18,9 @@ owner controls. Only the owner sees anything there.
   from 30 days after it ends: August is payable from October 1, September from
   October 31. Until then the page shows it as *on hold*, with the total so far.
 - A sale counts only if it is paid, above $0, and has **no refund of any kind**.
+- A **review copy** (a licence given through a 100% promotion code, recorded as
+  `purchases.kind = 'review'` once the review-code migration is applied) never
+  earns commission, whatever link the reviewer arrived by.
 - **Needs review**: a sale that is not paid out and has a refund that is not
   recorded as full (a partial refund, or a refund whose amount was not
   recorded), or a sale credited to a month that has already been paid. It is
@@ -151,11 +154,3 @@ commit;
 The month goes back to payable, on hold or nothing payable, as its sales now
 stand, and can be marked paid again from the page. Keep the CSV you downloaded
 before the correction as the record of what was there.
-
-## Open question (internal)
-
-**For the owner:** the tax threshold question for affiliate payments is still open.
-Until it is settled, it must not appear in any public copy, on the site, or in
-any text an affiliate sees (emails, link instructions, payout notes). This repo
-deliberately contains no tax advice; take the question to whoever advises the
-business.

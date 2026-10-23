@@ -7,14 +7,17 @@
 // Nothing here touches a hosted database. The cluster lives in a temporary
 // directory, listens on a Unix socket only, and is deleted afterwards.
 //
-// Skipped where it cannot run: no Postgres server binaries on this machine
-// (set PG_BIN to their directory if they are somewhere unusual), or running as
-// root, which initdb refuses.
+// Where it cannot run — no Postgres server binaries on this machine (install
+// PostgreSQL, or set PG_BIN to their directory), or a cluster that will not
+// start — every test here FAILS, saying why, so a green run always means the
+// migrations were exercised. ALLOW_SKIP_DB_TESTS=1 turns that into a skip, for
+// a local run on a machine without Postgres. Running as root is fine: initdb
+// and pg_ctl refuse root, so the server then runs as an unprivileged account.
 
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { chownSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -31,9 +34,23 @@ function postgresBin() {
 }
 
 const bin = postgresBin();
-const skip = !bin ? 'no Postgres server binaries found (set PG_BIN)'
-  : process.getuid?.() === 0 ? 'initdb refuses to run as root'
-  : false;
+const SKIP_ALLOWED = process.env.ALLOW_SKIP_DB_TESTS === '1';
+
+// initdb and pg_ctl refuse to run as root. Run as root (a container, a CI
+// runner), the server runs as the machine's postgres account if it has one, or
+// as nobody; psql, the client, stays as it is.
+function serverAccount() {
+  if (process.getuid?.() !== 0) return null;
+  let passwd = '';
+  try { passwd = readFileSync('/etc/passwd', 'utf8'); } catch { /* no passwd file */ }
+  for (const name of ['postgres', 'nobody']) {
+    const entry = passwd.split('\n').find((line) => line.startsWith(`${name}:`))?.split(':');
+    if (entry) return { name, uid: Number(entry[2]), gid: Number(entry[3]) };
+  }
+  return { name: 'nobody', uid: 65534, gid: 65534 };
+}
+const server = serverAccount();
+const asServer = server ? { uid: server.uid, gid: server.gid } : {};
 
 // What the migrations expect Supabase to provide. auth.uid() and auth.jwt()
 // read the same request.jwt.claims setting Supabase's own do.
@@ -67,6 +84,44 @@ values ('1.4.49', 'early', 'WavRead-1.4.49.dmg', '1.4.49/WavRead-1.4.49.dmg', re
 insert into storage.objects (bucket_id, name) values ('builds', '1.4.49/WavRead-1.4.49.dmg');
 `;
 
+// Stands in for 20261021190000_review_promotion_codes.sql, a separate change
+// that is not on this branch: the purchases.kind column it adds, and its
+// version of affiliate_sales. Its purchases_review_is_free constraint is left
+// out on purpose, so a review here can carry an amount and an affiliate, and
+// the payout migration's view alone has to keep it from earning.
+const REVIEW_KIND_STUB = `
+begin;
+alter table public.purchases
+  add column kind text not null default 'sale'
+    constraint purchases_kind_check check (kind in ('sale', 'review'));
+create or replace view wavread_private.affiliate_sales
+with (security_invoker = true) as
+select p.id as purchase_id, p.affiliate_code, p.purchased_at, p.amount_cents, p.refunded_at, a.commission_pct,
+       round(p.amount_cents * a.commission_pct / 100)::integer as commission_cents,
+       case
+         when p.kind <> 'sale' or p.amount_cents <= 0 then 'excluded'
+         when p.status <> 'paid' then 'refunded'
+         when p.purchased_at > now() - interval '30 days' then 'pending'
+         else 'payable'
+       end as state
+  from public.purchases p
+  join wavread_private.affiliates a on a.code = p.affiliate_code;
+commit;
+`;
+
+// In the second database the owner check is pinned to a placeholder account,
+// so that database needs no one's details. The real check is tested in the
+// first database.
+const PLACEHOLDER_OWNER_ID = '00000000-0000-4000-8000-0000000000b1';
+const PLACEHOLDER_OWNER = { role: 'authenticated', claims: { sub: PLACEHOLDER_OWNER_ID } };
+const PLACEHOLDER_OWNER_SETUP = `
+create or replace function wavread_private.owner_can_grant() returns boolean
+language sql stable security definer set search_path = '' as
+  $$ select auth.uid() = '${PLACEHOLDER_OWNER_ID}'::uuid $$;
+insert into auth.users values ('${PLACEHOLDER_OWNER_ID}', 'owner@example.net', now());
+insert into public.accounts (email, status, auth_user_id) values ('buyer@example.net', 'active', null);
+`;
+
 // The owner is whoever owner_can_grant() pins. Read from that migration rather
 // than repeated here, so this file names nobody.
 const grants = readFileSync('supabase/migrations/20260911002958_owner_licence_grants.sql', 'utf8');
@@ -85,13 +140,22 @@ const SERVICE = { role: 'service_role', claims: {} };
 
 let dir;
 let connection;
-// Why the cluster could not start, if it could not. A machine whose Postgres
-// will not start is not a failing test, so it skips like a machine with none.
-let unavailable = skip;
+// Why there is no database, if there is none. Every test then fails with it
+// (or skips, with ALLOW_SKIP_DB_TESTS=1).
+let unavailable = bin ? false
+  : 'no Postgres server binaries were found; install PostgreSQL, or set PG_BIN to the directory holding initdb, pg_ctl and psql';
 
-function psql(script) {
+// The first database, postgres, runs every migration in supabase/migrations.
+// A second runs the other history as far as purchases.kind goes: while the
+// review-code migration is not in this directory, the same history plus a
+// stand-in for it (REVIEW_KIND_STUB); once it is, the same history without it.
+// Either way one database has the column and one does not.
+const REVIEW_CODES_MIGRATION = '20261021190000_review_promotion_codes.sql';
+const OTHER = 'other_history';
+
+function psql(script, database = 'postgres') {
   const result = spawnSync(join(bin, 'psql'),
-    [...connection, '-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-v', 'VERBOSITY=verbose', '-f', '-'],
+    [...connection, '-d', database, '-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-v', 'VERBOSITY=verbose', '-f', '-'],
     { input: script, encoding: 'utf8' });
   if (result.status !== 0) {
     return { error: { code: result.stderr.match(/ERROR:\s+([0-9A-Z]{5}):/)?.[1], message: result.stderr } };
@@ -101,11 +165,11 @@ function psql(script) {
 
 // One statement, as one caller, in its own transaction. Answers the parsed
 // JSON of a single-value result, or { error: { code } }.
-function as(who, statement) {
+function as(who, statement, database = 'postgres') {
   const prefix = who
     ? `set local role ${who.role};\nset local request.jwt.claims = '${JSON.stringify(who.claims)}';\n`
     : '';
-  const result = psql(`begin;\n${prefix}${statement};\ncommit;\n`);
+  const result = psql(`begin;\n${prefix}${statement};\ncommit;\n`, database);
   if (result.error) return result;
   return result.out === '' ? null : JSON.parse(result.out);
 }
@@ -130,24 +194,47 @@ function purchase({ session, code, cents = 5000, daysAgo, refunded = false, sour
 }
 
 before(() => {
-  if (skip) return;
+  if (unavailable) return;
   dir = mkdtempSync(join(tmpdir(), 'wavread-pg-'));
-  const init = spawnSync(join(bin, 'initdb'), ['-D', join(dir, 'data'), '-U', 'postgres', '--auth=trust', '--no-locale', '-E', 'UTF8'], { encoding: 'utf8' });
+  // The server's account owns the directory: its data, socket and log live here.
+  if (server) chownSync(dir, server.uid, server.gid);
+  const init = spawnSync(join(bin, 'initdb'), ['-D', join(dir, 'data'), '-U', 'postgres', '--auth=trust', '--no-locale', '-E', 'UTF8'],
+    { encoding: 'utf8', cwd: dir, ...asServer });
   const start = init.status === 0 && spawnSync(join(bin, 'pg_ctl'), ['-D', join(dir, 'data'), '-l', join(dir, 'log'), '-w', 'start',
-    '-o', `-k ${dir} -c listen_addresses= -p 5432 -c fsync=off`], { encoding: 'utf8' });
+    '-o', `-k ${dir} -c listen_addresses= -p 5432 -c fsync=off`], { encoding: 'utf8', cwd: dir, ...asServer });
   if (start?.status !== 0) {
-    unavailable = `local Postgres did not start: ${(init.stderr || start?.stderr || '').trim().split('\n')[0]}`;
+    const why = (init.stderr || init.error?.message || start?.stderr || '').trim().split('\n')[0];
+    unavailable = `the local Postgres in ${bin} did not start${server ? ` as ${server.name}` : ''}: ${why}`;
     return;
   }
-  unavailable = false;
-  connection = ['-h', dir, '-p', '5432', '-U', 'postgres', '-d', 'postgres'];
+  connection = ['-h', dir, '-p', '5432', '-U', 'postgres'];
 
+  const migrations = readdirSync('supabase/migrations').filter((f) => f.endsWith('.sql')).sort();
   assert.ok(!psql(SUPABASE_STUBS).error, 'the Supabase stubs load');
-  for (const file of readdirSync('supabase/migrations').filter((f) => f.endsWith('.sql')).sort()) {
+  for (const file of migrations) {
     const applied = psql(readFileSync(join('supabase/migrations', file), 'utf8'));
     assert.ok(!applied.error, `${file} applies: ${applied.error?.message}`);
     if (file.startsWith('20260827150000')) assert.ok(!psql(PUBLISHED_BUILD).error);
   }
+
+  // The second database. The stand-in goes where the review-code migration's
+  // file sorts: after the affiliate migration, before the payout ledger. Roles
+  // belong to the cluster, so the stubs skip them here.
+  const reviewCodesHere = migrations.includes(REVIEW_CODES_MIGRATION);
+  assert.ok(!psql(`create database ${OTHER}`).error);
+  assert.ok(!psql(SUPABASE_STUBS.replace(/^create role [^;]+;$/gm, ''), OTHER).error, 'the Supabase stubs load again');
+  for (const file of migrations) {
+    if (file === REVIEW_CODES_MIGRATION) continue;
+    const applied = psql(readFileSync(join('supabase/migrations', file), 'utf8'), OTHER);
+    assert.ok(!applied.error, `${file} applies in the second database: ${applied.error?.message}`);
+    if (file.startsWith('20260827150000')) assert.ok(!psql(PUBLISHED_BUILD, OTHER).error);
+    if (file.startsWith('20261021120000') && !reviewCodesHere) {
+      const stub = psql(REVIEW_KIND_STUB, OTHER);
+      assert.ok(!stub.error, `the review-code stand-in applies: ${stub.error?.message}`);
+    }
+  }
+  const placeholder = psql(PLACEHOLDER_OWNER_SETUP, OTHER);
+  assert.ok(!placeholder.error, placeholder.error?.message);
 
   assert.ok(OWNER_ID && OWNER_EMAIL, 'the owner identity is read from the licence-grant migration');
   const people = psql(`
@@ -162,14 +249,20 @@ before(() => {
   assert.ok(!people.error, people.error?.message);
 });
 
-// A test that needs the database: skipped, with the reason, when there is none.
+// A test that needs the database. With none, it fails and says why — or skips,
+// when ALLOW_SKIP_DB_TESTS=1 asks for that.
 function dbTest(name, body) {
-  test(name, { skip }, (t) => (unavailable ? t.skip(unavailable) : body()));
+  test(name, (t) => {
+    if (!unavailable) return body();
+    if (SKIP_ALLOWED) return t.skip(`${unavailable} (skipped because ALLOW_SKIP_DB_TESTS=1)`);
+    throw new Error(`The database tests could not run: ${unavailable}. They fail rather than skip, so that a passing run `
+      + 'always means the migrations were exercised. To skip them on a machine without Postgres, set ALLOW_SKIP_DB_TESTS=1.');
+  });
 }
 
 after(() => {
   if (!dir) return;
-  spawnSync(join(bin, 'pg_ctl'), ['-D', join(dir, 'data'), '-m', 'immediate', '-w', 'stop']);
+  spawnSync(join(bin, 'pg_ctl'), ['-D', join(dir, 'data'), '-m', 'immediate', '-w', 'stop'], { cwd: dir, ...asServer });
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -516,4 +609,99 @@ dbTest('the replaced views are still invoker-rights and closed to client roles',
       assert.equal(as(who, `select count(*) from wavread_private.${view}`).error?.code, '42501');
     }
   }
+});
+
+// === review copies, with and without purchases.kind ==========================
+
+const viewDefinition = (database) => psql(`select pg_get_viewdef('wavread_private.affiliate_sales'::regclass)`, database).out;
+const hasKindColumn = (database) => psql(`select exists (select 1 from information_schema.columns
+  where table_schema = 'public' and table_name = 'purchases' and column_name = 'kind')`, database).out === 't';
+// Which of the two databases has purchases.kind, and who the owner is in each.
+const withKind = () => (hasKindColumn('postgres') ? 'postgres' : OTHER);
+const withoutKind = () => (withKind() === 'postgres' ? OTHER : 'postgres');
+const ownerIn = (database) => (database === 'postgres' ? OWNER : PLACEHOLDER_OWNER);
+const monthIn = (database, code, month) => as(ownerIn(database), 'select public.owner_affiliate_payable_by_month()', database)
+  .find((row) => row.affiliate_code === code && row.period_month === month);
+// A credited purchase made three months ago, as the webhook writes one; kind is
+// named only where the column exists.
+const buyIn = (database, session, code, cents, kind) => as(SERVICE, `insert into public.purchases
+    (tester_id, product, amount_cents, stripe_checkout_session_id, email, status, purchased_at, source, affiliate_code${kind ? ', kind' : ''})
+  select tester_id, 'early_build', ${cents}, ${quote(session)}, 'buyer@example.net', 'paid', ${inMonth(3)},
+    ${quote(`aff-${code}`)}, ${quote(code)}${kind ? `, ${quote(kind)}` : ''}
+  from public.accounts where email = 'buyer@example.net'`, database);
+// The block in the payout migration that builds affiliate_sales.
+const buildBlock = () => readFileSync('supabase/migrations/20261023120000_affiliate_payout_ledger.sql', 'utf8')
+  .match(/^do \$build\$[\s\S]*?^\$build\$;$/m)?.[0];
+
+dbTest('without purchases.kind (no review-code migration), every purchase is a sale and a $0 one still earns nothing', () => {
+  const db = withoutKind();
+  assert.equal(hasKindColumn(db), false);
+  assert.doesNotMatch(viewDefinition(db), /\bkind\b/);
+  assert.match(viewDefinition(db), /WHEN \(p\.amount_cents <= 0\) THEN 'excluded'/);
+
+  as(ownerIn(db), save('create', 'no-kind', 'Example No Kind', 'no-kind@example.net', 30), db);
+  assert.equal(buyIn(db, 'cs_test_nk_real_sale', 'no-kind', 5000), null);
+  assert.equal(buyIn(db, 'cs_test_nk_free_sale', 'no-kind', 0), null);
+  const row = monthIn(db, 'no-kind', monthStart(3));
+  assert.deepEqual(statesOf(row), [['eal_sale', 'payable', 1500], ['ree_sale', 'excluded', 0]]);
+  assert.deepEqual([row.sales_count, row.amount_cents], [1, 1500]);
+});
+
+dbTest('with purchases.kind (the review-code migration applied first), a review never earns, whatever it carries', () => {
+  const db = withKind();
+  const owner = (statement) => as(ownerIn(db), statement, db);
+  assert.equal(hasKindColumn(db), true, 'the column was there before the payout migration ran');
+  assert.match(viewDefinition(db), /\(p\.kind IS DISTINCT FROM 'sale'::text\) OR \(p\.amount_cents <= 0\)\) THEN 'excluded'/);
+
+  owner(save('create', 'reviewed', 'Example Reviewed', 'reviewed@example.net', 30));
+  const m3 = monthStart(3);
+  assert.equal(buyIn(db, 'cs_test_rk_real_sale', 'reviewed', 5000, 'sale'), null);
+  assert.equal(buyIn(db, 'cs_test_rk_free_sale', 'reviewed', 0, 'sale'), null);
+  // Reviews that credit an affiliate, one at $0 and one carrying a full amount.
+  // The review-code migration's own constraint refuses both outright; the
+  // stand-in leaves it out, so there they land and the view alone must hold.
+  const reviews = [['cs_test_rk_free_rev', 0], ['cs_test_rk_paid_rev', 5000]]
+    .filter(([session, cents]) => {
+      const written = buyIn(db, session, 'reviewed', cents, 'review');
+      assert.ok(written === null || written.error?.code === '23514', `a review is written or refused, nothing else: ${written?.error?.message}`);
+      return written === null;
+    })
+    .map(([session]) => [session.slice(-8), 'excluded', 0]);
+
+  const states = () => statesOf(monthIn(db, 'reviewed', m3)).sort(([a], [b]) => a.localeCompare(b));
+  const expected = [['eal_sale', 'payable', 1500], ['ree_sale', 'excluded', 0], ...reviews].sort(([a], [b]) => a.localeCompare(b));
+  assert.deepEqual(states(), expected);
+  assert.deepEqual([monthIn(db, 'reviewed', m3).sales_count, monthIn(db, 'reviewed', m3).amount_cents], [1, 1500], 'only the sale is owed');
+
+  const paid = owner(`select public.owner_mark_month_paid('reviewed', ${quote(m3)}::date, 'PayPal', 1500)`);
+  assert.deepEqual([paid.amount_cents, paid.sales_count], [1500, 1]);
+  const frozen = JSON.parse(psql(`select jsonb_agg(right(p.stripe_checkout_session_id, 8)) from wavread_private.affiliate_payout_items i
+    join public.purchases p on p.id = i.purchase_id where i.payout_id = ${paid.id}`, db).out);
+  assert.deepEqual(frozen, ['eal_sale'], 'no review was frozen into the payout');
+  assert.ok(states().every(([suffix, state]) => (suffix === 'eal_sale' ? state === 'paid' : state === 'excluded')));
+
+  const earned = JSON.parse(psql(`select jsonb_build_array(sum(sales), sum(commission_cents)) from wavread_private.affiliate_earnings
+    where affiliate_code = 'reviewed'`, db).out);
+  assert.deepEqual(earned, [1, 1500]);
+  const affiliate = owner('select public.owner_affiliates()').find((a) => a.code === 'reviewed');
+  assert.deepEqual([affiliate.sales, affiliate.gross_cents, affiliate.paid_commission_cents, affiliate.payable_commission_cents], [1, 5000, 1500, 0]);
+});
+
+dbTest('the view-building block can run again, and picks up purchases.kind if it arrives later', () => {
+  const db = withoutKind();
+  const block = buildBlock();
+  assert.ok(block, 'the migration builds affiliate_sales in a do $build$ block');
+  const before = viewDefinition(db);
+  const rerun = psql(block, db);
+  assert.ok(!rerun.error, rerun.error?.message);
+  assert.equal(viewDefinition(db), before, 'run again without the column, it builds the same view');
+
+  const later = psql(`begin;
+    alter table public.purchases add column kind text not null default 'sale';
+    ${block}
+    select pg_get_viewdef('wavread_private.affiliate_sales'::regclass) ~ 'kind IS DISTINCT FROM';
+    rollback;`, db);
+  assert.ok(!later.error, later.error?.message);
+  assert.equal(later.out, 't');
+  assert.equal(viewDefinition(db), before, 'and the rollback left that database as it was');
 });

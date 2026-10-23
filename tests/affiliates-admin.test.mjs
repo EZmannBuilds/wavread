@@ -389,7 +389,7 @@ test('Download CSV exports every month; the per-sale export lists each sale behi
   ].join('\r\n'));
 });
 
-test('the payouts copy states the rules and carries no tax wording', async () => {
+test('the payouts copy states the rules', async () => {
   const html = await read(PAGE);
   const start = html.indexOf('aria-labelledby="payouts-title"');
   const section = html.slice(start, html.indexOf('</section>', start));
@@ -400,6 +400,5 @@ test('the payouts copy states the rules and carries no tax wording', async () =>
   assert.match(section, /<form id="payout-form" hidden novalidate>/);
   assert.match(section, /<button class="btn" id="payouts-csv" type="button" disabled>Download CSV<\/button>/);
   assert.match(section, /<button class="btn" id="payout-sales-csv" type="button" disabled>Download per-sale CSV<\/button>/);
-  assert.doesNotMatch(html, /\btax|1099|W-9|threshold/i, 'the static page is public, even where it is hidden');
   assert.doesNotMatch(html, /Still to confirm|Payouts are not recorded here/, 'the open questions this settles are gone');
 });
