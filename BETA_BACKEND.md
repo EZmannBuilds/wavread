@@ -162,9 +162,12 @@ dashboard's owner controls) through `owner_affiliates` and
 `owner_save_affiliate`, which check the same owner identity as the licence
 controls. What each affiliate is owed is the view
 `wavread_private.affiliate_earnings`: paid, not refunded, more than $0, older
-than 30 days, by month, on the gross amount. Gross-versus-net and the payout
-cadence are open decisions recorded in
-`20261021120000_affiliate_tracking.sql`.
+than 30 days, by month, on the gross amount. The owner pays affiliates by hand,
+monthly, and records each month on the same page in an append-only ledger
+(`owner_affiliate_payable_by_month`, `owner_mark_month_paid`,
+`20261023120000_affiliate_payout_ledger.sql`); a paid month is frozen at the
+rate it was paid at. The routine, and how to correct a mistaken entry, is in
+[AFFILIATE_PAYOUTS.md](AFFILIATE_PAYOUTS.md).
 
 ## Provisioning status — 2026-08-27
 

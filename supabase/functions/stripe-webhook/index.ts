@@ -16,7 +16,9 @@
 //      the account if the account has no binding — the buyer can then sign in
 //      with the same one-time email links testers use
 //
-// A refund revokes the entitlement and marks the purchase, keeping history.
+// A refund revokes the entitlement and marks the purchase, keeping history,
+// and records how much was refunded (refund.mjs), so a partial refund can be
+// told from a full one.
 //
 // Deployed with verify_jwt disabled: Stripe authenticates with its signature,
 // not a Supabase JWT.
@@ -27,6 +29,7 @@ import {
   serviceClient,
   timingSafeEqual,
 } from "../_shared/mod.ts";
+import { refundUpdate } from "./refund.mjs";
 import { purchaseAttribution } from "./attribution.mjs";
 
 const SIGNATURE_TOLERANCE_SECONDS = 300;
@@ -200,15 +203,16 @@ async function refund(db: any, charge: any): Promise<string> {
   if (!intent) return "ignored: refund without a payment intent";
   const found = await db
     .from("purchases")
-    .select("id, tester_id, status")
+    .select("id, tester_id, status, amount_refunded_cents")
     .eq("stripe_payment_intent", intent)
     .maybeSingle();
   if (found.error) throw found.error;
   if (!found.data) return "ignored: refund for an unknown purchase";
-  if (found.data.status !== "refunded") {
+  const changes = refundUpdate(found.data, charge, new Date().toISOString());
+  if (changes) {
     const marked = await db
       .from("purchases")
-      .update({ status: "refunded", refunded_at: new Date().toISOString() })
+      .update(changes)
       .eq("id", found.data.id);
     if (marked.error) throw marked.error;
   }

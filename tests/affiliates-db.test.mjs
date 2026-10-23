@@ -289,3 +289,231 @@ dbTest('earnings are 30% of gross, payable by month once 30 days old; refunds an
   as(OWNER, save('update', 'earner', 'Example Earner', 'earner@example.net', 20));
   assert.equal(overview('earner').payable_commission_cents, 2000);
 });
+
+// === payout ledger (20261023120000_affiliate_payout_ledger.sql) =============
+
+// The first of the UTC month `monthsAgo` months back, as the RPCs name a month.
+function monthStart(monthsAgo) {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthsAgo, 1)).toISOString().slice(0, 10);
+}
+// A moment on the given day of that month, for purchase({ at }).
+const inMonth = (monthsAgo, day = 10) => `'${monthStart(monthsAgo)}T12:00:00Z'::timestamptz + interval '${day - 1} days'`;
+
+const payoutMonths = (who = OWNER) => as(who, 'select public.owner_affiliate_payable_by_month()');
+const payoutMonth = (code, month) => payoutMonths().find((row) => row.affiliate_code === code && row.period_month === month);
+const markPaid = (who, code, month, note, expected = null) =>
+  as(who, `select public.owner_mark_month_paid(${quote(code)}, ${month === null ? 'null' : `${quote(month)}::date`}, ${quote(note)}, ${expected ?? 'null'})`);
+// A refund as stripe-webhook's refund() records one: marked refunded, with the
+// amount Stripe reported (null when the webhook did not record it).
+const refund = (session, cents) => as(SERVICE, `update public.purchases
+  set status = 'refunded', refunded_at = coalesce(refunded_at, now()), amount_refunded_cents = ${cents ?? 'null'}
+  where stripe_checkout_session_id = ${quote(session)}`);
+const ledger = (code) => JSON.parse(psql(`select coalesce(jsonb_agg(to_jsonb(po) order by po.period_month), '[]')
+  from wavread_private.affiliate_payouts po where affiliate_code = ${quote(code)}`).out);
+const statesOf = (row) => row.sales.map((sale) => [sale.session_suffix, sale.state, sale.commission_cents]);
+
+dbTest('only paid, charged, never-refunded sales are payable; any refund short of a recorded full one needs review', () => {
+  as(OWNER, save('create', 'ledger-a', 'Example Ledger A', 'ledger-a@example.net', 30));
+  const m3 = monthStart(3);
+  purchase({ session: 'cs_test_la_paid_one', code: 'ledger-a', at: inMonth(3, 2) });
+  purchase({ session: 'cs_test_la_paid_two', code: 'ledger-a', at: inMonth(3, 3) });
+  purchase({ session: 'cs_test_la_free_one', code: 'ledger-a', cents: 0, at: inMonth(3, 4) });
+  purchase({ session: 'cs_test_la_full_rfd', code: 'ledger-a', at: inMonth(3, 5) });
+  purchase({ session: 'cs_test_la_part_rfd', code: 'ledger-a', at: inMonth(3, 6) });
+  purchase({ session: 'cs_test_la_unkn_rfd', code: 'ledger-a', at: inMonth(3, 7) });
+  purchase({ session: 'cs_test_la_paid_part', code: 'ledger-a', at: inMonth(3, 8) });
+  refund('cs_test_la_full_rfd', 5000);
+  refund('cs_test_la_part_rfd', 2000);
+  refund('cs_test_la_unkn_rfd', null);
+  // A partial refund recorded on a purchase still marked paid counts as one too.
+  assert.equal(as(SERVICE, `update public.purchases set amount_refunded_cents = 1000
+    where stripe_checkout_session_id = 'cs_test_la_paid_part'`), null);
+
+  const row = payoutMonth('ledger-a', m3);
+  assert.equal(row.status, 'payable');
+  assert.deepEqual([row.sales_count, row.amount_cents, row.commission_pct], [2, 3000, 30], 'two clean $50 sales at 30%');
+  assert.equal(row.needs_review_sales, 3, 'the partial, the unknown-amount and the paid-but-part-refunded sale');
+  assert.deepEqual(statesOf(row), [
+    ['paid_one', 'payable', 1500], ['paid_two', 'payable', 1500], ['free_one', 'excluded', 0], ['full_rfd', 'refunded', 0],
+    ['part_rfd', 'needs_review', 0], ['unkn_rfd', 'needs_review', 0], ['aid_part', 'needs_review', 0],
+  ]);
+  assert.deepEqual(row.sales.map((sale) => sale.amount_refunded_cents), [null, null, null, 5000, 2000, null, 1000]);
+
+  const affiliate = overview('ledger-a');
+  assert.deepEqual([affiliate.sales, affiliate.payable_commission_cents, affiliate.refunds, affiliate.needs_review],
+    [2, 3000, 4, 3], 'every refund, partial or full, is counted as one and none is payable');
+
+  // Only the two clean sales are frozen when the month is paid.
+  assert.equal(markPaid(OWNER, 'ledger-a', m3, 'PayPal', 3000).amount_cents, 3000);
+  assert.deepEqual(statesOf(payoutMonth('ledger-a', m3)).map(([, state]) => state),
+    ['paid', 'paid', 'excluded', 'refunded', 'needs_review', 'needs_review', 'needs_review']);
+});
+
+dbTest('a $0 sale never earns commission, whatever the rate', () => {
+  as(OWNER, save('create', 'ledger-zero', 'Example Ledger Zero', 'ledger-zero@example.net', 100));
+  const m3 = monthStart(3);
+  purchase({ session: 'cs_test_lz_free_one', code: 'ledger-zero', cents: 0, at: inMonth(3) });
+  purchase({ session: 'cs_test_lz_free_two', code: 'ledger-zero', cents: 0, at: inMonth(3, 12) });
+  const row = payoutMonth('ledger-zero', m3);
+  assert.deepEqual([row.status, row.sales_count, row.amount_cents], ['nothing_payable', 0, 0]);
+  assert.ok(row.sales.every((sale) => sale.state === 'excluded' && sale.commission_cents === 0));
+  assert.equal(markPaid(OWNER, 'ledger-zero', m3, 'PayPal').error?.code, 'P0002', 'there is nothing to pay');
+  assert.deepEqual(ledger('ledger-zero'), []);
+  assert.equal(overview('ledger-zero').sales, 0);
+});
+
+dbTest('marking a month paid freezes it: a later rate change re-prices only unpaid sales', () => {
+  as(OWNER, save('create', 'ledger-b', 'Example Ledger B', 'ledger-b@example.net', 30));
+  const [m4, m3] = [monthStart(4), monthStart(3)];
+  purchase({ session: 'cs_test_lb_m4_first', code: 'ledger-b', at: inMonth(4, 3) });
+  purchase({ session: 'cs_test_lb_m4_second', code: 'ledger-b', at: inMonth(4, 20) });
+  purchase({ session: 'cs_test_lb_m3_only', code: 'ledger-b', at: inMonth(3) });
+
+  const paid = markPaid(OWNER, 'ledger-b', m4, '  PayPal  ', 3000);
+  assert.deepEqual(
+    [paid.affiliate_code, paid.period_month, paid.amount_cents, paid.sales_count, paid.commission_pct_at_payout, paid.method_note, paid.paid_by],
+    ['ledger-b', m4, 3000, 2, 30, 'PayPal', OWNER_ID], 'the owner is recorded by auth user id; the note is trimmed');
+  assert.ok(Date.now() - Date.parse(paid.paid_at) < 60_000, 'paid_at is now');
+  const items = JSON.parse(psql(`select jsonb_agg(amount_cents_paid order by purchase_id) from wavread_private.affiliate_payout_items
+    where payout_id = ${paid.id}`).out);
+  assert.deepEqual(items, [1500, 1500], 'each sale is frozen at 30% of $50');
+
+  as(OWNER, save('update', 'ledger-b', 'Example Ledger B', 'ledger-b@example.net', 20));
+
+  const paidMonth = payoutMonth('ledger-b', m4);
+  assert.deepEqual([paidMonth.status, paidMonth.amount_cents, paidMonth.commission_pct, paidMonth.method_note],
+    ['paid', 3000, 30, 'PayPal'], 'the paid month keeps its frozen amount and rate');
+  assert.deepEqual(statesOf(paidMonth).map(([, state, cents]) => [state, cents]), [['paid', 1500], ['paid', 1500]]);
+  const unpaid = payoutMonth('ledger-b', m3);
+  assert.deepEqual([unpaid.status, unpaid.amount_cents, unpaid.commission_pct], ['payable', 1000, 20], 'the unpaid month moves to 20%');
+
+  const earnings = JSON.parse(psql(`select jsonb_object_agg(month, jsonb_build_array(commission_cents, paid_commission_cents))
+    from wavread_private.affiliate_earnings where affiliate_code = 'ledger-b'`).out);
+  assert.deepEqual(earnings, { [m4]: [3000, 3000], [m3]: [1000, 0] }, 'the earnings view reads the frozen figures for a paid month');
+  const affiliate = overview('ledger-b');
+  assert.deepEqual([affiliate.sales, affiliate.paid_commission_cents, affiliate.payable_commission_cents], [3, 3000, 1000]);
+  assert.deepEqual(affiliate.months.map((m) => [m.month, m.commission_cents]), [[m3.slice(0, 7), 1000], [m4.slice(0, 7), 3000]]);
+});
+
+dbTest('mark_month_paid refuses before the 30-day hold, twice, without a usable note, or when the amount moved', () => {
+  as(OWNER, save('create', 'ledger-c', 'Example Ledger C', 'ledger-c@example.net', 30));
+  const [m0, m3] = [monthStart(0), monthStart(3)];
+  purchase({ session: 'cs_test_lc_this_month', code: 'ledger-c', at: 'now()' });
+  purchase({ session: 'cs_test_lc_m3_sale__', code: 'ledger-c', at: inMonth(3) });
+
+  const early = markPaid(OWNER, 'ledger-c', m0, 'PayPal');
+  assert.equal(early.error?.code, '55000', 'this month is still inside the hold');
+  assert.match(early.error.message, /30-day refund hold until \d{4}-\d{2}-\d{2}/);
+  assert.equal(payoutMonth('ledger-c', m0).status, 'on_hold');
+
+  assert.equal(markPaid(OWNER, 'ledger-c', m3, 'PayPal', 1499).error?.code, '55000', 'the page saw a different amount');
+  for (const [month, note, why] of [[m3.replace(/01$/, '15'), 'PayPal', 'not the first of a month'], [null, 'PayPal', 'no month'],
+                                    [m3, '   ', 'an empty note'], [m3, 'x'.repeat(81), 'a note over 80 characters'],
+                                    [m3, 'Zelle 555-123-4567', 'a phone number'], [m3, 'Acct 1234 5678 90', 'an account number']]) {
+    assert.equal(markPaid(OWNER, 'ledger-c', month, note).error?.code, '22023', `refused: ${why}`);
+  }
+  assert.equal(markPaid(OWNER, 'no-such-code', m3, 'PayPal').error?.code, 'P0002');
+  assert.deepEqual(ledger('ledger-c'), [], 'nothing was recorded by any refusal');
+
+  assert.equal(markPaid(OWNER, 'ledger-c', m3, 'Zelle', 1500).amount_cents, 1500);
+  const twice = markPaid(OWNER, 'ledger-c', m3, 'Zelle', 1500);
+  assert.equal(twice.error?.code, '23505', 'a month is paid once');
+  assert.match(twice.error.message, /already marked paid/);
+  assert.equal(ledger('ledger-c').length, 1);
+});
+
+dbTest('a refund after payout is flagged as a clawback with the commission paid, and nothing is adjusted', () => {
+  as(OWNER, save('create', 'ledger-d', 'Example Ledger D', 'ledger-d@example.net', 30));
+  const m3 = monthStart(3);
+  purchase({ session: 'cs_test_ld_kept_sale', code: 'ledger-d', at: inMonth(3, 2) });
+  purchase({ session: 'cs_test_ld_full_late', code: 'ledger-d', at: inMonth(3, 3) });
+  purchase({ session: 'cs_test_ld_part_late', code: 'ledger-d', at: inMonth(3, 4) });
+  const paid = markPaid(OWNER, 'ledger-d', m3, 'PayPal', 4500);
+  assert.equal(paid.amount_cents, 4500);
+
+  refund('cs_test_ld_full_late', 5000);
+  refund('cs_test_ld_part_late', 1000);
+  const row = payoutMonth('ledger-d', m3);
+  assert.deepEqual([row.status, row.amount_cents, row.sales_count, row.clawback_sales, row.clawback_cents],
+    ['paid', 4500, 3, 2, 3000], 'the payout still reads what was paid; the refunded sales are flagged with the $15 paid on each');
+  assert.deepEqual(statesOf(row), [['ept_sale', 'paid', 1500], ['ull_late', 'clawback', 1500], ['art_late', 'clawback', 1500]]);
+  assert.deepEqual(ledger('ledger-d').map((p) => [p.amount_cents, p.sales_count]), [[4500, 3]], 'the ledger row is untouched');
+  const affiliate = overview('ledger-d');
+  assert.deepEqual([affiliate.paid_commission_cents, affiliate.clawbacks, affiliate.clawback_cents, affiliate.sales], [4500, 2, 3000, 1]);
+
+  // A sale credited by hand to a month already paid is not slipped into a
+  // second payout: it waits for review.
+  purchase({ session: 'cs_test_ld_late_credit', code: 'ledger-d', at: inMonth(3, 20) });
+  const after = payoutMonth('ledger-d', m3);
+  assert.deepEqual([after.status, after.amount_cents, after.needs_review_sales], ['paid', 4500, 1]);
+  assert.equal(markPaid(OWNER, 'ledger-d', m3, 'PayPal').error?.code, '23505');
+});
+
+dbTest('only the owner can read payouts or mark a month paid', () => {
+  as(OWNER, save('create', 'ledger-e', 'Example Ledger E', 'ledger-e@example.net', 30));
+  const m3 = monthStart(3);
+  purchase({ session: 'cs_test_le_sale_one', code: 'ledger-e', at: inMonth(3) });
+
+  for (const [who, name] of [[ANON, 'anon'], [STRANGER, 'a signed-in stranger'],
+                             [OWNER_WITHOUT_SESSION, 'the owner id without a live session'], [SERVICE, 'the service role']]) {
+    assert.equal(as(who, 'select public.owner_affiliate_payable_by_month()').error?.code, '42501', `${name} cannot read payouts`);
+    assert.equal(markPaid(who, 'ledger-e', m3, 'PayPal').error?.code, '42501', `${name} cannot mark a month paid`);
+    assert.equal(as(who, `select wavread_private.mark_month_paid('ledger-e', ${quote(m3)}::date, 'PayPal')`).error?.code, '42501',
+      `${name} cannot reach the private function either`);
+  }
+  assert.deepEqual(ledger('ledger-e'), [], 'no refused call recorded anything');
+
+  // No client role reaches the ledger tables — not even the owner's session.
+  for (const who of [ANON, STRANGER, OWNER]) {
+    for (const table of ['affiliate_payouts', 'affiliate_payout_items']) {
+      assert.equal(as(who, `select count(*) from wavread_private.${table}`).error?.code, '42501');
+      assert.equal(as(who, `delete from wavread_private.${table}`).error?.code, '42501');
+    }
+    assert.equal(as(who, `insert into wavread_private.affiliate_payouts (affiliate_code, period_month, amount_cents, sales_count,
+      commission_pct_at_payout, paid_by, method_note) values ('ledger-e', ${quote(m3)}, 1500, 1, 30, ${quote(OWNER_ID)}, 'PayPal')`).error?.code, '42501');
+  }
+  assert.equal(payoutMonth('ledger-e', m3).status, 'payable');
+});
+
+dbTest('the ledger is append-only; the correction in AFFILIATE_PAYOUTS.md is the only way to change it', () => {
+  as(OWNER, save('create', 'ledger-f', 'Example Ledger F', 'ledger-f@example.net', 30));
+  const m3 = monthStart(3);
+  purchase({ session: 'cs_test_lf_sale_one', code: 'ledger-f', at: inMonth(3) });
+  const paid = markPaid(OWNER, 'ledger-f', m3, 'PayPal', 1500);
+
+  // Even the database owner, in the SQL editor, is refused without the setting.
+  for (const statement of [`update wavread_private.affiliate_payouts set method_note = 'Zelle' where id = ${paid.id}`,
+                           `delete from wavread_private.affiliate_payout_items where payout_id = ${paid.id}`,
+                           `delete from wavread_private.affiliate_payouts where id = ${paid.id}`,
+                           'truncate wavread_private.affiliate_payout_items, wavread_private.affiliate_payouts']) {
+    assert.equal(psql(statement).error?.code, '23001', statement);
+  }
+  assert.equal(ledger('ledger-f').length, 1);
+
+  // The two corrections the ops note documents, run exactly as written there.
+  const docs = readFileSync('AFFILIATE_PAYOUTS.md', 'utf8');
+  const block = (title) => docs.match(new RegExp(`\`\`\`sql\\n(-- ${title}\\n[\\s\\S]*?)\`\`\``))?.[1];
+  const fixNote = block('Correct the method note of one payout');
+  const remove = block('Remove one mistaken payout');
+  assert.ok(fixNote && remove, 'the ops note carries both corrections');
+  assert.ok(!psql(fixNote.replaceAll('<payout id>', String(paid.id)).replaceAll('<new note>', 'Zelle')).error);
+  assert.equal(ledger('ledger-f')[0].method_note, 'Zelle');
+  const removed = psql(`${remove.replaceAll('<payout id>', String(paid.id))}
+    select '[' || coalesce(current_setting('wavread.payout_correction', true), '') || ']';`);
+  assert.ok(!removed.error, removed.error?.message);
+  assert.equal(removed.out, '[]', 'the setting does not outlive the correction\'s transaction');
+  assert.deepEqual(ledger('ledger-f'), []);
+  assert.equal(payoutMonth('ledger-f', m3).status, 'payable', 'the month is payable again, and can be marked paid afresh');
+  assert.equal(markPaid(OWNER, 'ledger-f', m3, 'Zelle', 1500).amount_cents, 1500);
+});
+
+dbTest('the replaced views are still invoker-rights and closed to client roles', () => {
+  for (const view of ['affiliate_sales', 'affiliate_earnings']) {
+    const options = psql(`select array_to_string(reloptions, ',') from pg_class where oid = 'wavread_private.${view}'::regclass`).out;
+    assert.match(options, /security_invoker=true/, view);
+    for (const who of [ANON, STRANGER, OWNER]) {
+      assert.equal(as(who, `select count(*) from wavread_private.${view}`).error?.code, '42501');
+    }
+  }
+});
