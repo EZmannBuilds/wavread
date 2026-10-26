@@ -382,9 +382,14 @@ allow_dynamic_registration = false
 
 # Per-function gateway auth. Only download-build requires a signed-in user's
 # JWT; the others authenticate by their own means (Stripe signature, one-time
-# link code, report token) or are public by design (checkout start).
+# link code, report token) or are public by design (checkout start, trial
+# start).
 [functions.create-checkout]
 verify_jwt = false
+[functions.start-trial]
+verify_jwt = false
+# The same reason as create-checkout: the email in the body is the request.
+# The function rate-limits by address and email before creating anything.
 [functions.stripe-webhook]
 verify_jwt = false
 [functions.link-device]
