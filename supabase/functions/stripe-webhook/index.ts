@@ -11,7 +11,8 @@
 //   2. record the purchase (unique on the Stripe session id), with the label
 //      the buyer arrived from and the affiliate it credits, if any
 //      (attribution.mjs)
-//   3. grant the early_build entitlement if none is active
+//   3. grant the early_build entitlement if no purchase or grant is active,
+//      then end any trial on the account — paid wins
 //   4. make sure a Supabase Auth user exists for that email, and bind it to
 //      the account if the account has no binding — the buyer can then sign in
 //      with the same one-time email links testers use
@@ -154,14 +155,17 @@ async function fulfill(db: any, session: any): Promise<string> {
     .single();
   if (purchaseRow.error) throw purchaseRow.error;
 
-  // 3. The entitlement, if nothing active grants it already. It is deliberately
-  // unscoped — build_version null means every build of the Early Launch, which
-  // is what the $5 buys. Scoping it to a version here would sell one build.
+  // 3. The entitlement, if no purchase or grant gives it already. It is
+  // deliberately unscoped — build_version null means every build of the Early
+  // Launch, which is what the $5 buys. Scoping it to a version here would sell
+  // one build. A trial is not counted: it is about to end, and a purchase
+  // entitlement must exist when it does.
   const active = await db
     .from("entitlements")
     .select("id")
     .eq("tester_id", testerId)
     .eq("entitlement", "early_build")
+    .neq("source", "trial")
     .is("revoked_at", null)
     .is("build_version", null)
     .maybeSingle();
@@ -178,6 +182,19 @@ async function fulfill(db: any, session: any): Promise<string> {
     // the loser harmless.
     if (granted.error && granted.error.code !== "23505") throw granted.error;
   }
+
+  // Paid wins: a trial on this account, running or run out, ends now — after
+  // the purchase entitlement exists, so access never lapses in between.
+  // Revoked rather than deleted, because one trial ever counts every trial row.
+  // A retry finds nothing left to end.
+  const endedTrial = await db
+    .from("entitlements")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("tester_id", testerId)
+    .eq("entitlement", "early_build")
+    .eq("source", "trial")
+    .is("revoked_at", null);
+  if (endedTrial.error) throw endedTrial.error;
 
   // 4. Sign-in binding, without ever disturbing an existing one.
   const authUserId = await authUserIdFor(db, email);

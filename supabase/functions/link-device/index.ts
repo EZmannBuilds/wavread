@@ -7,6 +7,10 @@
 // can impersonate a device, and revoking the device (from either side) ends
 // the link without touching account history.
 //
+// An account on a trial links at most two devices (trial-cap.mjs); owning
+// WavRead keeps the policy linking always had. The cap is checked before
+// anything is written, so a refused code still works once a device is revoked.
+//
 // Deployed with verify_jwt disabled: the desktop app has no Supabase session.
 // The one-time code is the proof of account access.
 
@@ -21,6 +25,7 @@ import {
   serviceClient,
   sha256Hex,
 } from "../_shared/mod.ts";
+import { trialDeviceRefusal } from "./trial-cap.mjs";
 
 const CODE_RE = /^[A-Z0-9]{8}$/;
 
@@ -97,6 +102,17 @@ Deno.serve(async (req: Request) => {
       "That code is expired, already used, or not valid. Generate a fresh one on the dashboard.",
     );
   }
+
+  const standing = await db.rpc("account_standing", {
+    account: found.data.tester_id,
+    install: installId,
+  });
+  if (standing.error) {
+    console.error("standing lookup failed", standing.error);
+    return json(req, 500, { error: "The link service had a problem. Try again." });
+  }
+  const capped = trialDeviceRefusal(standing.data);
+  if (capped) return json(req, 409, capped);
 
   const token = newDeviceToken();
   const linked = await db.from("devices").insert({

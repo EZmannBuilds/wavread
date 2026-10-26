@@ -7,12 +7,17 @@
 // The SHA-256 from the catalog rides along so the page can show the value to
 // verify the download against.
 //
+// A trial is an early_build entitlement with an end date. Once it expires it
+// is inactive, exactly as a revoked one is, and the refusal says the trial has
+// ended and where to buy, with trial_expired: true (refusal.mjs).
+//
 // Deployed with verify_jwt enabled: only a signed-in account can even reach
 // this function, and the user's own JWT — not anything the browser claims —
 // identifies the account.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { json, preflight, readJson, serviceClient } from "../_shared/mod.ts";
+import { accessRefusal } from "./refusal.mjs";
 
 const SIGNED_URL_SECONDS = 60;
 
@@ -61,8 +66,9 @@ Deno.serve(async (req: Request) => {
   }
 
   // Access is per build, and the rule lives in the database so this function
-  // and the dashboard cannot drift apart: an entitlement for this build, a
-  // legacy all-access entitlement, or contributor standing.
+  // and the dashboard cannot drift apart: an active entitlement for this build,
+  // an active all-access one (a purchase, a grant, or a trial that has not
+  // expired), or contributor standing.
   const allowed = await db.rpc("has_build_access", {
     account: account.data.tester_id,
     build: build.data.id,
@@ -72,11 +78,13 @@ Deno.serve(async (req: Request) => {
     return json(req, 500, { error: "the download could not be prepared" });
   }
   if (allowed.data !== true) {
-    return json(req, 403, {
-      error: "This build has not been purchased on this account.",
-      purchasable: true,
-      build_id: build.data.id,
+    // Why not, in words the account can act on. Asked only after the answer is
+    // already no, so it can change the message and never the decision.
+    const standing = await db.rpc("account_standing", {
+      account: account.data.tester_id,
     });
+    if (standing.error) console.error("standing lookup failed", standing.error);
+    return json(req, 403, accessRefusal(standing.error ? null : standing.data, build.data.id));
   }
 
   const signed = await db.storage

@@ -66,7 +66,8 @@ revocable report token, and only after its user typed a link code.
 | `link-device` | no (one-time code) | trades a link code for a hashed device token; releases tokens |
 | `crash-report` | no (optional token) | validated, deduplicated crash intake, rate-limited per install, per address and overall |
 | `submit-report` | no (token required) | the app's Report a Problem submissions |
-| `download-build` | yes | `has_build_access` → 60-second signed URL + SHA-256 |
+| `download-build` | yes | `has_build_access` → 60-second signed URL + SHA-256; an ended trial is refused with `trial_expired: true` |
+| `start-trial` | no (rate-limited) | email in, one 14-day trial entitlement out; creates the account and sign-in identity if needed |
 
 Secrets the functions need, set with `supabase secrets set` (never in source,
 never in the browser): `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
@@ -86,6 +87,50 @@ Two optional settings widen CORS, and both are off unless set
 `crash-report` is limited per install (20 an hour), per network address (30)
 and across everyone (200), through `take_crash_report_slot`; the address is
 counted only as a keyed digest that expires with its hour.
+
+## Trials
+
+A trial is fourteen days of everything a purchase gives — every build, Mac and
+Windows — once per account, ever. Migration
+`20261026120000_a_trial_lasts_fourteen_days.sql` holds the rules:
+
+- `start-trial` (public, like `create-checkout`) takes an email, rate-limits by
+  keyed digests of the address and the email and across everyone
+  (`take_trial_slot`: 5 an hour, 5 a day, 100 an hour), makes sure a Supabase
+  Auth user exists, and calls `start_trial`. That writes an `entitlements` row
+  with `source = 'trial'` and `expires_at = granted_at + 14 days`, and nothing
+  else: no purchase, no Stripe object, no affiliate credit. It refuses an
+  account that has had a trial (running, expired or revoked) or that owns
+  WavRead (an active purchase or grant, or contributor standing). No email is
+  sent; the person signs in at `/signin` as a buyer would.
+- Active is `entitlement_is_active(revoked_at, expires_at)`: not revoked, and
+  not past `expires_at`. Only trial rows have an `expires_at` (a check
+  constraint), so purchases and grants are active exactly as before.
+  `has_build_access` reads it, so an expired trial downloads nothing.
+- One trial ever is `entitlements_one_trial_ever_idx`, over every trial row.
+  **Never delete a trial row** — that would hand the account a second trial.
+  End one by setting `revoked_at`.
+- Paid wins: `stripe-webhook` grants the permanent purchase entitlement, then
+  revokes any trial on the account. An owner grant (or restoring one) does the
+  same. A trial never occupies the one-active-purchase-or-grant index, so a
+  purchase or grant is never blocked by one. A refund revokes the purchase
+  entitlement only; the trial it ended stays ended.
+- `link-device` caps an account whose only claim is a trial (running or ended)
+  at 2 linked installs; owning WavRead keeps the existing policy (no cap).
+  Relinking an install that is already linked is not a new device.
+- The desktop app is not involved yet: an installed copy keeps running after
+  the trial ends. Only downloads stop.
+
+To end a test account's trial early (a throwaway email, never a customer's),
+shift its window back fifteen days, which keeps `expires_at > granted_at`:
+
+```sql
+update public.entitlements
+   set granted_at = granted_at - interval '15 days',
+       expires_at = expires_at - interval '15 days'
+ where source = 'trial'
+   and tester_id = (select tester_id from public.accounts where email = 'throwaway@example.com');
+```
 
 ## Email
 

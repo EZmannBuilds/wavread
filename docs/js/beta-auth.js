@@ -15,6 +15,27 @@ function fmtDate(iso) {
   return Number.isNaN(parsed.getTime()) ? "—" : dateFormat.format(parsed);
 }
 
+// When a trial ends, to the minute and in the reader's own time zone. It
+// decides whether they can still download, so it is written out in full
+// rather than as "in 3 days".
+const momentFormat = new Intl.DateTimeFormat("en-US", {
+  year: "numeric", month: "long", day: "numeric",
+  hour: "numeric", minute: "2-digit", timeZoneName: "short"
+});
+
+function fmtMoment(iso) {
+  if (!iso) return "—";
+  const parsed = new Date(iso);
+  return Number.isNaN(parsed.getTime()) ? "—" : momentFormat.format(parsed);
+}
+
+// Where a Buy link goes: /buy on the site, buy.html on the local preview,
+// which serves files rather than clean URLs. The buy page reads no email from
+// the address bar, so none is put there.
+function buyPath() {
+  return LOCAL_HOSTS.has(location.hostname) ? "buy.html" : "/buy";
+}
+
 function setStatus(element, message, state = "", field = null) {
   if (!element) return;
   element.textContent = message;
@@ -184,6 +205,27 @@ function renderKnownIssues(issues) {
   });
 }
 
+// What an account's entitlement rows add up to at `now`. Active is the
+// database's rule (entitlement_is_active): not revoked, and not past
+// expires_at, which only a trial has. Contributor standing, or an unscoped
+// purchase or grant, covers every build; otherwise access is build by build. A
+// trial counts only while nothing else gives access, and covers every build
+// until it ends. This only decides what the page shows — download-build asks
+// the database again for every file.
+function standingFrom(account, rows, now = Date.now()) {
+  const live = (r) => !r.revoked_at && (!r.expires_at || Date.parse(r.expires_at) > now);
+  const kept = rows.filter((r) => r.source !== "trial" && live(r));
+  const paidEverything = Boolean(account?.free_updates) || kept.some((r) => !r.build_version);
+  const owned = new Set(kept.map((r) => r.build_version).filter(Boolean));
+  const trialRow = paidEverything || owned.size ? null : rows.find((r) => r.source === "trial");
+  // A trial revoked before its end date ended when it was revoked.
+  const endsAt = trialRow?.revoked_at && Date.parse(trialRow.revoked_at) < Date.parse(trialRow.expires_at)
+    ? trialRow.revoked_at
+    : trialRow?.expires_at;
+  const trial = trialRow ? { active: live(trialRow), ends_at: endsAt } : null;
+  return { owned, everything: paidEverything || Boolean(trial?.active), paidEverything, trial };
+}
+
 async function loadOwnership() {
   const title = document.querySelector("#ownership-title");
   const detail = document.querySelector("#ownership-detail");
@@ -191,31 +233,34 @@ async function loadOwnership() {
   const [account, entitlements, purchases] = await Promise.all([
     supabase.from("accounts").select("free_updates, free_updates_note")
       .eq("auth_user_id", currentUser.id).maybeSingle(),
-    supabase.from("entitlements").select("build_version, granted_at")
-      .eq("entitlement", "early_build").is("revoked_at", null),
+    // Revoked and expired rows too: an ended trial is still something to say.
+    supabase.from("entitlements").select("source, build_version, granted_at, expires_at, revoked_at")
+      .eq("entitlement", "early_build"),
     supabase.from("purchases").select("amount_cents, build_version, purchased_at, status")
       .order("purchased_at", { ascending: false })
   ]);
   if (entitlements.error || account.error) {
     title.textContent = "Standing unavailable";
     detail.textContent = "Your purchases could not be read. Refresh this page.";
-    return { owned: new Set(), everything: false };
+    return { owned: new Set(), everything: false, trial: null };
   }
 
-  // Contributor standing, or a legacy all-access entitlement from the original
-  // programme, covers every build. Otherwise access is build by build.
-  const rows = entitlements.data || [];
-  const everything = Boolean(account.data?.free_updates) || rows.some((r) => !r.build_version);
-  const owned = new Set(rows.map((r) => r.build_version).filter(Boolean));
+  const standing = standingFrom(account.data, entitlements.data || []);
+  const { owned, trial } = standing;
   const paid = (purchases.data || []).filter((p) => p.status === "paid");
   const spent = paid.reduce((sum, p) => sum + (p.amount_cents || 0), 0);
+  const offerPurchase = () => {
+    action.href = buyPath();
+    action.textContent = "Buy WavRead — $50 →";
+    action.hidden = false;
+  };
 
   if (account.data?.free_updates) {
     title.textContent = "Owned";
     detail.textContent = account.data.free_updates_note
       || "Every build stays yours, for what you already paid.";
     action.hidden = true;
-  } else if (everything) {
+  } else if (standing.paidEverything) {
     title.textContent = "Owned";
     detail.textContent = `Every build is included${spent ? ` · $${(spent / 100).toFixed(2)} paid` : ""}.`;
     action.hidden = true;
@@ -223,12 +268,20 @@ async function loadOwnership() {
     title.textContent = owned.size === 1 ? "1 build owned" : `${owned.size} builds owned`;
     detail.textContent = `${[...owned].join(", ")} · $${(spent / 100).toFixed(2)} paid.`;
     action.hidden = false;
+  } else if (trial?.active) {
+    title.textContent = "On a free trial";
+    detail.textContent = `Your 14-day trial covers Mac and Windows until ${fmtMoment(trial.ends_at)}. Buy WavRead to keep it after that.`;
+    offerPurchase();
+  } else if (trial) {
+    title.textContent = "Trial ended";
+    detail.textContent = `Your 14-day trial ended ${fmtMoment(trial.ends_at)}. Downloads are closed until you buy WavRead.`;
+    offerPurchase();
   } else {
     title.textContent = "Not owned yet";
     detail.textContent = "One payment covers every build.";
     action.hidden = false;
   }
-  return { owned, everything };
+  return standing;
 }
 
 // Buying one specific build, rather than a blanket purchase.
@@ -394,7 +447,12 @@ async function loadBuilds(standing) {
   const newest = newestFor(builds, "macos");
   if (dateEl && newest) dateEl.textContent = fmtDate(newest.released_at);
   const has = (b) => standing.everything || standing.owned.has(b.version);
-  locked.hidden = builds.length === 0 || builds.some(has);
+  // An ended trial gets its own note in place of "you do not own WavRead yet".
+  const trialEnded = Boolean(standing.trial && !standing.trial.active);
+  const ended = document.querySelector("#builds-trial-ended");
+  locked.hidden = trialEnded || builds.length === 0 || builds.some(has);
+  if (ended) ended.hidden = !trialEnded || builds.length === 0;
+  const included = standing.trial?.active ? `trial until ${fmtDate(standing.trial.ends_at)}` : "included";
   list.replaceChildren();
   if (!builds.length) {
     empty.hidden = false;
@@ -409,7 +467,7 @@ async function loadBuilds(standing) {
     const action = buildAction(build, has, status);
     const state = document.createElement("span");
     state.className = "table-status";
-    state.textContent = standing.everything || standing.owned.has(build.version) ? "included" : "not owned";
+    state.textContent = has(build) ? included : "not owned";
     // One version can be published once per platform, so the row says which.
     const platform = PLATFORM_NAMES[build.platform] || "macOS";
     return [build.version, platform, fmtDate(build.released_at), size, sha, state, action];
@@ -569,7 +627,9 @@ async function initializeLicenceAdmin() {
       setStatus(status, `${data.email}: ${data.account_status}. Contributor access: ${data.free_updates ? 'yes' : 'no'}.`, 'success');
       for (const licence of data.licences || []) {
         const row = document.createElement('p');
-        row.textContent = `${licence.owner_grant ? 'Complimentary grant' : licence.source} · ${licence.build_version || 'All eligible builds'} · ${licence.revoked_at ? 'Revoked' : 'Active'}`;
+        const ran = licence.expires_at && Date.parse(licence.expires_at) <= Date.now();
+        const ends = licence.expires_at ? ` · ends ${fmtDate(licence.expires_at)}` : '';
+        row.textContent = `${licence.owner_grant ? 'Complimentary grant' : licence.source} · ${licence.build_version || 'All eligible builds'} · ${licence.revoked_at ? 'Revoked' : ran ? 'Expired' : 'Active'}${ends}`;
         results.append(row);
       }
     } catch { setStatus(status, 'Could not update licence access. Check your sign-in and retry.', 'error'); }
@@ -644,6 +704,8 @@ async function initializeDashboard() {
   initializeLicenceAdmin().catch(()=>{});
   initializeLinkCode();
   const standing = await loadOwnership();
+  const devicesTrialNote = document.querySelector("#devices-trial-note");
+  if (devicesTrialNote) devicesTrialNote.hidden = !standing.trial;
   loadBuilds(standing);
   loadDevices();
   loadReports();
