@@ -31,6 +31,10 @@ npm test
 npm run build
 ```
 
+Articles are Markdown files in `content/articles/`; `npm run build` turns them
+into the static pages under `docs/articles/` and lists them in the sitemap. How
+to add one is in [content/articles/ARTICLES.md](content/articles/ARTICLES.md).
+
 See [WEB_UPDATE_1.md](WEB_UPDATE_1.md),
 [UPDATE_1.4.7.md](UPDATE_1.4.7.md),
 [BETA_BACKEND.md](BETA_BACKEND.md), and

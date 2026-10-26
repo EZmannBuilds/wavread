@@ -104,3 +104,11 @@ body.site-page main.page-content .setup-notice{background:#f3eadf;color:#654319;
 .site-page .header>nav{margin:0 auto!important}
 
 body.site-page main.page-content .page-index a{text-decoration:none}body.site-page main.page-content .page-index a:hover{text-decoration:underline}body.site-page main.page-content .account-label{font-size:13px;margin-bottom:17px;color:var(--muted)}
+
+/* Articles: pages generated from content/articles by scripts/build.mjs. */
+body.site-page main.page-content .article-crumb{font-size:13px;margin-bottom:14px}body.site-page main.page-content .article-meta{font-size:13px;margin:20px 0 0}
+body.site-page main.page-content .lane-tags{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:14px 0 0}body.site-page main.page-content .lane-tags li{margin:0;padding:2px 11px;border:1px solid var(--wr-border-strong);border-radius:999px;background:#fff;color:var(--ink);font-size:12px;line-height:1.7}
+body.site-page main.page-content .article-list{list-style:none;padding:0;margin:0}body.site-page main.page-content .article-item{padding:0 0 30px;margin:0 0 30px;border-bottom:1px solid var(--line)}body.site-page main.page-content .article-item:last-child{border-bottom:0;margin-bottom:0}
+body.site-page main.page-content .article-item h2{margin:6px 0 10px}body.site-page main.page-content .article-item h2 a:not(.btn){color:var(--ink);text-decoration:none}body.site-page main.page-content .article-item h2 a:not(.btn):hover{text-decoration:underline}body.site-page main.page-content .article-item p{margin-bottom:0}body.site-page main.page-content .article-item .article-meta{margin:0}
+body.site-page main.page-content .article-body h2{margin-top:36px}body.site-page main.page-content .article-body>h2:first-child{margin-top:0}body.site-page main.page-content .article-body pre{background:#e2eaf3;border-radius:7px;padding:14px 16px;overflow-x:auto;font-size:12px;line-height:1.7;margin:0 0 20px}
+body.site-page main.page-content .article-body blockquote{margin:0 0 20px;padding:2px 0 2px 20px;border-left:3px solid #5c829f}

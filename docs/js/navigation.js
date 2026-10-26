@@ -10,8 +10,10 @@ if (menu) {
   document.addEventListener('click', event => {
     if (!menu.contains(event.target)) menu.open = false;
   });
+  // /articles/index.html, /articles/ and /articles are one page.
+  const route = path => path.replace(/\.html$/, '').replace(/\/(index)?$/, '') || '/';
   menu.querySelectorAll('a').forEach(link => {
-    if (link.pathname.replace(/\.html$/, '') === location.pathname.replace(/\.html$/, '')) link.setAttribute('aria-current', 'page');
+    if (route(link.pathname) === route(location.pathname)) link.setAttribute('aria-current', 'page');
   });
 }
 
