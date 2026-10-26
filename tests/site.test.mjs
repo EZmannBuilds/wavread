@@ -5,7 +5,12 @@ import { dirname, extname, join, resolve } from "node:path";
 import test from "node:test";
 
 const root = resolve("docs");
-const htmlFiles = (await readdir(root)).filter((file) => extname(file) === ".html");
+// Generated article pages are pages like any other, so every site-wide rule
+// below applies to them too.
+const htmlFiles = [
+  ...(await readdir(root)).filter((file) => extname(file) === ".html"),
+  ...(await readdir(join(root, "articles"))).filter((file) => extname(file) === ".html").map((file) => join("articles", file)),
+];
 const read = (path) => readFile(resolve(path), "utf8");
 const readSync = (path) => readFileSync(resolve(path), "utf8");
 
@@ -59,7 +64,7 @@ test("search engines get a truthful, bounded map of the site", async () => {
     assert.ok(robots.includes(`Disallow: ${hidden}`), `${hidden} stays out of indexes`);
   }
   const sitemap = await read("docs/sitemap.xml");
-  for (const pub of ["/", "/how-it-works", "/documents", "/requirements", "/buy", "/faq"]) {
+  for (const pub of ["/", "/how-it-works", "/documents", "/requirements", "/buy", "/faq", "/articles"]) {
     assert.ok(sitemap.includes(`<loc>https://wavread.com${pub}</loc>`), `${pub} is sitemapped`);
   }
   for (const hidden of ["signin", "dashboard", "purchase-complete"]) {
@@ -133,7 +138,7 @@ test("every page exposes product, support and account navigation", async () => {
   for (const file of htmlFiles) {
     const html = await read(join("docs",file));
     const menu = html.match(/<details class="site-menu">([\s\S]*?)<\/details>/)?.[1] || "";
-    for (const name of ["how-it-works","documents","agent","requirements","install","faq","privacy","EULA"]) {
+    for (const name of ["how-it-works","documents","agent","articles/index","requirements","install","faq","privacy","EULA"]) {
       assert.ok(menu.includes(`href="/${name}.html"`), `${file}: missing ${name}`);
     }
     assert.doesNotMatch(html, />Owner sign in<\/a>/);

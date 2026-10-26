@@ -10,4 +10,10 @@
   <url><loc>https://wavread.com/privacy</loc></url>
   <url><loc>https://wavread.com/faq</loc></url>
   <url><loc>https://wavread.com/EULA</loc></url>
+  <!-- articles:start (written by scripts/build.mjs from content/articles; edit the posts, not these lines) -->
+  <url><loc>https://wavread.com/articles</loc></url>
+  <url><loc>https://wavread.com/articles/agents-and-editable-daw-tracks</loc></url>
+  <url><loc>https://wavread.com/articles/local-analysis-agent-readable-readings</loc></url>
+  <url><loc>https://wavread.com/articles/mix-measurements-as-a-report</loc></url>
+  <!-- articles:end -->
 </urlset>
