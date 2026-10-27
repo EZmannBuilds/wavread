@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your account — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f0f3f7">
+<meta name="description" content="Your WavRead profile, password, standing and articles.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script src="/js/beta-config.js" defer></script>
+<script src="/js/account.js" type="module"></script>
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<link rel="stylesheet" href="/account.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-account">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/dashboard.html">Dashboard</a><button class="small-button" id="signout-button" type="button" hidden>Sign out</button><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap beta-shell account-shell">
+  <div class="state-panel loading-state" id="loading-state" role="status">Opening your account…</div>
+  <section class="state-panel" id="setup-state" hidden><h2>Your account is temporarily unavailable</h2><p>Please try again shortly. If this continues, contact <a href="mailto:support@wavread.com">support@wavread.com</a>.</p><a class="btn" href="/">Return to WavRead</a></section>
+  <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p>Sign in to open your account.</p><a class="btn primary" id="signin-link" href="/signin.html">Go to sign in</a></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>Your account is not ready</h2><p id="unauthorized-message">This sign-in has no active WavRead account.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+
+  <div id="account-content" hidden>
+    <header class="dashboard-head">
+      <div><p class="tester-badge">WavRead account</p><h1>Your account</h1><p id="account-email"></p></div>
+    </header>
+
+    <div class="account-grid" role="group" aria-label="Account overview">
+      <article class="account-card" aria-labelledby="standing-title"><span class="card-kicker">Your standing</span><h2 id="standing-title">Checking…</h2><p id="standing-detail">Reading your licence.</p><p><a href="/dashboard.html">Downloads and devices →</a> <a id="standing-buy" href="/buy.html" hidden>Get WavRead — $50 →</a></p></article>
+      <article class="account-card" aria-labelledby="password-title">
+        <span class="card-kicker">Sign-in</span><h2 id="password-title">Password</h2>
+        <p id="password-detail">Checking whether this account has a password…</p>
+        <form class="account-form" id="password-set-form" method="post" novalidate hidden>
+          <input type="email" name="username" autocomplete="username" id="password-username" hidden>
+          <div class="form-field"><label for="new-password">New password</label><input id="new-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="72" required aria-describedby="password-help password-set-status"><p class="field-help" id="password-help">At least 10 characters. Your purchases, downloads and reports stay on this account; only how you sign in changes.</p></div>
+          <div class="form-field"><label for="confirm-password">Confirm password</label><input id="confirm-password" name="confirm" type="password" autocomplete="new-password" minlength="10" maxlength="72" required aria-describedby="password-set-status"></div>
+          <button class="btn primary" type="submit" id="password-set-button">Set a password</button>
+          <p class="form-status" id="password-set-status" role="status" aria-live="polite"></p>
+        </form>
+      </article>
+    </div>
+
+    <section class="account-section" aria-labelledby="profile-title">
+      <span class="card-kicker">Profile</span><h2 id="profile-title">Your public profile</h2>
+      <p>Your name and bio appear with the articles you publish. Nothing is public until you choose a profile address. Your email is never shown.</p>
+      <form class="account-form" id="profile-form" method="post" novalidate>
+        <div class="form-row">
+          <div class="form-field"><label for="display-name">Display name</label><input id="display-name" name="display_name" maxlength="80" autocomplete="nickname" aria-describedby="profile-status"></div>
+          <div class="form-field"><label for="public-slug">Profile address</label><input id="public-slug" name="public_slug" maxlength="40" autocomplete="off" spellcheck="false" pattern="[a-z0-9]+(-[a-z0-9]+)*" aria-describedby="slug-help profile-status"><p class="field-help" id="slug-help">Lowercase letters, digits and hyphens. Your profile appears at wavread.com/u/<span id="slug-preview">your-name</span>.</p></div>
+        </div>
+        <div class="form-field"><label for="bio">Bio</label><textarea id="bio" name="bio" maxlength="1000" aria-describedby="bio-help profile-status"></textarea><p class="field-help" id="bio-help">Up to 1,000 characters, shown as plain text.</p></div>
+        <div class="account-actions"><button class="btn primary" type="submit">Save profile</button><a id="profile-public-link" class="profile-link" href="/u.html" hidden>View your public profile</a></div>
+        <p class="form-status" id="profile-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="account-section" aria-labelledby="articles-title">
+      <span class="card-kicker">Articles</span><h2 id="articles-title">What you have written</h2>
+      <p>Write about how you use WavRead. A person reviews every article before it is published, and you see their notes here.</p>
+      <p><a class="btn primary" href="/account/articles/new.html">Write an article</a></p>
+      <p class="form-status" id="articles-status" role="status" aria-live="polite"></p>
+      <div id="articles-list"></div>
+      <div id="articles-empty" class="empty-state" hidden>No articles yet.</div>
+    </section>
+  </div>
+</main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
+</body>
+</html>

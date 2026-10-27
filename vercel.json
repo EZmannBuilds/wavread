@@ -50,5 +50,11 @@
       "destination": "/how-it-works",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/u/:slug",
+      "destination": "/u"
+    }
   ]
 }

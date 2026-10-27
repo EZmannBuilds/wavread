@@ -12,7 +12,9 @@ function fixture(id) {
   const form = {reportValidity: () => true, reset() {}, addEventListener: (_, cb) => listeners.push(cb),
     querySelector: selector => selector === 'button[type=submit]' ? button : field};
   return {listeners, button, field, status, notice, form,
-    document: {querySelector: selector => selector === `#${id}` ? form : selector.endsWith('-status') ? status : notice},
+    // The sign-in page's password form has its own tests (account-pages); this
+    // fixture is the one-time-link form alone.
+    document: {querySelector: selector => selector === `#${id}` ? form : selector === '#password-form' ? null : selector.endsWith('-status') ? status : notice},
     async submit() {
       const event = {prevented: false, preventDefault() {this.prevented = true;}};
       for (const listener of listeners) await listener(event);

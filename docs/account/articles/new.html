@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Write an article — WavRead</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f0f3f7">
+<meta name="description" content="Write an article for WavRead in Markdown with a live preview, then submit it for review.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/favicon.png">
+<script src="/js/beta-config.js" defer></script>
+<script src="/js/article-editor.js" type="module"></script>
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/product.css">
+<link rel="stylesheet" href="/pages.css">
+<link rel="stylesheet" href="/account.css">
+<script src="/js/navigation.js" defer></script></head>
+<body class="site-page page-article-editor">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header"><a class="brand" href="/" aria-label="WavRead home"><img src="/assets/favicon.png" width="34" height="34" alt="">WavRead</a>
+<nav aria-label="Main navigation"><a href="/#experience">Experience it</a><a href="/#workflow">The workflow</a><a href="/#pricing">Pricing</a></nav>
+<div class="header-actions"><details class="site-menu"><summary>Explore</summary><nav aria-label="Explore WavRead"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a></nav></details><a class="sign-in" href="/dashboard.html">Dashboard</a><button class="small-button" id="signout-button" type="button" hidden>Sign out</button><a class="button small dark" href="/buy.html">Get WavRead <span>$50</span></a></div></header>
+<main id="main" class="page-content wrap beta-shell editor-shell">
+  <div class="state-panel loading-state" id="loading-state" role="status">Opening your account…</div>
+  <section class="state-panel" id="setup-state" hidden><h2>Your account is temporarily unavailable</h2><p>Please try again shortly. If this continues, contact <a href="mailto:support@wavread.com">support@wavread.com</a>.</p><a class="btn" href="/">Return to WavRead</a></section>
+  <section class="state-panel" id="signed-out-state" hidden><h2>Sign in required</h2><p>Sign in to open your account.</p><a class="btn primary" id="signin-link" href="/signin.html">Go to sign in</a></section>
+  <section class="state-panel" id="unauthorized-state" hidden><h2>Your account is not ready</h2><p id="unauthorized-message">This sign-in has no active WavRead account.</p><button class="btn" id="unauthorized-signout" type="button">Sign out</button></section>
+
+  <section class="state-panel" id="missing-state" hidden><h2>No article of yours has that address</h2><p>It may have been deleted, or it belongs to another account.</p><a class="btn" href="/account.html">Back to your account</a></section>
+  <div id="editor-content" hidden>
+    <p class="account-label"><a href="/account.html">Your account</a> · Articles</p>
+    <h1 id="editor-title">Write an article</h1>
+    <section class="status-panel" id="status-panel" data-status="draft" aria-live="polite" hidden>
+      <p><span class="status-chip" id="status-chip">Draft</span></p>
+      <p id="status-detail"></p>
+      <p class="reviewer-notes" id="reviewer-notes" hidden></p>
+    </section>
+    <form class="editor-form" id="editor-form" method="post" novalidate>
+      <div class="editor-meta">
+        <div class="form-field"><label for="article-title">Title</label><input id="article-title" name="title" maxlength="140" required aria-describedby="editor-status"></div>
+        <fieldset class="form-field lane-options" aria-describedby="lanes-help">
+          <legend>Lanes</legend>
+          <span class="checkbox-field"><input id="lane-developer" type="checkbox" name="lanes" value="developer"><label for="lane-developer">Developer</label></span>
+          <span class="checkbox-field"><input id="lane-ai" type="checkbox" name="lanes" value="ai"><label for="lane-ai">AI</label></span>
+          <span class="checkbox-field"><input id="lane-musician" type="checkbox" name="lanes" value="musician"><label for="lane-musician">Musician</label></span>
+          <p class="field-help" id="lanes-help">Who it is for. Choose one or more.</p>
+        </fieldset>
+        <div class="form-field wide"><label for="article-summary">Summary</label><input id="article-summary" name="summary" maxlength="300" required aria-describedby="summary-help editor-status"><p class="field-help" id="summary-help">One sentence. It is the first thing readers see and the line under the title in the article list.</p></div>
+      </div>
+      <div class="editor-layout">
+        <div class="editor-pane editor-source">
+          <p class="editor-pane-title"><label for="article-body">Article, in Markdown</label><span id="body-count">0 characters</span></p>
+          <div class="editor-toolbar" role="toolbar" aria-label="Formatting" aria-controls="article-body">
+            <button type="button" data-insert="bold" aria-label="Bold" title="Bold (Ctrl or Cmd + B)"><strong>B</strong></button>
+            <button type="button" data-insert="italic" aria-label="Italic" title="Italic (Ctrl or Cmd + I)"><em>I</em></button>
+            <button type="button" data-insert="heading" aria-label="Section heading" title="Section heading">H2</button>
+            <button type="button" data-insert="link" aria-label="Link" title="Link">Link</button>
+            <button type="button" data-insert="list" aria-label="Bulleted list" title="Bulleted list">List</button>
+            <button type="button" data-insert="code" aria-label="Code block" title="Code block">Code</button>
+          </div>
+          <textarea id="article-body" name="body_markdown" maxlength="40000" spellcheck="true" aria-describedby="body-help editor-status"></textarea>
+          <p class="field-help" id="body-help">Sections start at ##. Lists, links, quotes and code blocks work. Images and tables are not supported yet.</p>
+        </div>
+        <div class="editor-pane">
+          <p class="editor-pane-title"><span id="preview-label">Preview</span><span>Updates as you type</span></p>
+          <div class="editor-preview" id="article-preview" role="region" aria-labelledby="preview-label" aria-live="polite"><p class="preview-empty">Your article appears here as you write it.</p></div>
+        </div>
+      </div>
+      <section class="editor-checks" aria-labelledby="checks-title" aria-live="polite">
+        <h2 id="checks-title" class="sr-only">Notes before you submit</h2>
+        <div id="checks-problems" class="note caution" hidden><p><strong>Needed before it can be reviewed</strong></p><ul id="problems-list"></ul></div>
+        <div id="checks-voice" class="note" hidden><p><strong>House style notes</strong> These never block a submission; the reviewer may ask about them.</p><ul id="voice-list"></ul></div>
+      </section>
+      <div class="editor-actions">
+        <button class="btn" type="button" id="save-button" disabled>Save draft</button>
+        <button class="btn primary" type="button" id="submit-button" disabled>Submit for review</button>
+        <p class="form-status" id="editor-status" role="status" aria-live="polite"></p>
+      </div>
+      <p class="field-help">Submitting sends the article to a person for review. You cannot publish it yourself: once it is approved, WavRead publishes it.</p>
+    </form>
+  </div>
+<noscript><p>Please enable JavaScript to use the editor. For help, email <a href="mailto:support@wavread.com">support@wavread.com</a>.</p></noscript>
+</main>
+<footer class="wrap product-footer"><div><a class="brand" href="/">WavRead</a><p>Assistance for the music you mean to make.</p></div><nav aria-label="Footer"><a href="/how-it-works.html">How it works</a><a href="/documents.html">Documents</a><a href="/agent.html">Agent skill</a><a href="/requirements.html">Requirements</a><a href="/install.html">Install</a><a href="/faq.html">Questions</a><a href="/privacy.html">Privacy</a><a href="/EULA.html">Licence</a><a href="mailto:support@wavread.com">Contact</a></nav><p>© 2026 Erik Mann · EZmannBuilds</p></footer>
+</body>
+</html>

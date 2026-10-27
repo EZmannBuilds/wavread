@@ -454,3 +454,17 @@ enabled = true
 
 [functions.notification-signup]
 verify_jwt = true
+
+# Articles. Saving and submitting are a signed-in writer's, so the gateway
+# checks their JWT and the function then acts under RLS as them. Review and
+# publish accept the owner signed in or the service role key, which may not be a
+# JWT the gateway accepts, so they authenticate the caller themselves
+# (_shared/reviewers.mjs) before reading anything.
+[functions.article-submission-save]
+verify_jwt = true
+[functions.article-submission-submit]
+verify_jwt = true
+[functions.article-review]
+verify_jwt = false
+[functions.article-publish-approved]
+verify_jwt = false
