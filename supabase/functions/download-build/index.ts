@@ -9,7 +9,8 @@
 //
 // A trial is an early_build entitlement with an end date. Once it expires it
 // is inactive, exactly as a revoked one is, and the refusal says the trial has
-// ended and where to buy, with trial_expired: true (refusal.mjs).
+// ended and where to buy, with trial_expired: true (refusal.mjs). While it
+// runs it covers the trial build only, never the paid one (has_build_access).
 //
 // Deployed with verify_jwt enabled: only a signed-in account can even reach
 // this function, and the user's own JWT — not anything the browser claims —
@@ -58,7 +59,7 @@ Deno.serve(async (req: Request) => {
 
   const build = await db
     .from("builds")
-    .select("id, channel, file_name, storage_path, sha256, size_bytes, published")
+    .select("id, channel, kind, file_name, storage_path, sha256, size_bytes, published")
     .eq("id", buildId)
     .maybeSingle();
   if (build.error || !build.data || !build.data.published) {
@@ -84,7 +85,7 @@ Deno.serve(async (req: Request) => {
       account: account.data.tester_id,
     });
     if (standing.error) console.error("standing lookup failed", standing.error);
-    return json(req, 403, accessRefusal(standing.error ? null : standing.data, build.data.id));
+    return json(req, 403, accessRefusal(standing.error ? null : standing.data, build.data.id, build.data.kind));
   }
 
   const signed = await db.storage

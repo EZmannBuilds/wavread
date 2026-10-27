@@ -90,8 +90,8 @@ counted only as a keyed digest that expires with its hour.
 
 ## Trials
 
-A trial is fourteen days of everything a purchase gives — every build, Mac and
-Windows — once per account, ever. Migration
+A trial is fourteen days of WavRead, Mac and Windows, once per account, ever,
+through the trial build. Migration
 `20261026120000_a_trial_lasts_fourteen_days.sql` holds the rules:
 
 - `start-trial` (public, like `create-checkout`) takes an email, rate-limits by
@@ -118,8 +118,26 @@ Windows — once per account, ever. Migration
 - `link-device` caps an account whose only claim is a trial (running or ended)
   at 2 linked installs; owning WavRead keeps the existing policy (no cap).
   Relinking an install that is already linked is not a new device.
-- The desktop app is not involved yet: an installed copy keeps running after
-  the trial ends. Only downloads stop.
+- A trial downloads the **trial build**, and only a trial does
+  (`20261027120000_a_trial_downloads_the_trial_build.sql`). Every `builds` row
+  has a `kind`: `full` (the default, the paid build, which has no account) or
+  `trial`. `has_build_access` gives a `trial` row to an active trial and
+  nothing else, and a `full` row to everything but a trial. The dashboard lists
+  each account its own kind; `latest-build` answers with `full` rows only.
+- The trial build is made by `tools/build.py --trial` in the app repo, which
+  stamps it. It links to the account once (the usual dashboard code), then
+  asks `link-device` with `action: "standing"` every 3 days. The answer is
+  `owned`, `trial` and `trial_expires_at`, and an unknown or revoked token gets
+  401 `unknown_device`. Offline, it keeps working for 7 days after its last
+  answer, never past the trial's end. When the trial ends, it opens, plays and
+  exports what it already analysed and starts nothing new. Buying unlocks it
+  in place.
+- **Publishing a release means two rows per platform**: the paid file with
+  `kind = 'full'` and the `-Trial` file with `kind = 'trial'`. Check each file
+  with `python tools/check_build_kind.py <bundle> full|trial` (app repo)
+  before its row is written. A trial build in a `full` row asks a buyer for an
+  account; a paid build in a `trial` row never ends. Until a trial row exists
+  for a platform, a trial account on that platform has nothing to download.
 
 To end a test account's trial early (a throwaway email, never a customer's),
 shift its window back fifteen days, which keeps `expires_at > granted_at`:

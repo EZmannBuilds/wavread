@@ -13,6 +13,9 @@
 //
 // Deployed with verify_jwt disabled: the desktop app has no Supabase session.
 // The one-time code is the proof of account access.
+//
+// action "standing" is the trial build's check-in: token in, owned / trial /
+// trial_expires_at out (see the handler below).
 
 import {
   isUuid,
@@ -64,6 +67,48 @@ Deno.serve(async (req: Request) => {
     // Releasing an already-released or unknown token is not an error the
     // caller can act on — the outcome the user wanted is true either way.
     return json(req, 200, { ok: true });
+  }
+
+  if (body.action === "standing") {
+    // The trial build of the desktop app asks this every few days, with the
+    // token it was given at linking: whether the account owns WavRead now, and
+    // when its trial ends. A paid copy never asks. The answer is three facts,
+    // nothing about the account beyond them, and an unknown or revoked token
+    // is told so in a form the app acts on: it asks to be linked again.
+    const token = typeof body.token === "string" ? body.token : "";
+    const unknown = { error: "This device is not linked to an account.", code: "unknown_device" };
+    if (token.length < 20 || token.length > 128) return json(req, 401, unknown);
+    const device = await db
+      .from("devices")
+      .select("id, tester_id, install_id")
+      .eq("token_hash", await sha256Hex(token))
+      .is("revoked_at", null)
+      .maybeSingle();
+    if (device.error) {
+      console.error("device lookup failed", device.error);
+      return json(req, 500, { error: "The link service had a problem. Try again." });
+    }
+    if (!device.data) return json(req, 401, unknown);
+    const standing = await db.rpc("account_standing", {
+      account: device.data.tester_id,
+      install: device.data.install_id,
+    });
+    if (standing.error || !standing.data) {
+      console.error("standing lookup failed", standing.error);
+      return json(req, 500, { error: "The link service had a problem. Try again." });
+    }
+    // When the dashboard last heard from this device. Best effort: the answer
+    // above is what the app is waiting for.
+    const seen = await db
+      .from("devices")
+      .update({ last_seen_at: new Date().toISOString() })
+      .eq("id", device.data.id);
+    if (seen.error) console.error("last seen update failed", seen.error);
+    return json(req, 200, {
+      owned: standing.data.owned === true,
+      trial: standing.data.trial ?? null,
+      trial_expires_at: standing.data.trial_expires_at ?? null,
+    });
   }
 
   if (body.action !== "claim") {

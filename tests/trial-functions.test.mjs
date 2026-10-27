@@ -8,6 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { accessRefusal } from '../supabase/functions/download-build/refusal.mjs';
 import { TRIAL_DEVICE_LIMIT, trialDeviceRefusal } from '../supabase/functions/link-device/trial-cap.mjs';
 import { purchaseAttribution } from '../supabase/functions/stripe-webhook/attribution.mjs';
@@ -17,9 +18,11 @@ import { daysFromNow, fakeDatabase } from './support/fake-db.mjs';
 const ENV = { SITE_URL: 'https://wavread.com', SUPABASE_URL: 'https://project.supabase.co', SUPABASE_ANON_KEY: 'anon' };
 const edge = (name, body) => test(name, { skip: supported ? false : 'this node cannot strip TypeScript (needs 22.13+)' }, body);
 
-const MAC = { id: 15, version: '1.5.6', platform: 'macos', channel: 'early', published: true, file_name: 'WavRead-1.5.6.dmg',
+const MAC = { id: 15, version: '1.5.6', platform: 'macos', channel: 'early', kind: 'full', published: true, file_name: 'WavRead-1.5.6.dmg',
   storage_path: '1.5.6/WavRead-1.5.6.dmg', sha256: 'b'.repeat(64), size_bytes: 1 };
 const WINDOWS = { ...MAC, id: 16, platform: 'windows', file_name: 'WavRead-1.5.6-Setup.exe', storage_path: '1.5.6/WavRead-1.5.6-Setup.exe' };
+const MAC_TRIAL = { ...MAC, id: 17, kind: 'trial', file_name: 'WavRead-1.5.6-Trial.dmg', storage_path: '1.5.6/WavRead-1.5.6-Trial.dmg' };
+const WINDOWS_TRIAL = { ...WINDOWS, id: 18, kind: 'trial', file_name: 'WavRead-1.5.6-Trial-Setup.exe', storage_path: '1.5.6/WavRead-1.5.6-Trial-Setup.exe' };
 const EMAIL = 'trial@example.net';
 const TESTER = '7e57e700-0000-4000-8000-000000000001';
 
@@ -30,7 +33,7 @@ const expiredTrial = () => runningTrial({ granted_at: daysFromNow(-15), expires_
 function world({ entitlements = [], devices = [], account = {} } = {}) {
   return fakeDatabase({
     accounts: [{ tester_id: TESTER, email: EMAIL, auth_user_id: 'user-1', ...account }],
-    builds: [MAC, WINDOWS],
+    builds: [MAC, WINDOWS, MAC_TRIAL, WINDOWS_TRIAL],
     entitlements,
     devices,
     link_codes: [{ code: 'ABCD2345', tester_id: TESTER, expires_at: daysFromNow(0.01), claimed_at: null }],
@@ -60,9 +63,9 @@ function downloads(db) {
   };
 }
 
-edge('a running trial downloads the Mac and the Windows build', async () => {
+edge('a running trial downloads the Mac and the Windows trial build', async () => {
   const download = downloads(world({ entitlements: [runningTrial()] }));
-  for (const build of [MAC, WINDOWS]) {
+  for (const build of [MAC_TRIAL, WINDOWS_TRIAL]) {
     const { status, body } = await download(build.id);
     assert.equal(status, 200, build.platform);
     assert.equal(body.file_name, build.file_name);
@@ -70,11 +73,33 @@ edge('a running trial downloads the Mac and the Windows build', async () => {
   }
 });
 
-edge('an expired trial downloads nothing, and says the trial ended and where to buy', async () => {
-  const download = downloads(world({ entitlements: [expiredTrial()] }));
+edge('a running trial is never handed the paid build, and is pointed at its own', async () => {
+  const download = downloads(world({ entitlements: [runningTrial()] }));
   for (const build of [MAC, WINDOWS]) {
     const { status, body } = await download(build.id);
     assert.equal(status, 403, build.platform);
+    assert.equal(body.code, 'trial_build_only');
+    assert.match(body.error, /trial build/);
+    assert.equal(body.url, undefined, 'no signed URL');
+  }
+});
+
+edge('a buyer downloads the paid build and never the trial build', async () => {
+  const bought = { tester_id: TESTER, entitlement: 'early_build', source: 'purchase', purchase_id: 1 };
+  for (const entitlements of [[bought], [runningTrial({ revoked_at: daysFromNow(-1) }), bought]]) {
+    const download = downloads(world({ entitlements }));
+    assert.equal((await download(MAC.id)).status, 200);
+    assert.equal((await download(WINDOWS.id)).status, 200);
+    assert.equal((await download(MAC_TRIAL.id)).status, 403);
+    assert.equal((await download(WINDOWS_TRIAL.id)).status, 403);
+  }
+});
+
+edge('an expired trial downloads nothing, and says the trial ended and where to buy', async () => {
+  const download = downloads(world({ entitlements: [expiredTrial()] }));
+  for (const build of [MAC, WINDOWS, MAC_TRIAL, WINDOWS_TRIAL]) {
+    const { status, body } = await download(build.id);
+    assert.equal(status, 403, build.file_name);
     assert.equal(body.trial_expired, true);
     assert.equal(body.code, 'trial_expired');
     assert.equal(body.error, 'Your 14-day trial has ended. Buy WavRead to keep downloading it.');
@@ -119,6 +144,9 @@ test('accessRefusal flags an ended trial only for an account that owns nothing',
   for (const standing of [null, undefined, { trial: null, owned: false }, { trial: 'active', owned: false }, { trial: 'ended', owned: true }]) {
     assert.equal(accessRefusal(standing, 15).trial_expired, undefined, JSON.stringify(standing));
   }
+  assert.equal(accessRefusal({ trial: 'active', owned: false }, 15).code, 'trial_build_only');
+  assert.equal(accessRefusal({ trial: 'active', owned: false }, 17, 'trial').code, undefined);
+  assert.equal(accessRefusal({ trial: 'active', owned: true }, 15).code, undefined);
 });
 
 // --- stripe-webhook ---------------------------------------------------------
@@ -308,6 +336,61 @@ edge('when the standing cannot be read, nothing is linked', async () => {
     assert.equal(db.tables.devices.length, 0);
   } finally {
     console.error = quiet;
+  }
+});
+
+// --- link-device: the trial build's check-in --------------------------------
+
+const TOKEN = 'k'.repeat(43);
+const hashed = (token) => createHash('sha256').update(token).digest('hex');
+
+function checkIn(db) {
+  const { handler } = loadEdgeFunction('supabase/functions/link-device/index.ts', { db, env: ENV, imports: { trialDeviceRefusal } });
+  return async (token = TOKEN) => {
+    const response = await handler(new Request('https://project.supabase.co/functions/v1/link-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'standing', token, install_id: INSTALLS[0] }),
+    }));
+    return { status: response.status, body: await response.json() };
+  };
+}
+
+const deviceWithToken = (extra = {}) => ({ id: 901, tester_id: TESTER, install_id: INSTALLS[0], token_hash: hashed(TOKEN), ...extra });
+
+edge('a linked trial copy hears when its trial ends, and nothing else', async () => {
+  const trial = runningTrial();
+  const db = world({ entitlements: [trial], devices: [deviceWithToken()] });
+  const { status, body } = await checkIn(db)();
+  assert.equal(status, 200);
+  assert.deepEqual(body, { owned: false, trial: 'active', trial_expires_at: trial.expires_at });
+  assert.ok(db.tables.devices[0].last_seen_at, 'the dashboard can say when the device last checked in');
+});
+
+edge('a trial copy whose account bought WavRead hears that it is owned', async () => {
+  const bought = { tester_id: TESTER, entitlement: 'early_build', source: 'purchase', purchase_id: 1 };
+  const db = world({ entitlements: [runningTrial({ revoked_at: daysFromNow(-1) }), bought], devices: [deviceWithToken()] });
+  const { body } = await checkIn(db)();
+  assert.equal(body.owned, true);
+  assert.equal(body.trial, 'ended');
+});
+
+edge('an ended trial is told so', async () => {
+  const db = world({ entitlements: [expiredTrial()], devices: [deviceWithToken()] });
+  const { body } = await checkIn(db)();
+  assert.deepEqual([body.owned, body.trial], [false, 'ended']);
+});
+
+edge('a revoked, unknown or malformed token is told it is not linked', async () => {
+  for (const [name, devices, token] of [
+    ['revoked', [deviceWithToken({ revoked_at: daysFromNow(-1) })], TOKEN],
+    ['unknown', [deviceWithToken()], 'z'.repeat(43)],
+    ['too short', [deviceWithToken()], 'short'],
+  ]) {
+    const { status, body } = await checkIn(world({ entitlements: [runningTrial()], devices }))(token);
+    assert.equal(status, 401, name);
+    assert.equal(body.code, 'unknown_device', name);
+    assert.equal(body.trial, undefined, `${name}: nothing about the account`);
   }
 });
 

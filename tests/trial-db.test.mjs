@@ -28,6 +28,8 @@ const DAY_MS = 24 * 3600 * 1000;
 
 let MAC;
 let WINDOWS;
+let MAC_TRIAL;
+let WINDOWS_TRIAL;
 
 before(() => {
   pg.start();
@@ -40,10 +42,15 @@ before(() => {
     update public.builds set published = false;
     insert into public.builds (version, channel, platform, file_name, storage_path, sha256, size_bytes, published, price_cents)
     values ('1.5.6', 'early', 'macos', 'WavRead-1.5.6.dmg', '1.5.6/WavRead-1.5.6.dmg', repeat('b', 64), 1, true, 5000),
-           ('1.5.6', 'early', 'windows', 'WavRead-1.5.6-Setup.exe', '1.5.6/WavRead-1.5.6-Setup.exe', repeat('c', 64), 1, true, 5000);`);
+           ('1.5.6', 'early', 'windows', 'WavRead-1.5.6-Setup.exe', '1.5.6/WavRead-1.5.6-Setup.exe', repeat('c', 64), 1, true, 5000);
+    insert into public.builds (version, channel, platform, kind, file_name, storage_path, sha256, size_bytes, published, price_cents)
+    values ('1.5.6', 'early', 'macos', 'trial', 'WavRead-1.5.6-Trial.dmg', '1.5.6/WavRead-1.5.6-Trial.dmg', repeat('d', 64), 1, true, 5000),
+           ('1.5.6', 'early', 'windows', 'trial', 'WavRead-1.5.6-Trial-Setup.exe', '1.5.6/WavRead-1.5.6-Trial-Setup.exe', repeat('e', 64), 1, true, 5000);`);
   assert.ok(!setup.error, setup.error?.message);
-  MAC = as(null, "select id from public.builds where version = '1.5.6' and platform = 'macos'");
-  WINDOWS = as(null, "select id from public.builds where version = '1.5.6' and platform = 'windows'");
+  MAC = as(null, "select id from public.builds where version = '1.5.6' and platform = 'macos' and kind = 'full'");
+  WINDOWS = as(null, "select id from public.builds where version = '1.5.6' and platform = 'windows' and kind = 'full'");
+  MAC_TRIAL = as(null, "select id from public.builds where version = '1.5.6' and platform = 'macos' and kind = 'trial'");
+  WINDOWS_TRIAL = as(null, "select id from public.builds where version = '1.5.6' and platform = 'windows' and kind = 'trial'");
 });
 
 after(() => pg.stop());
@@ -170,15 +177,17 @@ dbTest('only the service role can start a trial, take a slot or read an account 
   assert.equal(trialRow('direct@example.net'), null);
 });
 
-dbTest('a trial downloads Mac and Windows until it expires, and nothing after', () => {
+dbTest('a trial downloads the Mac and Windows trial builds until it expires, and nothing after', () => {
   signIn('both@example.net');
   startTrial('both@example.net');
-  assert.equal(access('both@example.net', MAC), true);
-  assert.equal(access('both@example.net', WINDOWS), true, 'one trial covers both platforms');
+  assert.equal(access('both@example.net', MAC_TRIAL), true);
+  assert.equal(access('both@example.net', WINDOWS_TRIAL), true, 'one trial covers both platforms');
+  assert.equal(access('both@example.net', MAC), false, 'never the paid build, which has no end');
+  assert.equal(access('both@example.net', WINDOWS), false);
 
   forceExpire('both@example.net');
-  assert.equal(access('both@example.net', MAC), false, 'an expired trial is inactive');
-  assert.equal(access('both@example.net', WINDOWS), false);
+  assert.equal(access('both@example.net', MAC_TRIAL), false, 'an expired trial is inactive');
+  assert.equal(access('both@example.net', WINDOWS_TRIAL), false);
   const after = standing('both@example.net');
   assert.equal(after.trial, 'ended');
   assert.equal(after.owned, false);
@@ -187,6 +196,16 @@ dbTest('a trial downloads Mac and Windows until it expires, and nothing after', 
   assert.equal(as(SERVICE, "select to_jsonb(public.entitlement_is_active(null, now() + interval '1 day'))"), true);
   assert.equal(as(SERVICE, 'select to_jsonb(public.entitlement_is_active(null, null))'), true, 'purchases and grants never expire');
   assert.equal(as(SERVICE, 'select to_jsonb(public.entitlement_is_active(now(), null))'), false);
+});
+
+dbTest('a build is the paid build unless it says it is the trial, and each exists once per platform', () => {
+  assert.equal(as(null, "select to_jsonb(kind) from public.builds where file_name = 'WavRead-1.5.6.dmg'"), 'full', 'the default');
+  const again = as(null, `insert into public.builds (version, channel, platform, kind, file_name, storage_path, sha256, size_bytes, published, price_cents)
+    values ('1.5.6', 'early', 'macos', 'trial', 'WavRead-1.5.6-Trial-2.dmg', '1.5.6/x.dmg', repeat('f', 64), 1, false, 5000)`);
+  assert.equal(again?.error?.code, '23505', 'one trial build per version, channel and platform');
+  const odd = as(null, `insert into public.builds (version, channel, platform, kind, file_name, storage_path, sha256, size_bytes, published, price_cents)
+    values ('1.5.7', 'early', 'macos', 'demo', 'WavRead-1.5.7.dmg', '1.5.7/x.dmg', repeat('f', 64), 1, false, 5000)`);
+  assert.equal(odd?.error?.code, '23514', 'no third kind');
 });
 
 dbTest('only trials expire, a trial is never scoped or paid for, and nothing expires before it starts', () => {
@@ -211,6 +230,7 @@ dbTest('a purchase lands beside a running or an expired trial and ends it; a ref
       `the purchase entitlement is not refused by ${expired ? 'an expired' : 'a running'} trial`);
     endTrials(email);
     assert.equal(access(email, MAC), true);
+    assert.equal(access(email, MAC_TRIAL), false, 'a buyer is never handed the build that asks for an account');
     const now = standing(email);
     assert.equal(now.owned, true);
     assert.equal(now.trial, 'ended', 'paid wins');

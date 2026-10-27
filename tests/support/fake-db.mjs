@@ -66,8 +66,14 @@ export function fakeDatabase(seed = {}, { rpcs: extra = {} } = {}) {
       const owner = account(testerId);
       const row = tables.builds.find((b) => b.id === build);
       if (!owner || owner.status !== 'active' || !row) return false;
+      // 20261027120000: a trial build for an active trial only; the paid
+      // build for everything but a trial.
+      if (row.kind === 'trial') {
+        return tables.entitlements.some((e) => e.tester_id === testerId
+          && e.entitlement === 'early_build' && e.source === 'trial' && active(e));
+      }
       return owner.free_updates || tables.entitlements.some((e) => e.tester_id === testerId
-        && e.entitlement === 'early_build' && active(e)
+        && e.entitlement === 'early_build' && e.source !== 'trial' && active(e)
         && (e.build_version == null || e.build_version === row.version));
     },
     account_standing({ account: testerId, install = null }) {
