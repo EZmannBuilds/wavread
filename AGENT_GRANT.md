@@ -110,9 +110,14 @@ from wavread_private.agent_licence_grant_log order by id desc limit 50;
 
 ## Going live: Erik's steps, in order, each only when he approves
 
-1. **Apply the migration**
-   `supabase/migrations/20261027150000_agent_licence_grants.sql`
-   (`supabase db push`, or apply that one file).
+The 2026-10-27 ship order puts G1 after the trial stack (#7 + #11). The
+migration does not depend on theirs and was tested on top of #7 + #11, and on
+`main` without them, so either order works.
+
+1. **Apply this one migration**,
+   `supabase/migrations/20261027150000_agent_licence_grants.sql`, on its own.
+   Never use `supabase db push`, which would also apply any other pending
+   migration in the folder.
 2. **Set the secret** in the project's Edge Function secrets. Generate it
    locally and never commit it:
    `supabase secrets set OWNER_GRANT_SECRET="$(openssl rand -hex 32)"`.
@@ -127,5 +132,6 @@ from wavread_private.agent_licence_grant_log order by id desc limit 50;
    then the same again (expect `already_owned: true`). Then revoke it from the
    dashboard's owner controls and delete the throwaway's Auth user if you
    want. The log rows stay as the record.
-5. **Store the same secret in the agent vault** for the Product Manager agent
-   (and Sales or Support when they need it).
+5. **Store the same secret in the agent vault** for the agents that will call
+   it. Support Desk owns licence-grant operations once this is live; the
+   Product Manager agent gets it too, as the G1 brief asked.
