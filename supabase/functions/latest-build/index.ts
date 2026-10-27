@@ -67,6 +67,10 @@ Deno.serve(async (req: Request) => {
     .select("version, released_at, sha256, size_bytes")
     .eq("published", true)
     .eq("platform", platform)
+    // The paid build's version is the one every copy is told about. A trial
+    // build of the same version sits beside it in the catalog for trials
+    // only (20261027120000), and is never "the newest build".
+    .eq("kind", "full")
     .order("released_at", { ascending: false })
     .limit(1)
     .maybeSingle();

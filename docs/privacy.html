@@ -7,12 +7,12 @@
 <meta name="theme-color" content="#f0f3f7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, the desktop app needs no account, and there is no telemetry — here is the full accounting.">
+<meta name="description" content="Every request WavRead can make, listed. Your music is never uploaded, a paid copy of the desktop app needs no account, and there is no telemetry — here is the full accounting.">
 <link rel="canonical" href="https://wavread.com/privacy">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WavRead">
 <meta property="og:title" content="Privacy — WavRead">
-<meta property="og:description" content="Every request WavRead can make, listed. Your music is never uploaded, the desktop app needs no account, and there is no telemetry — here is the full accounting.">
+<meta property="og:description" content="Every request WavRead can make, listed. Your music is never uploaded, a paid copy of the desktop app needs no account, and there is no telemetry — here is the full accounting.">
 <meta property="og:url" content="https://wavread.com/privacy">
 <meta property="og:image" content="https://wavread.com/img/og-card.png">
 <meta property="og:image:alt" content="The WavRead workspace: a track's measured tempo, key, loudness and findings.">
@@ -31,7 +31,7 @@
 
 <h1>Everything stays on your computer</h1>
 <p class="lede">Your music is never uploaded. There are no WavRead servers to
-upload it to, no account inside the app, and no telemetry. This page lists every
+upload it to, no account inside a paid copy of the app, and no telemetry. This page lists every
 request the app can make, so the claim can be checked rather than trusted.</p>
 
 </div><div class="reading-layout with-index"><aside class="page-index"><p>On this page</p><nav aria-label="On this page"><a href="#privacy-section-1">What WavRead never does</a><a href="#privacy-section-2">Every request the app can make</a><a href="#privacy-section-4">Where your files are</a><a href="#privacy-section-5">What is in a document</a><a href="#privacy-section-6">Problem reports, in full</a><a href="#privacy-section-7">Windows notifications and optional news</a><a href="#privacy-section-8">Optional accounts on this website</a></nav></aside><div class="reading-body"><section class="content-section" id="privacy-section-1"><h2>What WavRead never does</h2>
@@ -43,7 +43,9 @@ request the app can make, so the claim can be checked rather than trusted.</p>
   </div>
   <div class="card">
     <h3>No app account</h3>
-    <p>The desktop app has no sign-in, licence server, email address, or tester identity.</p>
+    <p>A paid copy of the desktop app has no sign-in, licence server, email
+    address, or tester identity. The 14-day trial copy links to your account
+    and checks in every few days; the check-in is listed below.</p>
   </div>
   <div class="card">
     <h3>No silent telemetry</h3>
@@ -81,7 +83,14 @@ request the app can make, so the claim can be checked rather than trusted.</p>
       you wrote, sent to WavRead's report service. Contents are listed in full
       below; every record is kept on your machine and readable before and
       after sending. Turn reports off and this request never exists.</td></tr>
-  <tr><th>Linking a device <em>(optional)</em></th>
+  <tr><th>Trial check-in <em>(the trial copy only)</em></th>
+      <td>Every few days, and before an analysis when a check is due: one
+      request to WavRead's link service carrying the device token and the
+      random install ID. The answer is whether the account owns WavRead and
+      when its trial ends, nothing else. Offline, the trial copy keeps working
+      for up to seven days after its last check, never past the trial's end.
+      A paid copy never makes this request.</td></tr>
+  <tr><th>Linking a device <em>(optional; the trial copy needs it)</em></th>
       <td>Only when you type a link code from your dashboard into Settings: one
       request that trades the code for a report token, so your reports show up
       on your own dashboard. The app never holds your email or a sign-in —

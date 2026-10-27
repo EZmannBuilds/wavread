@@ -10,9 +10,13 @@ import { readFile } from 'node:fs/promises';
 const DAY_MS = 24 * 3600 * 1000;
 const at = (days) => new Date(Date.now() + days * DAY_MS).toISOString();
 
+// The paid build and, beside it, the trial build of the same version
+// (20261027120000). Each account is shown only its own kind.
 const CATALOG = [
-  { id: 16, version: '1.5.6', platform: 'windows', file_name: 'WavRead-1.5.6-Setup.exe', price_cents: 5000, sha256: 'c'.repeat(64), size_bytes: 1, released_at: at(-14) },
-  { id: 15, version: '1.5.6', platform: 'macos', file_name: 'WavRead-1.5.6.dmg', price_cents: 5000, sha256: 'b'.repeat(64), size_bytes: 1, released_at: at(-14) },
+  { id: 18, version: '1.5.6', platform: 'windows', kind: 'trial', file_name: 'WavRead-1.5.6-Trial-Setup.exe', price_cents: 5000, sha256: 'e'.repeat(64), size_bytes: 1, released_at: at(-14) },
+  { id: 17, version: '1.5.6', platform: 'macos', kind: 'trial', file_name: 'WavRead-1.5.6-Trial.dmg', price_cents: 5000, sha256: 'd'.repeat(64), size_bytes: 1, released_at: at(-14) },
+  { id: 16, version: '1.5.6', platform: 'windows', kind: 'full', file_name: 'WavRead-1.5.6-Setup.exe', price_cents: 5000, sha256: 'c'.repeat(64), size_bytes: 1, released_at: at(-14) },
+  { id: 15, version: '1.5.6', platform: 'macos', kind: 'full', file_name: 'WavRead-1.5.6.dmg', price_cents: 5000, sha256: 'b'.repeat(64), size_bytes: 1, released_at: at(-14) },
 ];
 const TRIAL = { source: 'trial', build_version: null, granted_at: at(-3), expires_at: at(11), revoked_at: null };
 const EXPIRED = { ...TRIAL, granted_at: at(-15), expires_at: at(-1) };
@@ -78,7 +82,7 @@ buyBuild = (build) => bought.push(build.id);`, context);
   return { page, standing, buttons, table, context };
 }
 
-test('a running trial shows when it ends, offers the $50 purchase, and downloads both platforms', async () => {
+test('a running trial shows when it ends, offers the $50 purchase, and downloads both trial builds', async () => {
   const { page, buttons, table, context } = await dashboard({ entitlements: [TRIAL] });
   assert.equal(page['ownership-title'].textContent, 'On a free trial');
   const ends = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
@@ -91,7 +95,8 @@ test('a running trial shows when it ends, offers the $50 purchase, and downloads
 
   assert.deepEqual(buttons.map((b) => b.button.textContent), ['Download for Mac', 'Download for Windows']);
   buttons.forEach((b) => b.button.listeners.click());
-  assert.deepEqual(context.downloaded, [15, 16]);
+  assert.deepEqual(context.downloaded, [17, 18], 'the trial builds, never the paid ones');
+  assert.equal(table.rows.length, 2, 'only the trial builds are listed');
   assert.equal(page['builds-locked'].hidden, true);
   assert.equal(page['builds-trial-ended'].hidden, true);
   assert.match(table.rows[0][5].textContent, /^trial until /);
@@ -134,6 +139,9 @@ test('a buyer who started on a trial sees exactly what any buyer sees', async ()
   assert.equal(converted.page['ownership-title'].textContent, 'Owned');
   assert.equal(converted.page['ownership-action'].hidden, true);
   assert.deepEqual(converted.buttons.map((b) => b.button.textContent), ['Download for Mac', 'Download for Windows']);
+  converted.buttons.forEach((b) => b.button.listeners.click());
+  assert.deepEqual(converted.context.downloaded, [15, 16], 'a buyer gets the paid builds, never the trial ones');
+  assert.equal(converted.table.rows.length, 2);
   assert.equal(converted.page['builds-trial-ended'].hidden, true);
   assert.ok(converted.table.rows.every((row) => row[5].textContent === 'included'));
   assert.equal(converted.standing.trial, null, 'a paid account is not on a trial');

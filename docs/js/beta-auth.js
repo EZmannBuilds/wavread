@@ -434,13 +434,17 @@ async function loadBuilds(standing) {
   const status = document.querySelector("#builds-status");
   const { data, error } = await supabase
     .from("builds")
-    .select("id, version, platform, channel, file_name, sha256, size_bytes, notes, released_at, price_cents")
+    .select("id, version, platform, kind, channel, file_name, sha256, size_bytes, notes, released_at, price_cents")
     .order("released_at", { ascending: false });
   if (error) {
     setStatus(status, "The build list could not be loaded. Try refreshing this page.", "error");
     return;
   }
-  const builds = data || [];
+  // A running trial downloads the trial build and nothing else; everyone else
+  // sees the paid build. download-build enforces the same rule
+  // (has_build_access); this only decides what the page lists.
+  const onTrial = Boolean(standing.trial?.active) && !standing.paidEverything && !standing.owned.size;
+  const builds = (data || []).filter((b) => (b.kind || "full") === (onTrial ? "trial" : "full"));
   // The "Current build" card takes its date from the catalog rather than from
   // a line typed into the page, which went stale once already.
   const dateEl = document.querySelector("#current-build-date");
