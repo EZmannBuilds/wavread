@@ -410,6 +410,13 @@ verify_jwt = false
 # function authenticates both itself, and refusing to authenticate is the first
 # thing it does — the same shape as submit-report and crash-report above.
 
+[functions.agent-grant-licence]
+verify_jwt = false
+# The callers are WavRead's own agents (Product Manager, Sales, Support), which
+# hold no Supabase session, so there is no JWT for the gateway to check. The
+# function checks the bearer token against OWNER_GRANT_SECRET itself, before it
+# reads the body. grant-licence, the owner's, keeps the gateway's JWT check.
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.
