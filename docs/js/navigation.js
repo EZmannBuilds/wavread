@@ -53,3 +53,18 @@ if (menu) {
     link.setAttribute('href', url.pathname + url.search + url.hash);
   });
 })();
+
+// Signed in on this browser: the header's "Sign in" becomes "Account". This
+// only looks for the session the account pages keep (supabase-js, under the
+// dashboard's storage key); it stores nothing, and the account page checks the
+// session properly before showing anything.
+(() => {
+  const link = document.querySelector('.header a.sign-in[href="/signin.html"]');
+  if (!link) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem('wavread-beta-session') || 'null');
+    if (!saved || !saved.refresh_token) return;
+  } catch { return; }
+  link.textContent = 'Account';
+  link.setAttribute('href', '/account.html');
+})();

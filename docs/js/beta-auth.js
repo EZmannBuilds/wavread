@@ -42,6 +42,35 @@ function friendlyAuthError(error) {
   return "Sign-in is unavailable right now. Please try again shortly.";
 }
 
+// The password form's refusals. A wrong password and an email with no
+// password (every buyer who has only ever used links) get the same sentence,
+// so the form never says which addresses have accounts.
+function friendlyPasswordError(error) {
+  const code = String(error?.code || error?.error_code || "").toLowerCase();
+  const message = String(error?.message || "").toLowerCase();
+  if (error?.status === 429 || code.startsWith("over_") || message.includes("rate limit")) {
+    return "Too many sign-in attempts. Wait a few minutes and try again.";
+  }
+  if (code === "email_not_confirmed" || message.includes("not confirmed")) {
+    return "Confirm your email first: open the link we sent when you created the account.";
+  }
+  if (code === "invalid_credentials" || message.includes("invalid login")) {
+    return "That email and password do not match. Try again, reset your password, or email yourself a sign-in link below.";
+  }
+  return "Sign-in is unavailable right now. Please try again shortly.";
+}
+
+// Where to go once signed in: the dashboard, or the account page a sign-in
+// was asked for from. Anything else in ?next= is ignored, so a crafted link
+// cannot send a signed-in person off the site.
+const NEXT_PATHS = new Set(["/dashboard", "/account", "/account/articles/new"]);
+
+function afterSignInPath() {
+  const asked = new URLSearchParams(location.search || "").get("next");
+  const path = NEXT_PATHS.has(asked) ? asked : "/dashboard";
+  return LOCAL_HOSTS.has(location.hostname) ? `${path.slice(1)}.html` : path;
+}
+
 async function loadConfiguration() {
   if (LOCAL_HOSTS.has(location.hostname)) return window.WAVREAD_BETA_CONFIG;
   try {
@@ -90,9 +119,11 @@ async function initializeSignIn() {
 
   const { data } = await supabase.auth.getSession();
   if (data.session) {
-    location.replace("dashboard.html");
+    location.replace(afterSignInPath());
     return;
   }
+
+  initializePasswordForm();
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -101,8 +132,7 @@ async function initializeSignIn() {
     submit.disabled = true;
     const emailField = form.querySelector("#email");
     setStatus(status, "Sending a secure sign-in link…", "", emailField);
-    const redirectPath = LOCAL_HOSTS.has(location.hostname) ? "dashboard.html" : "/dashboard";
-    const redirectTo = new URL(redirectPath, location.origin).href;
+    const redirectTo = new URL(afterSignInPath(), location.origin).href;
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -115,6 +145,43 @@ async function initializeSignIn() {
       form.reset();
       setStatus(status, "Check your email for a one-time sign-in link. It expires shortly.", "success", emailField);
     } catch {
+      setStatus(status, "Could not reach sign-in. Check your connection and try again.", "error", emailField);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+  submit.disabled = false;
+}
+
+// Email and password, for accounts that have set one (on /account, at sign-up,
+// or through a reset link). The password is read from the form once, handed to
+// Supabase Auth and cleared from the field; it is never logged or kept.
+function initializePasswordForm() {
+  const form = document.querySelector("#password-form");
+  if (!form) return;
+  const submit = form.querySelector("button[type=submit]");
+  const status = document.querySelector("#password-status");
+  const emailField = form.querySelector("#password-email");
+  const passwordField = form.querySelector("#password");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (submit.disabled || !form.reportValidity()) return;
+    const fields = new FormData(form);
+    const email = String(fields.get("email") || "").trim().toLowerCase();
+    const password = String(fields.get("password") || "");
+    submit.disabled = true;
+    setStatus(status, "Signing in…", "", emailField);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      passwordField.value = "";
+      if (error) {
+        setStatus(status, friendlyPasswordError(error), "error", emailField);
+        return;
+      }
+      setStatus(status, "Signed in. Opening your account…", "success", emailField);
+      location.replace(afterSignInPath());
+    } catch {
+      passwordField.value = "";
       setStatus(status, "Could not reach sign-in. Check your connection and try again.", "error", emailField);
     } finally {
       submit.disabled = false;
